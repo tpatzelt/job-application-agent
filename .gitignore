@@ -190,6 +190,11 @@ cython_debug/
 
 # Ruff stuff:
 .ruff_cache/
+.venv
+data/*.json
+data/*.csv
+data/cache.json
+data/mock_cache.json
 
 # PyPI configuration file
 .pypirc

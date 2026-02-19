@@ -1,0 +1,64 @@
+[project]
+name = "job-crawler"
+version = "0.1.0"
+description = "Job application crawler"
+requires-python = ">=3.11"
+dependencies = [
+  "botasaurus",
+  "litellm",
+  "pydantic",
+  "requests",
+  "python-dotenv",
+  "beautifulsoup4",
+]
+
+[tool.job_crawler]
+max_results = 3
+min_score = 70
+max_queries_per_iteration = 3
+
+[tool.job_crawler.budget]
+max_llm_calls = 20
+max_search_iterations = 3
+
+[tool.job_crawler.output]
+results_json = "data/results.json"
+results_csv = "data/results.csv"
+cache_path = "data/cache.json"
+
+[tool.job_crawler.llm]
+model = "openrouter/openrouter/free"
+temperature = 0.2
+max_retries = 3
+min_delay_seconds = 1
+
+[tool.job_crawler.search]
+brave_endpoint = "https://api.search.brave.com/res/v1/web/search"
+results_per_query = 5
+request_timeout_seconds = 30
+min_delay_seconds = 1
+
+[tool.job_crawler.profiles.minimal]
+max_results = 2
+min_score = 60
+
+[tool.job_crawler.profiles.minimal.budget]
+max_llm_calls = 6
+max_search_iterations = 2
+
+[tool.job_crawler.profiles.minimal.output]
+results_json = "data/results_minimal.json"
+results_csv = "data/results_minimal.csv"
+cache_path = "data/cache_minimal.json"
+
+[tool.job_crawler.profiles.minimal.llm]
+model = "openrouter/openrouter/free"
+temperature = 0.2
+max_retries = 2
+min_delay_seconds = 1
+
+[tool.job_crawler.profiles.minimal.search]
+brave_endpoint = "https://api.search.brave.com/res/v1/web/search"
+results_per_query = 3
+request_timeout_seconds = 20
+min_delay_seconds = 2

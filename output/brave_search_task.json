@@ -1,0 +1,218 @@
+{
+    "type": "search",
+    "query": {
+        "original": "Backend Developer Berlin hybrid",
+        "show_strict_warning": false,
+        "is_navigational": false,
+        "is_geolocal": true,
+        "local_decision": "mix",
+        "is_news_breaking": false,
+        "spellcheck_off": true,
+        "country": "us",
+        "bad_results": false,
+        "should_fallback": false,
+        "postal_code": "",
+        "city": "",
+        "header_country": "",
+        "more_results_available": true,
+        "state": ""
+    },
+    "mixed": {
+        "type": "mixed",
+        "main": [
+            {
+                "type": "web",
+                "index": 0,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 1,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 2,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 3,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 4,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 5,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 6,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 7,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 8,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 9,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 10,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 11,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 12,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 13,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 14,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 15,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 16,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 17,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 18,
+                "all": false
+            },
+            {
+                "type": "web",
+                "index": 19,
+                "all": false
+            }
+        ],
+        "top": [],
+        "side": []
+    },
+    "web": {
+        "type": "search",
+        "results": [
+            {
+                "title": "281 backend developer Jobs in Berlin, August 2025 | Glassdoor",
+                "url": "https://www.glassdoor.com/Job/berlin-backend-developer-jobs-SRCH_IL.0,6_IC2622109_KO7,24.htm",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "<strong>Implement backend solutions in dotnet using the Hot Chocolate Framework to create GraphQL schemas</strong>. Implement data loading patterns in dotnet using Azure\u2026&amp;hellip; ... Develop and maintain backend services using Python.",
+                "profile": {
+                    "name": "Glassdoor",
+                    "url": "https://www.glassdoor.com/Job/berlin-backend-developer-jobs-SRCH_IL.0,6_IC2622109_KO7,24.htm",
+                    "long_name": "glassdoor.com",
+                    "img": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "glassdoor.com",
+                    "hostname": "www.glassdoor.com",
+                    "favicon": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8",
+                    "path": "\u203a Job  \u203a berlin-backend-developer-jobs-SRCH_IL.0,6_IC2622109_KO7,24.htm"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/piRYMJjMk6PTRvuMRvqRRYPGFoKeCOSKu4NQ-spxzg0/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly93d3cu/Z2xhc3Nkb29yLmNv/bS9hc3NldHMvaW1h/Z2VzL21ldGEvbG9n/by1vZy5wbmc",
+                    "original": "https://www.glassdoor.com/assets/images/meta/logo-og.png",
+                    "logo": true
+                }
+            },
+            {
+                "title": "backend developer English-speaking jobs in Berlin",
+                "url": "https://englishjobs.de/in/berlin/backend_developer",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Ability to think in terms of platform leverage: shared primitives, safer defaults, automation, and developer ... We are hiring a Staff / Senior Staff Backend Engineer to lead the transformation of our AWS-based backend ... Staff Engineer \u2014 Backend (AWS Platform) to join our dynamic team in Berlin.",
+                "profile": {
+                    "name": "English-speaking Jobs in Germany",
+                    "url": "https://englishjobs.de/in/berlin/backend_developer",
+                    "long_name": "englishjobs.de",
+                    "img": "https://imgs.search.brave.com/MPFZPiCL1hbhf9Jb2UwDcGoydA6g2ViMpeuz876GhTQ/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZWQ1OWI4ZWEx/NWI3ODBkY2I3MmM5/MGZkYmU0MDZmYTVj/ZDE1NmFjMzFmOWI4/MTEwYzg1ZGVjNDJk/YTZiM2Q0MS9lbmds/aXNoam9icy5kZS8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "englishjobs.de",
+                    "hostname": "englishjobs.de",
+                    "favicon": "https://imgs.search.brave.com/MPFZPiCL1hbhf9Jb2UwDcGoydA6g2ViMpeuz876GhTQ/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZWQ1OWI4ZWEx/NWI3ODBkY2I3MmM5/MGZkYmU0MDZmYTVj/ZDE1NmFjMzFmOWI4/MTEwYzg1ZGVjNDJk/YTZiM2Q0MS9lbmds/aXNoam9icy5kZS8",
+                    "path": "\u203a in  \u203a berlin  \u203a backend_developer"
+                }
+            },
+            {
+                "title": "Backend Developer (with DevOps Expertise) - hybrid (Berlin) at NeuroNation",
+                "url": "https://neuronation.breezy.hr/p/7950a119e39d-backend-developer-with-devops-expertise-hybrid-berlin",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Strong backend skills in PHP 8.x and MySQL (including efficient SQL). Familiarity with Laravel Lumen or Slim, and MVC architecture. Good testing habits (e.g., PHPUnit) and writing clean, maintainable code. Experience with cloud platforms (Heroku, AWS). Passionate about building meaningful products that improve people\u2019s lives. A true team player who enjoys collaboration and supporting colleagues. Based in Berlin or willing to relocate.",
+                "profile": {
+                    "name": "Breezy HR",
+                    "url": "https://neuronation.breezy.hr/p/7950a119e39d-backend-developer-with-devops-expertise-hybrid-berlin",
+                    "long_name": "neuronation.breezy.hr",
+                    "img": "https://imgs.search.brave.com/wVfWRdY86upGQIoJeLsclplYH58ozSmOcA8z5y4YTAg/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYjE3ZjRhZjMy/NmM0ZGFhYWZkMWI3/ZmRkZTM0YTQ0MGJi/ZDdmMmQ3ZjRhNmI5/ZWFhZmI3ZGJhYzhj/YWM0NjJmYy9uZXVy/b25hdGlvbi5icmVl/enkuaHIv"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "neuronation.breezy.hr",
+                    "hostname": "neuronation.breezy.hr",
+                    "favicon": "https://imgs.search.brave.com/wVfWRdY86upGQIoJeLsclplYH58ozSmOcA8z5y4YTAg/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYjE3ZjRhZjMy/NmM0ZGFhYWZkMWI3/ZmRkZTM0YTQ0MGJi/ZDdmMmQ3ZjRhNmI5/ZWFhZmI3ZGJhYzhj/YWM0NjJmYy9uZXVy/b25hdGlvbi5icmVl/enkuaHIv",
+                    "path": "\u203a p  \u203a 7950a119e39d-backend-developer-with-devops-expertise-hybrid-berlin"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/_ttHSdHPqJhAIfIVsqV2MtV8A_EVAHd2_otpQcNpWSI/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9icmVl/enktc29jaWFsLWlt/YWdlcy5pbWdpeC5u/ZXQvZmY2ODFkOTUw/YzJkL3NvY2lhbC1w/b3NpdGlvbi03OTUw/YTExOWUzOWQucG5n/P2F1dG89Zm9ybWF0/JmFtcDtoPTYwMA",
+                    "original": "https://breezy-social-images.imgix.net/ff681d950c2d/social-position-7950a119e39d.png?auto=format&amp;h=600",
+                    "logo": false
+                }
+            }
+        ],
+        "family_friendly": true
+    }
+}
