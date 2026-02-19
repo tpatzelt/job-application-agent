@@ -33,6 +33,8 @@ Select a profile from `pyproject.toml` by setting the `JOB_CRAWLER_PROFILE` envi
 JOB_CRAWLER_PROFILE=minimal uv run python -m src.main
 ```
 
+![CI](https://github.com/tpatzelt/job-application-agent/actions/workflows/ci.yml/badge.svg)
+
 ## Run (mock mode)
 
 ```bash
