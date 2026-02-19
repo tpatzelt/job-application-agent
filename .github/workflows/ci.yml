@@ -27,9 +27,37 @@ jobs:
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
 
-      - name: Install dependencies
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}-py3.11
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Check required secrets
         run: |
-          python -m pip install botasaurus litellm pydantic requests python-dotenv beautifulsoup4
+          echo "Checking CI secrets (will warn, not fail)"
+          : "BRAVE_API_KEY=${BRAVE_API_KEY:+SET}"
+          if [ -z "${BRAVE_API_KEY}" ]; then echo "WARN: BRAVE_API_KEY is not set"; fi
+          if [ -z "${OPENROUTER_API_KEY}" ]; then echo "WARN: OPENROUTER_API_KEY is not set"; fi
+          if [ -z "${JOB_CRAWLER_PROFILE}" ]; then echo "INFO: JOB_CRAWLER_PROFILE not set — default profile will be used"; fi
+
+      - name: Try to use uv tooling (if available)
+        run: |
+          if command -v uv >/dev/null 2>&1; then
+            echo "uv available — running uv sync"
+            uv sync || true
+          else
+            echo "uv not found; installing project deps via pip"
+            python -m pip install botasaurus litellm pydantic requests python-dotenv beautifulsoup4
+          fi
+
+      - name: Install test deps
+        run: python -m pip install pytest
+
+      - name: Run unit tests
+        run: pytest -q
 
       - name: Run mock test
         run: python run_mock_test.py
