@@ -2,7 +2,7 @@
   "name": "python-uv-dev",
   "image": "mcr.microsoft.com/devcontainers/python:3.13",
   "features": {
-    "ghcr.io/astral-sh/uv/devcontainer-feature/uv:1": {}
+    "ghcr.io/devcontainers-extra/features/uv:1": {}
   },
   "customizations": {
     "vscode": {
