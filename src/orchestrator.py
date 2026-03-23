@@ -178,6 +178,13 @@ class Orchestrator:
             )
             writer.writeheader()
             writer.writerows(payload)
+        # Also write a plain text file with one URL per line for easy use.
+        results_txt = results_json.with_suffix(".txt")
+        with results_txt.open("w", encoding="utf-8") as handle:
+            for item in payload:
+                url = item.get("url")
+                if url:
+                    handle.write(f"{url}\n")
 
     def _extract_title(self, job_text: str) -> str:
         words = job_text.split()

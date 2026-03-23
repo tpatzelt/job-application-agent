@@ -1,9 +1,37 @@
 {
   "location": "Berlin, Germany",
   "job_titles": [
-    "Python Developer",
-    "Backend Developer"
+    "Project Manager",
+    "IT Project Manager",
+    "Digital Project Manager",
+    "Program Manager",
+    "Project Manager Public Sector",
+    "Project Manager Digital Transformation",
+    "Project Manager E-Government",
+    "Project Manager Nonprofit",
+    "Project Manager International Development",
+    "Project Manager NGO",
+    "Project Manager Social Impact",
+    "Project Manager Accessibility",
+    "Project Manager User Experience",
+    "Projektmanagerin",
+    "IT-Projektmanagerin",
+    "Projektmanagerin Digitalisierung",
+    "Projektmanagerin Öffentlicher Sektor",
+    "Projektmanagerin NGO",
+    "Projektmanagerin Internationale Zusammenarbeit",
+    "Projektmanagerin Entwicklungszusammenarbeit",
+    "Programmmanagerin",
+    "Referentin Projektmanagement"
   ],
-  "desired_salary": "65000 EUR",
-  "remote_preference": "hybrid"
+  "job_description_keywords": [
+    "project management",
+    "digital transformation",
+    "public sector",
+    "nonprofit",
+    "international development",
+    "social impact",
+    "accessibility",
+    "user experience"
+  ]
 }

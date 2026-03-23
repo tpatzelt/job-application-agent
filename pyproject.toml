@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [tool.job_crawler]
-max_results = 3
+max_results = 5
 min_score = 70
 max_queries_per_iteration = 3
 
@@ -34,7 +34,7 @@ min_delay_seconds = 1
 
 [tool.job_crawler.search]
 brave_endpoint = "https://api.search.brave.com/res/v1/web/search"
-results_per_query = 5
+results_per_query = 20
 request_timeout_seconds = 30
 min_delay_seconds = 1
 

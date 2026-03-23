@@ -9,6 +9,7 @@ from litellm import completion
 
 from .config_manager import Config, EffortBudget
 from .models import JobEvaluation, SearchQueries
+from pydantic import ValidationError
 
 
 class LLMService:
@@ -30,7 +31,33 @@ class LLMService:
         prompt = self._build_evaluation_prompt(cv, job_description)
         response_text = self._call_llm(prompt)
         payload = self._parse_json_payload(response_text, prompt)
-        return JobEvaluation.model_validate(payload)
+        # Ensure required evaluation fields exist to avoid Pydantic
+        # validation errors when the LLM returns incomplete JSON.
+        if not isinstance(payload, dict):
+            payload = {}
+        if "score" not in payload or "reason" not in payload:
+            self._logger.warning(
+                "LLM returned incomplete evaluation payload, filling defaults: %s",
+                payload,
+            )
+            payload.setdefault("score", 0)
+            payload.setdefault(
+                "reason",
+                "LLM did not return a valid evaluation; defaulting to score 0",
+            )
+        try:
+            return JobEvaluation.model_validate(payload)
+        except ValidationError as exc:
+            # Defensive: if validation fails, return a safe default so the
+            # orchestrator can continue. Log the issue with payload details.
+            self._logger.warning(
+                "Job evaluation payload failed validation, returning default. payload=%s error=%s",
+                payload,
+                exc,
+            )
+            return JobEvaluation.model_validate(
+                {"score": 0, "reason": "Invalid evaluation returned by LLM"}
+            )
 
     def _call_llm(self, prompt: str) -> str:
         if not self._budget.can_call_llm():
@@ -67,14 +94,34 @@ class LLMService:
     def _parse_json_payload(self, response_text: str, prompt: str) -> dict[str, Any]:
         try:
             payload = json.loads(response_text)
-            return self._normalize_payload(payload)
+            payload = self._normalize_payload(payload)
+            # If the prompt requested an evaluation schema but the
+            # returned payload is missing required keys, attempt a repair
+            # call to force the model to emit the expected JSON structure.
+            if ('"score"' in prompt and '"reason"' in prompt) and (
+                "score" not in payload or "reason" not in payload
+            ):
+                return self._retry_json_response(prompt, response_text)
+            return payload
         except json.JSONDecodeError:
             repaired = self._extract_json_object(response_text)
             if repaired is None:
                 return self._retry_json_response(prompt, response_text)
             try:
                 payload = json.loads(repaired)
-                return self._normalize_payload(payload)
+                payload = self._normalize_payload(payload)
+                # If the prompt requested an evaluation schema but the
+                # returned payload is missing required keys (e.g. LLM
+                # echoed the prompt instead of producing the fields),
+                # attempt a repair call to force the model to emit the
+                # expected JSON structure.
+                if (
+                    '"score"' in prompt
+                    and '"reason"' in prompt
+                    and ("score" not in payload or "reason" not in payload)
+                ):
+                    return self._retry_json_response(prompt, response_text)
+                return payload
             except json.JSONDecodeError:
                 return self._retry_json_response(prompt, response_text)
 
