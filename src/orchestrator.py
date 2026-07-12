@@ -12,6 +12,16 @@ from .models import JobResult, Reflection, SearchPlan
 from .tools import ToolRegistry
 from .url_heuristics import INDEX, LISTING, OTHER, POSTING, classify_url
 
+# ATS hosts whose search results are individual postings; used to build
+# site:-targeted queries so Brave surfaces postings, not board indexes.
+ATS_QUERY_SITES = (
+    "boards.greenhouse.io",
+    "jobs.lever.co",
+    "jobs.personio.de",
+    "jobs.smartrecruiters.com",
+)
+MAX_ATS_QUERIES_PER_ITERATION = 2
+
 
 class Orchestrator:
     """Agentic control loop: plan -> act (search/fetch/evaluate) -> reflect.
@@ -92,6 +102,11 @@ class Orchestrator:
                 break
 
             self._logger.info("Generated %s queries", len(queries))
+            if self._config.ats_query_boost:
+                ats_queries = self._ats_queries(plan, preferences, searched_this_run)
+                if ats_queries:
+                    self._logger.info("Injecting ATS-targeted queries: %s", ats_queries)
+                queries = ats_queries + queries
             made_progress = False
 
             for query in queries[: self._config.max_queries_per_iteration]:
@@ -160,6 +175,31 @@ class Orchestrator:
         self._write_results(results_json, results_csv, results)
         self._logger.info("Wrote %s results", len(results))
         return results
+
+    def _ats_queries(
+        self,
+        plan: SearchPlan,
+        preferences: dict[str, Any],
+        searched: set[str],
+    ) -> list[str]:
+        """Build site:-targeted queries from the plan, rotating through
+        roles and ATS hosts across iterations (already-searched queries
+        are skipped, so each iteration tries the next combinations)."""
+        roles = plan.target_roles
+        if not roles:
+            return []
+        locations = plan.locations or [str(preferences.get("location", ""))]
+        location = locations[0]
+        queries: list[str] = []
+        for role in roles:
+            for site in ATS_QUERY_SITES:
+                query = f"site:{site} {role} {location}".strip()
+                if query in searched or query in queries:
+                    continue
+                queries.append(query)
+                if len(queries) >= MAX_ATS_QUERIES_PER_ITERATION:
+                    return queries
+        return queries
 
     def _triage_urls(
         self, urls: list[str], seen_urls: set[str]

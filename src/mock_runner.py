@@ -99,6 +99,8 @@ def run_mock_loop(root: Path) -> MockRunResult:
         max_queries_per_iteration=3,
         budget=EffortBudget(max_llm_calls=10, max_search_iterations=3),
         memory_path="data/mock_memory.json",
+        # Keep the mock loop deterministic on the LLM-driven flow.
+        ats_query_boost=False,
     )
 
     budget = config.budget

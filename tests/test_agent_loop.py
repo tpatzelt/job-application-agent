@@ -26,6 +26,9 @@ def _make_config(**overrides: Any) -> Config:
         search_min_delay_seconds=0,
         max_queries_per_iteration=5,
         budget=EffortBudget(max_llm_calls=50, max_search_iterations=20),
+        # Off by default so scripted-query tests stay deterministic;
+        # ATS-boost tests enable it explicitly.
+        ats_query_boost=False,
     )
     params.update(overrides)
     return Config(**params)
@@ -305,6 +308,63 @@ def test_browser_fallback_requested_only_for_postings(tmp_path: Path):
 
     assert crawler.fetch_fallback_flags[posting] is True
     assert crawler.fetch_fallback_flags[listing] is False
+
+
+def test_ats_queries_injected_before_llm_queries(tmp_path: Path):
+    config = _make_config(max_results=1, ats_query_boost=True)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
+    )
+    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    # ScriptedLLM's plan targets "Python Developer" in "Berlin".
+    assert crawler.search_calls[0] == (
+        "site:boards.greenhouse.io Python Developer Berlin"
+    )
+    assert crawler.search_calls[1] == "site:jobs.lever.co Python Developer Berlin"
+    assert crawler.search_calls[2] == "python jobs berlin"
+
+
+def test_ats_queries_rotate_across_iterations(tmp_path: Path):
+    config = _make_config(max_results=5, ats_query_boost=True)
+    llm = ScriptedLLM(config.budget, [["query one"], ["query two"], ["query two"]])
+    crawler = ScriptedCrawler(
+        config.budget,
+        {
+            "query one": ["https://a.com/jobs/1"],
+            "query two": ["https://b.com/jobs/2"],
+        },
+    )
+    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    site_queries = [q for q in crawler.search_calls if q.startswith("site:")]
+    # Two per iteration, no repeats: the rotation moves on to new hosts.
+    assert len(site_queries) == len(set(site_queries))
+    assert len(site_queries) >= 4
+
+
+def test_ats_boost_disabled_produces_no_site_queries(tmp_path: Path):
+    config = _make_config(max_results=1)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
+    )
+    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    assert crawler.search_calls == ["python jobs berlin"]
+
+
+def test_ats_queries_empty_without_plan_roles(tmp_path: Path):
+    config = _make_config(max_results=1, ats_query_boost=True, enable_planning=False)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
+    )
+    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    # Planning disabled -> empty plan -> no roles to build site: queries from.
+    assert crawler.search_calls == ["python jobs berlin"]
 
 
 def test_max_results_stops_loop(tmp_path: Path):

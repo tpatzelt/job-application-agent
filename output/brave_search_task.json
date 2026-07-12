@@ -1,11 +1,10 @@
 {
     "type": "search",
     "query": {
-        "original": "python developer jobs berlin",
+        "original": "site:boards.greenhouse.io Project Manager Berlin",
         "show_strict_warning": false,
-        "is_navigational": false,
-        "is_geolocal": true,
-        "local_decision": "mix",
+        "cleaned": "Project Manager Berlin",
+        "is_navigational": true,
         "is_news_breaking": false,
         "spellcheck_off": false,
         "country": "us",
@@ -15,7 +14,14 @@
         "city": "",
         "header_country": "",
         "more_results_available": true,
-        "state": ""
+        "state": "",
+        "search_operators": {
+            "applied": true,
+            "cleaned_query": "Project Manager Berlin",
+            "sites": [
+                "boards.greenhouse.io"
+            ]
+        }
     },
     "mixed": {
         "type": "mixed",
@@ -128,46 +134,16 @@
         "type": "search",
         "results": [
             {
-                "title": "234 python developer Jobs in Berlin, April 2026 | Glassdoor",
-                "url": "https://www.glassdoor.com/Job/berlin-python-developer-jobs-SRCH_IL.0,6_IC2622109_KO7,23.htm",
+                "title": "Job Application for Senior Project Manager at Highsnobiety",
+                "url": "https://boards.greenhouse.io/titelmedia/jobs/4830986002",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "Search Python developer jobs in Berlin with company ratings &amp; salaries. 234 open jobs for Python developer in Berlin.",
+                "description": "Berlin \u00b7 We are looking for an experienced Senior Project Manager to join our award-winning in-house creative agency. This key role requires a reliable and self-motivated individual who wants to join a fast-paced and highly creative environment.",
                 "profile": {
-                    "name": "Glassdoor",
-                    "url": "https://www.glassdoor.com/Job/berlin-python-developer-jobs-SRCH_IL.0,6_IC2622109_KO7,23.htm",
-                    "long_name": "glassdoor.com",
-                    "img": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "faq",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "glassdoor.com",
-                    "hostname": "www.glassdoor.com",
-                    "favicon": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8",
-                    "path": "\u203a Job  \u203a berlin-python-developer-jobs-SRCH_IL.0,6_IC2622109_KO7,23.htm"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/piRYMJjMk6PTRvuMRvqRRYPGFoKeCOSKu4NQ-spxzg0/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly93d3cu/Z2xhc3Nkb29yLmNv/bS9hc3NldHMvaW1h/Z2VzL21ldGEvbG9n/by1vZy5wbmc",
-                    "original": "https://www.glassdoor.com/assets/images/meta/logo-og.png",
-                    "logo": true
-                }
-            },
-            {
-                "title": "Python Developer Jobs in Berlin | 770+ open jobs | WeAreDevelopers",
-                "url": "https://www.wearedevelopers.com/en/jobs/ls/germany/berlin/python",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "<strong>779 open Python Developer jobs in Berlin</strong>. Top Salaries. 100% Anonymous. Automatic Matching AI. Apply now.",
-                "profile": {
-                    "name": "WeAreDevelopers",
-                    "url": "https://www.wearedevelopers.com/en/jobs/ls/germany/berlin/python",
-                    "long_name": "wearedevelopers.com",
-                    "img": "https://imgs.search.brave.com/DfCGLXDw_8Q7ra6qojeXwWOSRmypb0pSAVOZw7hAyH0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNmQ0MDY5N2Ji/YWI1MjAzM2Q1NDhk/OTY2ZmVmYjdlNmY2/NzYwZTQzMGRjNDVk/NGJjNjlhN2FhMjgz/NWY0MzVkOC93d3cu/d2VhcmVkZXZlbG9w/ZXJzLmNvbS8"
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/titelmedia/jobs/4830986002",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
                 },
                 "language": "en",
                 "family_friendly": true,
@@ -176,28 +152,113 @@
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "wearedevelopers.com",
-                    "hostname": "www.wearedevelopers.com",
-                    "favicon": "https://imgs.search.brave.com/DfCGLXDw_8Q7ra6qojeXwWOSRmypb0pSAVOZw7hAyH0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNmQ0MDY5N2Ji/YWI1MjAzM2Q1NDhk/OTY2ZmVmYjdlNmY2/NzYwZTQzMGRjNDVk/NGJjNjlhN2FhMjgz/NWY0MzVkOC93d3cu/d2VhcmVkZXZlbG9w/ZXJzLmNvbS8",
-                    "path": "\u203a en  \u203a jobs  \u203a ls  \u203a germany  \u203a berlin  \u203a python"
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a titelmedia  \u203a jobs  \u203a 4830986002"
+                },
+                "cluster_type": "generic",
+                "cluster": [
+                    {
+                        "title": "Jobs at 2K",
+                        "url": "https://boards.greenhouse.io/2k",
+                        "is_source_local": false,
+                        "is_source_both": false,
+                        "description": "Level-up your career by having opportunities at 2K sent directly to your inbox \u00b7 Customer Success Associate",
+                        "family_friendly": true
+                    },
+                    {
+                        "title": "Jobs at hims & hers",
+                        "url": "https://boards.greenhouse.io/himshers",
+                        "is_source_local": false,
+                        "is_source_both": false,
+                        "description": "Hims &amp; Hers Health, Inc. (better known as Hims &amp; Hers) is the leading health and wellness platform, on a mission to help the world feel great through the power of better health. We are revolutionizing telehealth for providers and their patients alike. Making personalized solutions accessible ...",
+                        "family_friendly": true
+                    },
+                    {
+                        "title": "Jobs at The Pok\u00e9mon Company International",
+                        "url": "https://boards.greenhouse.io/pokemoncareers",
+                        "is_source_local": false,
+                        "is_source_both": false,
+                        "description": "The Pok\u00e9mon Company International (TPCi), <strong>manages</strong> the Pok\u00e9mon property outside of Asia and is responsible for brand <strong>management</strong>, licensing and marketing, the Pok\u00e9mon Trading Card Game, the animated TV series, home entertainment, and the official Pok\u00e9mon website.",
+                        "family_friendly": true
+                    },
+                    {
+                        "title": "Current openings at The New York Times",
+                        "url": "https://boards.greenhouse.io/thenewyorktimes",
+                        "is_source_local": false,
+                        "is_source_both": false,
+                        "description": "At The Times, our mission is to seek the truth and help people understand the world. Having a diverse staff with a broad range of backgrounds and experiences is vital to ensuring we cover the world fully and fairly and offering products that have a wide appeal.",
+                        "family_friendly": true
+                    }
+                ]
+            },
+            {
+                "title": "Job Application for (Senior) Creative Content Project Manager (f/m/x) at Berlin Brands Group",
+                "url": "https://boards.greenhouse.io/berlinbrands/jobs/5128233004",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Track project timelines meticulously, identify potential bottlenecks, and proactively mitigate delays \u00b7 Continuous participation in the improvement of procedures to enhance productivity such as process improvements, task automation, or new technology \u00b7 Bachelor&#x27;s degree in Marketing, Communications, Business, or related field (or equivalent work experience) 2-3+ years experience as a Traffic Manager, Content Coordinator, or Project Manager in a content-driven environment in a similar industry (ideally e-commerce/B2C)",
+                "profile": {
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/berlinbrands/jobs/5128233004",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a berlinbrands  \u203a jobs  \u203a 5128233004"
+                }
+            },
+            {
+                "title": "Trade Republic. Invest, spend and bank.",
+                "url": "https://boards.greenhouse.io/traderepublicbank/jobs/4453700003",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Earn 2.25 % p.a. on your cash. Invest easily and safely with just 1 \u20ac. Get your subscription free card to spend and earn 1 % Saveback.",
+                "profile": {
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/traderepublicbank/jobs/4453700003",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a traderepublicbank  \u203a jobs  \u203a 4453700003"
                 },
                 "thumbnail": {
-                    "src": "https://imgs.search.brave.com/sKM8iRi9PKPKJ0-FVLib2PsFbBGbcPX3mbGyZlhTPHk/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly93ZWFy/ZWRldmVsb3BlcnMu/aW1naXgubmV0L29n/X2ltYWdlcy9vZ193/YWQuanBn",
-                    "original": "https://wearedevelopers.imgix.net/og_images/og_wad.jpg",
+                    "src": "https://imgs.search.brave.com/nkmOG1_gPVBC4BzeMaX-7ytv-ZzYFUOfX9lcuPMIVYY/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY3RmYXNzZXRz/Lm5ldC92a2l6ZnEz/cGJ0emMvMXFaOThQ/NTdxdzNralVNUzZE/M1BRRC82ZmZlNDVm/ZmRmNWVjZTJjNzUw/OTk1YzNkM2I0ZDZi/MS9Ib21lcGFnZVRS/X1RodW1ibmFpbF9t/ZWRpdW0uanBn",
+                    "original": "https://images.ctfassets.net/vkizfq3pbtzc/1qZ98P57qw3kjUMS6D3PQD/6ffe45ffdf5ece2c750995c3d3b4d6b1/HomepageTR_Thumbnail_medium.jpg",
                     "logo": false
                 }
             },
             {
-                "title": "760 Python Developer jobs in Berlin, Germany",
-                "url": "https://www.linkedin.com/jobs/python-developer-jobs-berlin?trk=guest_job_search_related_jserp_link",
+                "title": "Job Application for Product Program Manager (Berlin or remote within EU) at FREE NOW",
+                "url": "https://boards.greenhouse.io/freenow/jobs/3521697",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "Today&#x27;s top 760 Python Developer jobs in Berlin, Germany. Leverage your professional network, and get hired. New Python Developer jobs added daily.",
+                "description": "In this role you will centrally own and improve a variety of Product Success KPIs, Product Configurations and related projects. As a Program Manager, you <strong>act as a central conduit between various Product Tribes and the wider organisation orchestrating cross functional processes and teams</strong>.",
                 "profile": {
-                    "name": "LinkedIn",
-                    "url": "https://www.linkedin.com/jobs/python-developer-jobs-berlin?trk=guest_job_search_related_jserp_link",
-                    "long_name": "linkedin.com",
-                    "img": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw"
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/freenow/jobs/3521697",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
                 },
                 "language": "en",
                 "family_friendly": true,
@@ -206,53 +267,53 @@
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "linkedin.com",
-                    "hostname": "www.linkedin.com",
-                    "favicon": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw",
-                    "path": "\u203a jobs  \u203a python-developer-jobs-berlin"
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a freenow  \u203a jobs  \u203a 3521697"
                 }
             },
             {
-                "title": "103 software developer python Jobs in Berlin, February 2026 | Glassdoor",
-                "url": "https://www.glassdoor.com/Job/berlin-software-developer-python-jobs-SRCH_IL.0,6_IC2622109_KO7,32.htm",
+                "title": "Job Application for Senior Project Manager - Operations Suppliers (m/w/d) at TIER Mobility",
+                "url": "https://boards.greenhouse.io/tiermobility/jobs/4415986004",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "Search Software developer python jobs in Berlin with company ratings &amp; salaries. 103 open jobs for Software developer python in Berlin.",
+                "description": "Min 2 years of experience in relevant field, e.g. Procurement, Project Management, Asset Management, Operations in (Micro) Mobility Sector",
                 "profile": {
-                    "name": "Glassdoor",
-                    "url": "https://www.glassdoor.com/Job/berlin-software-developer-python-jobs-SRCH_IL.0,6_IC2622109_KO7,32.htm",
-                    "long_name": "glassdoor.com",
-                    "img": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8"
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/tiermobility/jobs/4415986004",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
                 },
                 "language": "en",
                 "family_friendly": true,
                 "type": "search_result",
-                "subtype": "faq",
+                "subtype": "generic",
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "glassdoor.com",
-                    "hostname": "www.glassdoor.com",
-                    "favicon": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8",
-                    "path": "\u203a Job  \u203a berlin-software-developer-python-jobs-SRCH_IL.0,6_IC2622109_KO7,32.htm"
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a tiermobility  \u203a jobs  \u203a 4415986004"
                 },
                 "thumbnail": {
-                    "src": "https://imgs.search.brave.com/piRYMJjMk6PTRvuMRvqRRYPGFoKeCOSKu4NQ-spxzg0/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly93d3cu/Z2xhc3Nkb29yLmNv/bS9hc3NldHMvaW1h/Z2VzL21ldGEvbG9n/by1vZy5wbmc",
-                    "original": "https://www.glassdoor.com/assets/images/meta/logo-og.png",
+                    "src": "https://imgs.search.brave.com/Gp2FhuqMYuHMBPd0DhOrcco9OSk0Vb57bvISbziwhtg/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zNC1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMDQ0/LzYwMC9vcmlnaW5h/bC9USUVSX2xvZ28u/cG5nPzE2Mjc1NjYy/NTY",
+                    "original": "https://s4-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/044/600/original/TIER_logo.png?1627566256",
                     "logo": true
                 }
             },
             {
-                "title": "Python Developer jobs in Berlin | Devjobsscanner",
-                "url": "https://www.devjobsscanner.com/python-developer-jobs-in-berlin/",
+                "title": "Job Application for Senior Professional Services Consultant at Zscaler",
+                "url": "https://boards.greenhouse.io/zscaler/jobs/4124846007",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "Search Python Developer from over 15+ job boards. 505 open jobs for Python Developer jobs in Berlin.",
+                "description": "Be part of a deployment project typically spanning several months, work together with a Zscaler Project Manager to keep the project on track",
                 "profile": {
-                    "name": "Devjobsscanner",
-                    "url": "https://www.devjobsscanner.com/python-developer-jobs-in-berlin/",
-                    "long_name": "devjobsscanner.com",
-                    "img": "https://imgs.search.brave.com/ggw7cF3qNOxH4G7PLzHRpYhReNqDydmuYzvLqkyiYhM/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMTc4OWFlODc0/ZDYzNjVmNGRhYjAw/Y2JmYmRkMjNjNzE0/YjllZTUwNWEzZDBl/ZmViMDNjNWM0OGQ2/ZmYzOTEzOC93d3cu/ZGV2am9ic3NjYW5u/ZXIuY29tLw"
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/zscaler/jobs/4124846007",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
                 },
                 "language": "en",
                 "family_friendly": true,
@@ -261,58 +322,28 @@
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "devjobsscanner.com",
-                    "hostname": "www.devjobsscanner.com",
-                    "favicon": "https://imgs.search.brave.com/ggw7cF3qNOxH4G7PLzHRpYhReNqDydmuYzvLqkyiYhM/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMTc4OWFlODc0/ZDYzNjVmNGRhYjAw/Y2JmYmRkMjNjNzE0/YjllZTUwNWEzZDBl/ZmViMDNjNWM0OGQ2/ZmYzOTEzOC93d3cu/ZGV2am9ic3NjYW5u/ZXIuY29tLw",
-                    "path": "\u203a python-developer-jobs-in-berlin"
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a zscaler  \u203a jobs  \u203a 4124846007"
                 },
                 "thumbnail": {
-                    "src": "https://imgs.search.brave.com/8PRefnQ3Eimd_7rRyGyTOqqnou6i4r5AfwIbYckjRWM/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly93d3cu/ZGV2am9ic3NjYW5u/ZXIuY29tLy9hc3Nl/dHMvaW1hZ2VzL2Rl/dmpvYnNzY2FubmVy/LTAxLmpwZw",
-                    "original": "https://www.devjobsscanner.com//assets/images/devjobsscanner-01.jpg",
-                    "logo": false
-                }
-            },
-            {
-                "title": "211 Python Developer Jobs in Berlin, September 2025 | Glassdoor",
-                "url": "https://www.glassdoor.com/Job/Python-Developer-Berlin-SRCH_KO0,16_IL.17,23_IC2622109.htm",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Search Python Developer jobs in Berlin with company ratings &amp; salaries. 211 open jobs for Python Developer in Berlin.",
-                "profile": {
-                    "name": "Glassdoor",
-                    "url": "https://www.glassdoor.com/Job/Python-Developer-Berlin-SRCH_KO0,16_IL.17,23_IC2622109.htm",
-                    "long_name": "glassdoor.com",
-                    "img": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "glassdoor.com",
-                    "hostname": "www.glassdoor.com",
-                    "favicon": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8",
-                    "path": "\u203a Job  \u203a Python-Developer-Berlin-SRCH_KO0,16_IL.17,23_IC2622109.htm"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/piRYMJjMk6PTRvuMRvqRRYPGFoKeCOSKu4NQ-spxzg0/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly93d3cu/Z2xhc3Nkb29yLmNv/bS9hc3NldHMvaW1h/Z2VzL21ldGEvbG9n/by1vZy5wbmc",
-                    "original": "https://www.glassdoor.com/assets/images/meta/logo-og.png",
+                    "src": "https://imgs.search.brave.com/WDYHFPU5lupS4I1f05l24uudDsRxX-a5b1XbDamvCQ8/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zNy1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMTA5/LzQwMC9vcmlnaW5h/bC9MaW5rZWRJbi1H/SC1Mb2dvXygxKS5q/cGc_MTcwMDE2OTA1/OA",
+                    "original": "https://s7-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/109/400/original/LinkedIn-GH-Logo_(1).jpg?1700169058",
                     "logo": true
                 }
             },
             {
-                "title": "18 Python Developer jobs in Berlin",
-                "url": "https://germantechjobs.de/en/jobs/Python/Berlin",
+                "title": "Jobs at MOIA",
+                "url": "https://boards.greenhouse.io/moia",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "Almost ready \ud83d\ude0a \u00b7 If this page doesn&#x27;t load within 10 seconds, please refresh",
+                "description": "Werkstudent*in HR Operations (m/w/d) - People &amp; Relations Berlin, Germany \u00b7 Project Manager (m/f/d) - Autonomous Driving Readiness Berlin, Germany \u00b7 Project Manager (m/f/d) - Autonomous Driving Readiness Hamburg, Germany \u00b7 Senior Project Management Officer (m/f/d) Berlin, Germany \u00b7",
                 "profile": {
-                    "name": "GermanTechJobs",
-                    "url": "https://germantechjobs.de/en/jobs/Python/Berlin",
-                    "long_name": "germantechjobs.de",
-                    "img": "https://imgs.search.brave.com/jDgPpOYQuPQ0eFxziGusAaaIZi-1r0ylFlAf7liRyd8/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNmMwMTY5YWU2/OWIxOWIyZDBjMWY0/MjA5ZDYwMGM1ZTg0/OTM1M2ZhMTc1NmZl/OTQ5YjgzZmQ1NzFk/ZDQ2ZWU5MS9nZXJt/YW50ZWNoam9icy5k/ZS8"
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/moia",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
                 },
                 "language": "en",
                 "family_friendly": true,
@@ -321,78 +352,28 @@
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "germantechjobs.de",
-                    "hostname": "germantechjobs.de",
-                    "favicon": "https://imgs.search.brave.com/jDgPpOYQuPQ0eFxziGusAaaIZi-1r0ylFlAf7liRyd8/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNmMwMTY5YWU2/OWIxOWIyZDBjMWY0/MjA5ZDYwMGM1ZTg0/OTM1M2ZhMTc1NmZl/OTQ5YjgzZmQ1NzFk/ZDQ2ZWU5MS9nZXJt/YW50ZWNoam9icy5k/ZS8",
-                    "path": "\u203a en  \u203a jobs  \u203a Python  \u203a Berlin"
-                }
-            },
-            {
-                "title": "3,000+ Junior Python Developer jobs in Germany",
-                "url": "https://www.linkedin.com/jobs/search/?keywords=junior+Python+Developer&location=Germany&locationId=de:0",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Get notified about new Junior Python Developer jobs in Germany. Sign in to create job alert \u00b7 Python Developer \u00b7 Berlin, Germany \u00b7 Actively Hiring 2 weeks ago \u00b7 Python Developer \u00b7 Berlin, Germany \u00b7 Actively Hiring 3 days ago \u00b7 Python Developer with Odoo - remote work \u00b7",
-                "profile": {
-                    "name": "LinkedIn",
-                    "url": "https://www.linkedin.com/jobs/search/?keywords=junior+Python+Developer&location=Germany&locationId=de:0",
-                    "long_name": "linkedin.com",
-                    "img": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "linkedin.com",
-                    "hostname": "www.linkedin.com",
-                    "favicon": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw",
-                    "path": "\u203a jobs  \u203a search"
-                }
-            },
-            {
-                "title": "966 python Jobs in Berlin, November 2025 | Glassdoor",
-                "url": "https://www.glassdoor.com/Job/berlin-python-jobs-SRCH_IL.0,6_IC2622109_KO7,13.htm",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "<strong>Infosys is seeking a skilled Python React Developer to join our team in Germany</strong>. The role involves developing and maintaining web applications using Python and\u2026&amp;hellip; ... Work Location: Berlin or Amsterdam.",
-                "profile": {
-                    "name": "Glassdoor",
-                    "url": "https://www.glassdoor.com/Job/berlin-python-jobs-SRCH_IL.0,6_IC2622109_KO7,13.htm",
-                    "long_name": "glassdoor.com",
-                    "img": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "faq",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "glassdoor.com",
-                    "hostname": "www.glassdoor.com",
-                    "favicon": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8",
-                    "path": "\u203a Job  \u203a berlin-python-jobs-SRCH_IL.0,6_IC2622109_KO7,13.htm"
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a moia"
                 },
                 "thumbnail": {
-                    "src": "https://imgs.search.brave.com/piRYMJjMk6PTRvuMRvqRRYPGFoKeCOSKu4NQ-spxzg0/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly93d3cu/Z2xhc3Nkb29yLmNv/bS9hc3NldHMvaW1h/Z2VzL21ldGEvbG9n/by1vZy5wbmc",
-                    "original": "https://www.glassdoor.com/assets/images/meta/logo-og.png",
+                    "src": "https://imgs.search.brave.com/--whm8C5vfse756FS3l_4lBZNh5wbFvY5s1UfIenaSY/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMTAx/LXJlY3J1aXRpbmcu/Y2RuLmdyZWVuaG91/c2UuaW8vZXh0ZXJu/YWxfZ3JlZW5ob3Vz/ZV9qb2JfYm9hcmRz/L2xvZ29zLzQwMC8w/NDMvMzEwL29yaWdp/bmFsL0xpbmtlZElu/X0xvZ29fMTZ4OS5q/cGc_MTY0Mzc5Mzk0/MA",
+                    "original": "https://s101-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/043/310/original/LinkedIn_Logo_16x9.jpg?1643793940",
                     "logo": true
                 }
             },
             {
-                "title": "Python Jobs in Germany - June 2026",
-                "url": "https://www.arbeitnow.com/jobs/python",
+                "title": "Job Application for Senior Project Manager - Business Technology (all genders) at Urban Sports Club",
+                "url": "https://boards.greenhouse.io/urbansportsclub/jobs/7229775002",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "829 Python Jobs in Germany \u2013 English-friendly and German workplaces. Includes Remote options and Visa Sponsorship. Discover your next role on Arbeitnow.",
+                "description": "Berlin \u00b7 As a Senior Project Manager - Business Technology at <strong>Urban Sports Club</strong>, you will be pivotal in implementing multiple concurrent large-scale, company-wide technology projects critical to our business&#x27;s evolution, enabling the company ...",
                 "profile": {
-                    "name": "Arbeitnow",
-                    "url": "https://www.arbeitnow.com/jobs/python",
-                    "long_name": "arbeitnow.com",
-                    "img": "https://imgs.search.brave.com/AMC8TJq25ePXog7QILYEtZY4QniitvQa1ORT572ZRjM/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNDhjYTZhNGQ4/ZmY4NmQ0ODhjZmU3/Y2VlYWM4NjMyODBh/YmMyN2I0Njk5ODI1/OGYwZDYzMmJkMmIy/NTMyZWZjMC93d3cu/YXJiZWl0bm93LmNv/bS8"
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/urbansportsclub/jobs/7229775002",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
                 },
                 "language": "en",
                 "family_friendly": true,
@@ -401,195 +382,29 @@
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "arbeitnow.com",
-                    "hostname": "www.arbeitnow.com",
-                    "favicon": "https://imgs.search.brave.com/AMC8TJq25ePXog7QILYEtZY4QniitvQa1ORT572ZRjM/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNDhjYTZhNGQ4/ZmY4NmQ0ODhjZmU3/Y2VlYWM4NjMyODBh/YmMyN2I0Njk5ODI1/OGYwZDYzMmJkMmIy/NTMyZWZjMC93d3cu/YXJiZWl0bm93LmNv/bS8",
-                    "path": "\u203a jobs  \u203a python"
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a urbansportsclub  \u203a jobs  \u203a 7229775002"
                 },
                 "thumbnail": {
-                    "src": "https://imgs.search.brave.com/8cylRG7At2lai_XAVVdtU2UTRTHD9YpGtWAX_QngRj0/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly93d3cu/YXJiZWl0bm93LmNv/bS9pbWFnZXMvc29j/aWFsLnBuZw",
-                    "original": "https://www.arbeitnow.com/images/social.png",
-                    "logo": false
-                }
-            },
-            {
-                "title": "Python Jobs in Berlin | Berlin Startup Jobs",
-                "url": "https://berlinstartupjobs.com/skill-areas/python/",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Tech Stack: Python, Django, React, Claude Code / Cursor Location: Berlin (remote first) Role: Full-time The Mission We are building TechMiners ONE, the automated machinery for the next generation of M&amp;A due diligence. We\u2019re moving away from manual, static reporting toward a high-speed, agentic data platform.",
-                "profile": {
-                    "name": "Berlin Startup Jobs",
-                    "url": "https://berlinstartupjobs.com/skill-areas/python/",
-                    "long_name": "berlinstartupjobs.com",
-                    "img": "https://imgs.search.brave.com/TMZxjdAaAsC7vVPp1EcG_m6dIUxeBzVNbMrUHXdqEb4/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMzRlZDlhYjll/ZmM1ZDkxNGFhZWRh/ZDY3ZDc4YzdmZWJj/MTUyM2Q5YjgwMWE5/MTdiZjRlODUxZmM2/OTg3M2NhZS9iZXJs/aW5zdGFydHVwam9i/cy5jb20v"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "berlinstartupjobs.com",
-                    "hostname": "berlinstartupjobs.com",
-                    "favicon": "https://imgs.search.brave.com/TMZxjdAaAsC7vVPp1EcG_m6dIUxeBzVNbMrUHXdqEb4/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMzRlZDlhYjll/ZmM1ZDkxNGFhZWRh/ZDY3ZDc4YzdmZWJj/MTUyM2Q5YjgwMWE5/MTdiZjRlODUxZmM2/OTg3M2NhZS9iZXJs/aW5zdGFydHVwam9i/cy5jb20v",
-                    "path": "\u203a skill-areas  \u203a python"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/qqzRJ3OAWQRq6uUWNAWO7AJbAYxAtC2RpbgsYfAR1TI/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9iZXJs/aW5zdGFydHVwam9i/cy5jb20vd3AtY29u/dGVudC91cGxvYWRz/L2RhdGF0cm9uaXFf/NjAweDI2MC5wbmc",
-                    "original": "https://berlinstartupjobs.com/wp-content/uploads/datatroniq_600x260.png",
-                    "logo": false
-                }
-            },
-            {
-                "title": "3,000+ Python Developer jobs in Germany",
-                "url": "https://www.linkedin.com/jobs/search/?keywords=Python+Developer&location=Germany&locationId=de:0",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Today&#x27;s top 3,000+ Python Developer jobs in Germany. Leverage your professional network, and get hired. New Python Developer jobs added daily.",
-                "profile": {
-                    "name": "LinkedIn",
-                    "url": "https://www.linkedin.com/jobs/search/?keywords=Python+Developer&location=Germany&locationId=de:0",
-                    "long_name": "linkedin.com",
-                    "img": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "linkedin.com",
-                    "hostname": "www.linkedin.com",
-                    "favicon": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw",
-                    "path": "\u203a jobs  \u203a search"
-                }
-            },
-            {
-                "title": "1,000+ Python Developer jobs in Berlin, Berlin, Germany (73 new)",
-                "url": "https://www.linkedin.com/jobs/python-developer-jobs-berlin",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Today\u2019s top 1,000+ Python Developer jobs in Berlin, Berlin, Germany. Leverage your professional network, and get hired. New Python Developer jobs added daily.",
-                "profile": {
-                    "name": "LinkedIn",
-                    "url": "https://www.linkedin.com/jobs/python-developer-jobs-berlin",
-                    "long_name": "linkedin.com",
-                    "img": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "linkedin.com",
-                    "hostname": "www.linkedin.com",
-                    "favicon": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw",
-                    "path": "\u203a jobs  \u203a python-developer-jobs-berlin"
-                }
-            },
-            {
-                "title": "XING - Dein berufliches Netzwerk",
-                "url": "https://www.xing.com/jobs/python-developer-jobs-in-berlin",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "XING \u2013 Dein pers\u00f6nlicher Begleiter durchs Berufsleben. Mehr Pr\u00e4senz - Werde jetzt Teil des gr\u00f6\u00dften beruflichen Netzwerks in D-A-CH. Wertvolle Kontakte-Vernetz Dich mit \u00fcber 19 Mio. Mitgliedern. Gr\u00f6\u00dfte Sicherheit -Verlass Dich bei XING auf gr\u00f6\u00dftm\u00f6gliche Datensicherheit. XING kostenlos nutzen.",
-                "page_age": "2026-05-26T17:55:04",
-                "profile": {
-                    "name": "XING",
-                    "url": "https://www.xing.com/jobs/python-developer-jobs-in-berlin",
-                    "long_name": "xing.com",
-                    "img": "https://imgs.search.brave.com/NiLVl8T1l0WkOTJiXa88EcUzgdtXfeiYllfXT7KAyNM/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvODc3MmQxM2Q2/OGJlNGIwNjEyYTg0/ZGJkMWY3ODY5YzY4/MDhlNTUzNTVmNWI1/MzNlYTczN2Q0Njgy/YmQxNDA4YS93d3cu/eGluZy5jb20v"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "xing.com",
-                    "hostname": "www.xing.com",
-                    "favicon": "https://imgs.search.brave.com/NiLVl8T1l0WkOTJiXa88EcUzgdtXfeiYllfXT7KAyNM/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvODc3MmQxM2Q2/OGJlNGIwNjEyYTg0/ZGJkMWY3ODY5YzY4/MDhlNTUzNTVmNWI1/MzNlYTczN2Q0Njgy/YmQxNDA4YS93d3cu/eGluZy5jb20v",
-                    "path": "  \u203a jobs  \u203a berlin  \u203a python developer  \u203a python developer jobs in berlin"
-                },
-                "age": "May 26, 2026"
-            },
-            {
-                "title": "36 full stack python software developer Jobs in Berlin, June 2025 | Glassdoor",
-                "url": "https://www.glassdoor.com/Job/berlin-full-stack-python-software-developer-jobs-SRCH_IL.0,6_IC2622109_KO7,43.htm",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Search Full stack python software developer jobs in Berlin with company ratings &amp; salaries. 36 open jobs for Full stack python software developer in Berlin.",
-                "profile": {
-                    "name": "Glassdoor",
-                    "url": "https://www.glassdoor.com/Job/berlin-full-stack-python-software-developer-jobs-SRCH_IL.0,6_IC2622109_KO7,43.htm",
-                    "long_name": "glassdoor.com",
-                    "img": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "glassdoor.com",
-                    "hostname": "www.glassdoor.com",
-                    "favicon": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8",
-                    "path": "\u203a Job  \u203a berlin-full-stack-python-software-developer-jobs-SRCH_IL.0,6_IC2622109_KO7,43.htm"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/piRYMJjMk6PTRvuMRvqRRYPGFoKeCOSKu4NQ-spxzg0/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly93d3cu/Z2xhc3Nkb29yLmNv/bS9hc3NldHMvaW1h/Z2VzL21ldGEvbG9n/by1vZy5wbmc",
-                    "original": "https://www.glassdoor.com/assets/images/meta/logo-og.png",
+                    "src": "https://imgs.search.brave.com/GnGG0oO5x-ybwMMec3hCNkrq8IXFfaR3HzMwplLdN7E/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMi1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvNzYx/LzUwMC9vcmlnaW5h/bC8xNjE2MTcxMjk2/NDc1LmpwZWc_MTYz/MzA5MTc0MQ",
+                    "original": "https://s2-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/761/500/original/1616171296475.jpeg?1633091741",
                     "logo": true
                 }
             },
             {
-                "title": "Python Developer Jobs in Berlin - DEVjobs.de",
-                "url": "https://en.devjobs.de/jobs/python-developer-berlin-62422",
+                "title": "Job Application for Senior Product Manager - GTM (m/f/d) at Project A Services GmbH & Co. KG",
+                "url": "https://boards.greenhouse.io/projectaservicesgmbhcokg/jobs/7763015002",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "Discover job openings for Student trainees in software development (Python &amp; Linux systems), Senior Python Engineer and more on DEVjobs.de. With salaries up to \u20ac110.000 per year!",
+                "description": "Collaboration with top-tier investors and angles (incl. various unicorn founders) as well as leading market experts \u00b7 Apply below and become a part of our success story! <strong>Project A</strong> is committed to diverse and equal opportunities hiring for all ...",
+                "page_age": "2024-12-11T08:00:34",
                 "profile": {
-                    "name": "Devjobs",
-                    "url": "https://en.devjobs.de/jobs/python-developer-berlin-62422",
-                    "long_name": "en.devjobs.de",
-                    "img": "https://imgs.search.brave.com/S4vnh9oQ0MfNuFBmhBARQVO23QrhOA2paaZIUbeEDe8/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvOWQ0MDViN2I5/NTdlODdmYWViYjhk/MTFmODY4NTgxMjYy/N2ViOGM1ZTUwZDMx/NDM3MWE0NWRhNzdm/ZWQwOTU1OS9lbi5k/ZXZqb2JzLmRlLw"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "faq",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "en.devjobs.de",
-                    "hostname": "en.devjobs.de",
-                    "favicon": "https://imgs.search.brave.com/S4vnh9oQ0MfNuFBmhBARQVO23QrhOA2paaZIUbeEDe8/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvOWQ0MDViN2I5/NTdlODdmYWViYjhk/MTFmODY4NTgxMjYy/N2ViOGM1ZTUwZDMx/NDM3MWE0NWRhNzdm/ZWQwOTU1OS9lbi5k/ZXZqb2JzLmRlLw",
-                    "path": "\u203a jobs  \u203a python-developer-berlin-62422"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/Ia2dgnlCSOvFETbfkKBPJ9HNsBNcr3dFyXLmPvKjE2k/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9lbi5k/ZXZqb2JzLmRlL3No/YXJlL3NlYXJjaC9q/b2JzL3R3aXR0ZXIv/b2dfaW1hZ2UuanBl/Zz8_am9iUHJvZmVz/c2lvbnM9cHl0aG9u/LWRldmVsb3BlciZh/bXA7bG9jYXRpb25z/PWJlcmxpbi02MjQy/Mg",
-                    "original": "https://en.devjobs.de/share/search/jobs/twitter/og_image.jpeg??jobProfessions=python-developer&amp;locations=berlin-62422",
-                    "logo": false
-                }
-            },
-            {
-                "title": "896 Python Jobs in Berlin, October 2025 | Glassdoor",
-                "url": "https://www.glassdoor.com/Job/Python-Berlin-SRCH_KO0,6_IL.7,13_IC2622109.htm",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Search Python jobs in Berlin with company ratings &amp; salaries. 896 open jobs for Python in Berlin.",
-                "profile": {
-                    "name": "Glassdoor",
-                    "url": "https://www.glassdoor.com/Job/Python-Berlin-SRCH_KO0,6_IL.7,13_IC2622109.htm",
-                    "long_name": "glassdoor.com",
-                    "img": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8"
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/projectaservicesgmbhcokg/jobs/7763015002",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
                 },
                 "language": "en",
                 "family_friendly": true,
@@ -598,28 +413,109 @@
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "glassdoor.com",
-                    "hostname": "www.glassdoor.com",
-                    "favicon": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8",
-                    "path": "\u203a Job  \u203a Python-Berlin-SRCH_KO0,6_IL.7,13_IC2622109.htm"
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a projectaservicesgmbhcokg  \u203a jobs  \u203a 7763015002"
                 },
                 "thumbnail": {
-                    "src": "https://imgs.search.brave.com/piRYMJjMk6PTRvuMRvqRRYPGFoKeCOSKu4NQ-spxzg0/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly93d3cu/Z2xhc3Nkb29yLmNv/bS9hc3NldHMvaW1h/Z2VzL21ldGEvbG9n/by1vZy5wbmc",
-                    "original": "https://www.glassdoor.com/assets/images/meta/logo-og.png",
+                    "src": "https://imgs.search.brave.com/DBtKe6uBc3CaiMioHAwvY8To9M0rnHGy-l6tiwz8Jc4/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMi1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMjk1/LzEwMC9vcmlnaW5h/bC9Qcm9qZWN0QV9M/b2dvMjAyMC5wbmc_/MTYyMjEwNjEzMA",
+                    "original": "https://s2-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/295/100/original/ProjectA_Logo2020.png?1622106130",
+                    "logo": true
+                },
+                "age": "December 11, 2024"
+            },
+            {
+                "title": "Jobs at unybrands",
+                "url": "https://boards.greenhouse.io/unybrands?t=e6a8a6c34us",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "NPD Project Manager Shanghai Shi, China, Shenzhen Shi, Guangdong, China \u00b7 Photograph Editor Manila, Manila, Philippines \u00b7 Photograph Editor Caracas, Capital District, Venezuela \u00b7 FP&amp;A Analyst London \u00b7 Senior Accountant Berlin \u00b7 Warehouse Associate Rochester, NY \u00b7",
+                "profile": {
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/unybrands?t=e6a8a6c34us",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a unybrands"
+                }
+            },
+            {
+                "title": "Job Application for Senior Business Controller (f/m/x) at Berlin Brands Group",
+                "url": "https://boards.greenhouse.io/berlinbrands/jobs/4738754004",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "As global Senior Business controller for Sourcing, you work every day together with teams and management in Berlin and Hong Kong to come to better decisions, identify new opportunities and initiate actions that will improve our profitability and competitive advantage. Your tools are data, facts and figures, to which you add insights and recommendations. You will be leading performance management and be the project management officer for our key business initiatives.",
+                "profile": {
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/berlinbrands/jobs/4738754004",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a berlinbrands  \u203a jobs  \u203a 4738754004"
+                }
+            },
+            {
+                "title": "Job Application for Global Public Affairs Manager at Too Good To Go",
+                "url": "https://boards.greenhouse.io/toogoodtogo/jobs/5907803003",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Proven project management skills and experience in working cross-functionally",
+                "profile": {
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/toogoodtogo/jobs/5907803003",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a toogoodtogo  \u203a jobs  \u203a 5907803003"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/R_FVZDhLdYEISq6k5YRVdFIBLTFxGM-N__crK85tJ3k/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMy1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMzA5/LzYwMC9vcmlnaW5h/bC9UR1RHX0xPR09f/MTk1MlgyMDAwcHgu/anBnPzE2ODQ5MjA3/ODg",
+                    "original": "https://s3-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/309/600/original/TGTG_LOGO_1952X2000px.jpg?1684920788",
                     "logo": true
                 }
             },
             {
-                "title": "Python Developer Jobs, Employment in Berlin, MD | Indeed",
-                "url": "https://www.indeed.com/q-python-developer-l-berlin,-md-jobs.html",
+                "title": "Job Application for Project Manager (Services) - New Grad Summer 2021 (Dublin) at Twilio",
+                "url": "https://boards.greenhouse.io/twilio/jobs/2515740",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "6 Python Developer jobs available in Berlin, MD on Indeed.com. Apply to Senior Data Scientist, Senior Computer Scientist, Senior Software Engineer and more!",
+                "description": "Twilio is growing rapidly and seeking a Project Manager for Twilio\u2019s Services team in EMEA which spans Professional Services, Customer Success and Customer Support.. The person in this role will lead cross-functional internal projects that help Twilio move the needle on improving the experience ...",
                 "profile": {
-                    "name": "Indeed",
-                    "url": "https://www.indeed.com/q-python-developer-l-berlin,-md-jobs.html",
-                    "long_name": "indeed.com",
-                    "img": "https://imgs.search.brave.com/dVfI8hv-wn8Trhad6qx-v2ReVTli6zMs81GApmPh8xM/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZWY0ZDNjOGEw/ZTFkNzAxOTFlYWE2/NThjOWEyNzI4YjZj/NDQ4OWU1NDFiOTFm/NThmMjhjMmVjMzli/ZTY2YTQ4Ny93d3cu/aW5kZWVkLmNvbS8"
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/twilio/jobs/2515740",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
                 },
                 "language": "en",
                 "family_friendly": true,
@@ -628,53 +524,28 @@
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "indeed.com",
-                    "hostname": "www.indeed.com",
-                    "favicon": "https://imgs.search.brave.com/dVfI8hv-wn8Trhad6qx-v2ReVTli6zMs81GApmPh8xM/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZWY0ZDNjOGEw/ZTFkNzAxOTFlYWE2/NThjOWEyNzI4YjZj/NDQ4OWU1NDFiOTFm/NThmMjhjMmVjMzli/ZTY2YTQ4Ny93d3cu/aW5kZWVkLmNvbS8",
-                    "path": "\u203a q-python-developer-l-berlin,-md-jobs.html"
-                }
-            },
-            {
-                "title": "17 python django developer Jobs in Berlin, September 2025 | Glassdoor",
-                "url": "https://www.glassdoor.com/Job/berlin-python-django-developer-jobs-SRCH_IL.0,6_IC2622109_KO7,30.htm",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Search Python django developer jobs in Berlin with company ratings &amp; salaries. 17 open jobs for Python django developer in Berlin.",
-                "profile": {
-                    "name": "Glassdoor",
-                    "url": "https://www.glassdoor.com/Job/berlin-python-django-developer-jobs-SRCH_IL.0,6_IC2622109_KO7,30.htm",
-                    "long_name": "glassdoor.com",
-                    "img": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "glassdoor.com",
-                    "hostname": "www.glassdoor.com",
-                    "favicon": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8",
-                    "path": "\u203a Job  \u203a berlin-python-django-developer-jobs-SRCH_IL.0,6_IC2622109_KO7,30.htm"
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a twilio  \u203a jobs  \u203a 2515740"
                 },
                 "thumbnail": {
-                    "src": "https://imgs.search.brave.com/piRYMJjMk6PTRvuMRvqRRYPGFoKeCOSKu4NQ-spxzg0/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly93d3cu/Z2xhc3Nkb29yLmNv/bS9hc3NldHMvaW1h/Z2VzL21ldGEvbG9n/by1vZy5wbmc",
-                    "original": "https://www.glassdoor.com/assets/images/meta/logo-og.png",
+                    "src": "https://imgs.search.brave.com/KzAKcn1awuCskeA9aFf_5v0pumeAe_DoP3quVWHAQeE/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9yZWNy/dWl0aW5nLmNkbi5n/cmVlbmhvdXNlLmlv/L2V4dGVybmFsX2dy/ZWVuaG91c2Vfam9i/X2JvYXJkcy9sb2dv/cy8wMDAvMDAwLzI2/OS9vcmlnaW5hbC8y/MFRXSTQ2NDAtT0ct/aW1hZ2UtY2FyZWVy/cy1jYW1wYWlnbi1G/SU4tXzF4LmpwZz8x/NTkwNTE4NDA2",
+                    "original": "https://recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/000/000/269/original/20TWI4640-OG-image-careers-campaign-FIN-_1x.jpg?1590518406",
                     "logo": true
                 }
             },
             {
-                "title": "83 python English-speaking jobs in Berlin",
-                "url": "https://englishjobs.de/in/berlin/python",
+                "title": "Jobs at SumUp",
+                "url": "https://boards.greenhouse.io/embed/job_board?for=sumup",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "... Responsibilities Develop &amp; optimize full\u2011stack applications using Supabase (SQL), NextJS, TypeScript, and Python ... Requirements The ideal candidate will demonstrate excellent programming skills in R and Python, along ... , with an emphasis on designing online metrics and analyzing A/B experiments Strong proficiency in Python ... university The candidate must be located in the Berlin-Brandenburg region (work in presence) Knowledge of python",
+                "description": "Collections Agent - Lending Berlin, Germany \u00b7 Programa de Est\u00e1gio - SumUp Next S\u00e3o Paulo, S\u00e3o Paulo, Brazil \u00b7 Junior Early lifecycle Specialist - English Dutch Barcelona, Barcelona, Spain \u00b7 Data &amp; Insights Analyst S\u00e3o Paulo, Brazil \u00b7 Fraud Prevention Strategy Analyst S\u00e3o Paulo, S\u00e3o Paulo, Brazil \u00b7 Fraud Prevention Strategy Manager Berlin, Germany \u00b7",
                 "profile": {
-                    "name": "English-speaking Jobs in Germany",
-                    "url": "https://englishjobs.de/in/berlin/python",
-                    "long_name": "englishjobs.de",
-                    "img": "https://imgs.search.brave.com/MPFZPiCL1hbhf9Jb2UwDcGoydA6g2ViMpeuz876GhTQ/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZWQ1OWI4ZWEx/NWI3ODBkY2I3MmM5/MGZkYmU0MDZmYTVj/ZDE1NmFjMzFmOWI4/MTEwYzg1ZGVjNDJk/YTZiM2Q0MS9lbmds/aXNoam9icy5kZS8"
+                    "name": "N26",
+                    "url": "https://boards.greenhouse.io/embed/job_board?for=sumup",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
                 },
                 "language": "en",
                 "family_friendly": true,
@@ -683,10 +554,180 @@
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "englishjobs.de",
-                    "hostname": "englishjobs.de",
-                    "favicon": "https://imgs.search.brave.com/MPFZPiCL1hbhf9Jb2UwDcGoydA6g2ViMpeuz876GhTQ/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZWQ1OWI4ZWEx/NWI3ODBkY2I3MmM5/MGZkYmU0MDZmYTVj/ZDE1NmFjMzFmOWI4/MTEwYzg1ZGVjNDJk/YTZiM2Q0MS9lbmds/aXNoam9icy5kZS8",
-                    "path": "\u203a in  \u203a berlin  \u203a python"
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a embed  \u203a job_board"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/D5x1e_OZ-P9BMENU1raM0YaObRcpTeM_Lbf00V3uqsU/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMi1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMzQ0/LzUwMC9vcmlnaW5h/bC9TdW1VcF9sb2dv/X01vZGVybklua19S/R0ItRnVsbExvZ29f/d2ViXzI1MHdpZHRo/LmpwZz8xNTY0NzM0/NDY4",
+                    "original": "https://s2-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/344/500/original/SumUp_logo_ModernInk_RGB-FullLogo_web_250width.jpg?1564734468",
+                    "logo": true
+                }
+            },
+            {
+                "title": "Job Application for (Senior) Project Manager (m/f/div) | Business Operations at Solarisbank AG at Solarisbank",
+                "url": "https://boards.greenhouse.io/solarisbank/jobs/5007196002",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Business Operations is a team of highly skilled project managers and process engineers working closely with internal stakeholders to identify, analyse and improve critical processes within the organisation to ensure Solarisbank delivers best-in-class services to Partners and end-customers.",
+                "profile": {
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/solarisbank/jobs/5007196002",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a solarisbank  \u203a jobs  \u203a 5007196002"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/lvk7sTuXUsW9lk-l22AUGJQXH-_JwLVBSOKb2gQxvX8/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMi1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMjQ5/LzQwMC9vcmlnaW5h/bC9zb2xhcmlzc2hh/cmVpbWFnZS5wbmc_/MTU5NDIxNjM3Mw",
+                    "original": "https://s2-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/249/400/original/solarisshareimage.png?1594216373",
+                    "logo": true
+                }
+            },
+            {
+                "title": "Job Application for Senior Product Manager Growth - Berlin or Remote at FREE NOW",
+                "url": "https://boards.greenhouse.io/freenow/jobs/3426840",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "You have 4-6 years of work experience working as a Product Manager, preferably in startup experience appreciated.",
+                "profile": {
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/freenow/jobs/3426840",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a freenow  \u203a jobs  \u203a 3426840"
+                }
+            },
+            {
+                "title": "Job Application for 2019 Technical Project Manager Summer Intern at Yext",
+                "url": "https://boards.greenhouse.io/yext/jobs/1300740",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Assist in monitoring and reviewing project progress and timelines; identify and resolve issues to ensure project success \u00b7 Assist with the management of day-to-day execution of Enterprise project implementations.",
+                "profile": {
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/yext/jobs/1300740",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a yext  \u203a jobs  \u203a 1300740"
+                }
+            },
+            {
+                "title": "Job Application for Corporate Development Manager (all genders) at Urban Sports Club",
+                "url": "https://boards.greenhouse.io/urbansportsclub/jobs/5447485002",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Berlin \u00b7 You will be leading high impact, strategic projects across the organisation as part of the corporate development team to further drive the growth of Urban Sports Club in Europe. Independently manage strategic projects across a variety of topics and departments from start to finish (this can also also include PMI projects) Engage in both internal and external stakeholder management and conflict resolution to drive the project forward \u00b7",
+                "profile": {
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/urbansportsclub/jobs/5447485002",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a urbansportsclub  \u203a jobs  \u203a 5447485002"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/1mRewOmpUHUUS-o1GdBU3dVJBtG-CSI3Pp9ZUdAUk34/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMi1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvNzYx/LzUwMC9vcmlnaW5h/bC9VcmJhblNwb3J0/c0NsdWJfTG9nb19V/bmljb25fQmxhY2st/MDEucG5nPzE2MjE0/MTkxMDQ",
+                    "original": "https://s2-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/761/500/original/UrbanSportsClub_Logo_Unicon_Black-01.png?1621419104",
+                    "logo": true
+                }
+            },
+            {
+                "title": "Job Application for Senior Digital Art Director with B2B focus (all genders) at WongDoody",
+                "url": "https://boards.greenhouse.io/wongdoody/jobs/5746034003",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Independent and responsible work in interdisciplinary project teams (account management, conception, UX, client)",
+                "profile": {
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/wongdoody/jobs/5746034003",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a wongdoody  \u203a jobs  \u203a 5746034003"
+                }
+            },
+            {
+                "title": "Job Application for Project Manager (French speaker) | Partner Onboarding and Integrations (m/f/div) at Solarisbank AG at Solarisbank",
+                "url": "https://boards.greenhouse.io/solarisbank/jobs/5886602002",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "You have 3+ years of Project Management experience, ideally in the (Fin-)Tech industry",
+                "profile": {
+                    "name": "DevRev",
+                    "url": "https://boards.greenhouse.io/solarisbank/jobs/5886602002",
+                    "long_name": "boards.greenhouse.io",
+                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "boards.greenhouse.io",
+                    "hostname": "boards.greenhouse.io",
+                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
+                    "path": "\u203a solarisbank  \u203a jobs  \u203a 5886602002"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/lvk7sTuXUsW9lk-l22AUGJQXH-_JwLVBSOKb2gQxvX8/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMi1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMjQ5/LzQwMC9vcmlnaW5h/bC9zb2xhcmlzc2hh/cmVpbWFnZS5wbmc_/MTU5NDIxNjM3Mw",
+                    "original": "https://s2-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/249/400/original/solarisshareimage.png?1594216373",
+                    "logo": true
                 }
             }
         ],

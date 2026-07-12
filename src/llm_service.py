@@ -226,6 +226,12 @@ class LLMService:
                 "Return ONLY JSON.",
                 "Do not include explanations.",
                 "Only include the keys in the output_schema.",
+                (
+                    "Mix in queries using the site: operator against applicant "
+                    "tracking systems (e.g. site:boards.greenhouse.io or "
+                    "site:jobs.lever.co) to surface individual job postings "
+                    "instead of job board search pages."
+                ),
             ],
         }
         return json.dumps(payload, ensure_ascii=True)

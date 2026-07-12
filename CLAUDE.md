@@ -39,7 +39,7 @@ Everything is wired together in `src/main.py`, which loads config/secrets and co
 - **`url_heuristics.py`** — pure-function URL classifier: `classify_url()` returns `POSTING` (ATS hosts like greenhouse/lever/workday/personio, or job-ID-shaped paths), `LISTING` (generic careers/jobs page), `INDEX` (aggregator search/list pages: Glassdoor `SRCH`, Stepstone `/jobs/<term>`, Indeed/LinkedIn search, or search-style query params), or `OTHER`. The orchestrator's `_triage_urls()` uses this to prioritize postings and down-rank index pages.
 - **`models.py`** — Pydantic schemas (`SearchQueries`, `SearchPlan`, `Reflection`, `JobEvaluation`, `JobResult`) that constrain LLM output and the final result records. `SearchPlan`/`Reflection` fields all default, so partial LLM JSON still validates.
 
-Agent behavior toggles live in `[tool.job_crawler.agent]` (`enable_planning`, `enable_reflection`, both default true; with reflection disabled the heuristic fallback is still used) and `memory_path` in `[tool.job_crawler.output]`.
+Agent behavior toggles live in `[tool.job_crawler.agent]` (`enable_planning`, `enable_reflection`, `ats_query_boost`, all default true; with reflection disabled the heuristic fallback is still used) and `memory_path` in `[tool.job_crawler.output]`. `ats_query_boost` makes the orchestrator prepend up to 2 deterministic `site:`-targeted queries per iteration (built from plan roles × `ATS_QUERY_SITES`, rotating via the already-searched set) so Brave surfaces individual postings instead of board indexes; the query-generation prompt also asks the LLM for such queries, but injection doesn't rely on the model complying.
 
 ### Mock mode
 

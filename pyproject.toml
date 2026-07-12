@@ -33,6 +33,7 @@ memory_path = "data/memory.json"
 [tool.job_crawler.agent]
 enable_planning = true
 enable_reflection = true
+ats_query_boost = true
 
 [tool.job_crawler.llm]
 model = "openrouter/openrouter/free"

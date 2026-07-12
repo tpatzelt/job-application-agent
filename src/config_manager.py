@@ -49,6 +49,7 @@ class Config:
     memory_path: str = "data/memory.json"
     enable_planning: bool = True
     enable_reflection: bool = True
+    ats_query_boost: bool = True
     browser_fallback: bool = True
     min_job_text_chars: int = 800
 
@@ -137,6 +138,7 @@ def load_config(
         memory_path=str(output_data.get("memory_path", "data/memory.json")),
         enable_planning=bool(agent_data.get("enable_planning", True)),
         enable_reflection=bool(agent_data.get("enable_reflection", True)),
+        ats_query_boost=bool(agent_data.get("ats_query_boost", True)),
         browser_fallback=bool(search_data.get("browser_fallback", True)),
         min_job_text_chars=int(search_data.get("min_job_text_chars", 800)),
     )
