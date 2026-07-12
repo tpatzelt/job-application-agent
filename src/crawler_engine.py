@@ -6,6 +6,7 @@ import threading
 from typing import Any, Callable, cast
 from urllib.parse import urlparse
 
+from botasaurus.browser import Driver, browser
 from botasaurus.request import Request, request
 from botasaurus.soupify import soupify
 
@@ -61,10 +62,48 @@ def fetch_job_task(req: Request, data: dict[str, Any]) -> str:
     return response.text
 
 
+def extract_visible_text(html: str | None) -> str:
+    if not html:
+        return ""
+    soup = soupify(html)
+    for tag in soup(["script", "style", "noscript", "header", "footer", "nav"]):
+        tag.decompose()
+    text = soup.get_text(separator=" ", strip=True)
+    return " ".join(text.split())
+
+
+# --no-sandbox: Ubuntu 23.10+ restricts unprivileged user namespaces, which
+# crashes non-packaged Chrome builds; the scraper only visits public pages.
+@browser(
+    headless=True,
+    reuse_driver=True,
+    max_retry=2,
+    close_on_crash=True,
+    block_images=True,
+    output=None,
+    add_arguments=["--no-sandbox", "--disable-gpu"],
+)
+def fetch_job_browser_task(driver: Driver, data: dict[str, Any]) -> str:
+    # Real browser fetch for JS-rendered pages (Workday-style ATS) and
+    # boards that 403 plain HTTP clients. ATS pages often render the job
+    # description via XHR well after page load, so poll until the visible
+    # text reaches the threshold instead of sleeping a fixed interval.
+    driver.get(data["url"])
+    min_chars = int(data.get("min_text_chars", 800))
+    html = ""
+    for _ in range(6):
+        driver.sleep(2)
+        html = driver.page_html
+        if len(extract_visible_text(html)) >= min_chars:
+            break
+    return html
+
+
 BraveSearchCallable = Callable[[dict[str, Any]], dict[str, Any]]
 FetchJobCallable = Callable[[dict[str, Any]], str]
 BRAVE_SEARCH = cast(BraveSearchCallable, brave_search_task)
 FETCH_JOB = cast(FetchJobCallable, fetch_job_task)
+FETCH_JOB_BROWSER = cast(FetchJobCallable, fetch_job_browser_task)
 
 
 class CrawlerEngine:
@@ -146,18 +185,42 @@ class CrawlerEngine:
         ]
         return urls
 
-    def fetch_job_text(self, url: str) -> str:
+    def fetch_job_text(self, url: str, use_browser_fallback: bool = False) -> str:
         self._logger.info("Fetching URL via botasaurus: %s", url)
         html = FETCH_JOB({"url": url, "timeout": self._config.request_timeout_seconds})
-        if not html:
+        text = self._extract_text(html)
+        if (
+            use_browser_fallback
+            and self._config.browser_fallback
+            and len(text) < self._config.min_job_text_chars
+        ):
+            self._logger.info(
+                "Plain fetch got only %s chars for %s, trying browser fallback",
+                len(text),
+                url,
+            )
+            browser_text = self._fetch_with_browser(url)
+            if len(browser_text) > len(text):
+                self._logger.info(
+                    "Browser fallback recovered %s chars for %s",
+                    len(browser_text),
+                    url,
+                )
+                return browser_text
+        return text
+
+    def _fetch_with_browser(self, url: str) -> str:
+        try:
+            html = FETCH_JOB_BROWSER(
+                {"url": url, "min_text_chars": self._config.min_job_text_chars}
+            )
+        except Exception as exc:
+            self._logger.warning("Browser fetch failed for %s: %s", url, exc)
             return ""
-        soup = soupify(html)
+        return self._extract_text(html)
 
-        for tag in soup(["script", "style", "noscript", "header", "footer", "nav"]):
-            tag.decompose()
-
-        text = soup.get_text(separator=" ", strip=True)
-        return " ".join(text.split())
+    def _extract_text(self, html: str | None) -> str:
+        return extract_visible_text(html)
 
     def _run_brave_search_with_backoff(self, payload: dict[str, Any]) -> dict[str, Any]:
         delay = 1

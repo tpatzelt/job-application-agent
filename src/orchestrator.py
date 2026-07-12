@@ -194,7 +194,11 @@ class Orchestrator:
         """Fetch and score one triaged URL. Returns True if accepted."""
         self._logger.info("Fetching job page: %s", url)
         try:
-            job_text = self._tools.invoke("fetch_job_text", url)
+            job_text = self._tools.invoke(
+                "fetch_job_text",
+                url,
+                use_browser_fallback=classify_url(url) == POSTING,
+            )
         except Exception as exc:
             self._logger.warning("Failed to fetch %s: %s", url, exc)
             seen_urls.add(url)
@@ -203,7 +207,7 @@ class Orchestrator:
             self._logger.info("Empty content for %s, skipping", url)
             seen_urls.add(url)
             return False
-        if len(job_text) < 800:
+        if len(job_text) < self._config.min_job_text_chars:
             self._logger.info(
                 "Content too short (%s chars) for %s, skipping", len(job_text), url
             )

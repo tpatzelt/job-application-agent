@@ -68,7 +68,7 @@ class MockCrawler:
         self.search_calls.append(query)
         return [item["url"] for item in MOCK_BRAVE_RESPONSE["web"]["results"]]
 
-    def fetch_job_text(self, url: str) -> str:
+    def fetch_job_text(self, url: str, use_browser_fallback: bool = False) -> str:
         self.fetch_calls.append(url)
         return MOCK_JOB_TEXT
 

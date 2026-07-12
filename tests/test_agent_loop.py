@@ -104,14 +104,16 @@ class ScriptedCrawler:
         self._url_map = url_map
         self.search_calls: list[str] = []
         self.fetch_calls: list[str] = []
+        self.fetch_fallback_flags: dict[str, bool] = {}
 
     def search(self, query: str) -> list[str]:
         self._budget.record_search_iteration()
         self.search_calls.append(query)
         return self._url_map.get(query, [])
 
-    def fetch_job_text(self, url: str) -> str:
+    def fetch_job_text(self, url: str, use_browser_fallback: bool = False) -> str:
         self.fetch_calls.append(url)
+        self.fetch_fallback_flags[url] = use_browser_fallback
         return LONG_JOB_TEXT
 
 
@@ -291,6 +293,18 @@ def test_postings_processed_before_index_pages(tmp_path: Path):
         "https://boards.greenhouse.io/acme/jobs/12345",
         "https://company.com/careers/software-engineer",
     ]
+
+
+def test_browser_fallback_requested_only_for_postings(tmp_path: Path):
+    config = _make_config(max_results=3)
+    llm = ScriptedLLM(config.budget, [["q"]])
+    posting = "https://boards.greenhouse.io/acme/jobs/12345"
+    listing = "https://company.com/careers/software-engineer"
+    crawler = ScriptedCrawler(config.budget, {"q": [posting, listing]})
+    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    assert crawler.fetch_fallback_flags[posting] is True
+    assert crawler.fetch_fallback_flags[listing] is False
 
 
 def test_max_results_stops_loop(tmp_path: Path):

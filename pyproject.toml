@@ -45,6 +45,8 @@ brave_endpoint = "https://api.search.brave.com/res/v1/web/search"
 results_per_query = 20
 request_timeout_seconds = 30
 min_delay_seconds = 1
+browser_fallback = true
+min_job_text_chars = 800
 
 [tool.job_crawler.profiles.minimal]
 max_results = 2
