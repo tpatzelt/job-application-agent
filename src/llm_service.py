@@ -8,7 +8,7 @@ from typing import Any
 from litellm import completion
 
 from .config_manager import Config, EffortBudget
-from .models import JobEvaluation, SearchQueries
+from .models import JobEvaluation, Reflection, SearchPlan, SearchQueries
 from pydantic import ValidationError
 
 
@@ -26,6 +26,39 @@ class LLMService:
         response_text = self._call_llm(prompt)
         payload = self._parse_json_payload(response_text, prompt)
         return SearchQueries.model_validate(payload)
+
+    def plan_search(self, context: dict[str, Any]) -> SearchPlan:
+        prompt = self._build_plan_prompt(context)
+        response_text = self._call_llm(prompt)
+        payload = self._parse_json_payload(response_text, prompt)
+        try:
+            return SearchPlan.model_validate(payload)
+        except ValidationError as exc:
+            self._logger.warning(
+                "Search plan payload failed validation, returning default. payload=%s error=%s",
+                payload,
+                exc,
+            )
+            return SearchPlan()
+
+    def reflect(
+        self,
+        context: dict[str, Any],
+        history: list[dict[str, Any]],
+        tool_stats: dict[str, Any],
+    ) -> Reflection:
+        prompt = self._build_reflection_prompt(context, history, tool_stats)
+        response_text = self._call_llm(prompt)
+        payload = self._parse_json_payload(response_text, prompt)
+        try:
+            return Reflection.model_validate(payload)
+        except ValidationError as exc:
+            self._logger.warning(
+                "Reflection payload failed validation, returning default. payload=%s error=%s",
+                payload,
+                exc,
+            )
+            return Reflection()
 
     def evaluate_job(self, cv: str, job_description: str) -> JobEvaluation:
         prompt = self._build_evaluation_prompt(cv, job_description)
@@ -189,6 +222,57 @@ class LLMService:
             "context": context,
             "history": history,
             "output_schema": {"queries": ["string"]},
+            "rules": [
+                "Return ONLY JSON.",
+                "Do not include explanations.",
+                "Only include the keys in the output_schema.",
+            ],
+        }
+        return json.dumps(payload, ensure_ascii=True)
+
+    def _build_plan_prompt(self, context: dict[str, Any]) -> str:
+        payload = {
+            "task": (
+                "Create a job search plan from the CV and preferences: "
+                "which roles to target, which skills to emphasize, "
+                "which locations to search, and the overall strategy."
+            ),
+            "context": context,
+            "output_schema": {
+                "target_roles": ["string"],
+                "key_skills": ["string"],
+                "locations": ["string"],
+                "strategy": "string",
+            },
+            "rules": [
+                "Return ONLY JSON.",
+                "Do not include explanations.",
+                "Only include the keys in the output_schema.",
+            ],
+        }
+        return json.dumps(payload, ensure_ascii=True)
+
+    def _build_reflection_prompt(
+        self,
+        context: dict[str, Any],
+        history: list[dict[str, Any]],
+        tool_stats: dict[str, Any],
+    ) -> str:
+        payload = {
+            "task": (
+                "Critique the job search performance so far. Identify which "
+                "queries worked, which did not, and suggest concrete "
+                "adjustments for the next round of queries."
+            ),
+            "context": context,
+            "history": history,
+            "tool_stats": tool_stats,
+            "output_schema": {
+                "assessment": "string",
+                "effective_queries": ["string"],
+                "ineffective_queries": ["string"],
+                "adjustments": ["string"],
+            },
             "rules": [
                 "Return ONLY JSON.",
                 "Do not include explanations.",

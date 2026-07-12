@@ -5,34 +5,52 @@ from pathlib import Path
 from typing import Any
 
 from .config_manager import Config, EffortBudget
-from .models import JobEvaluation, SearchQueries
+from .models import JobEvaluation, Reflection, SearchPlan, SearchQueries
 from .orchestrator import Orchestrator
 from tests.mock_data import (
     MOCK_BRAVE_RESPONSE,
     MOCK_EVALUATION_RESPONSE,
     MOCK_JOB_TEXT,
+    MOCK_PLAN_RESPONSE,
     MOCK_QUERY_RESPONSE,
+    MOCK_REFLECTION_RESPONSE,
 )
 
 
 class MockLLM:
     def __init__(self, budget: EffortBudget):
         self._budget = budget
-        self.calls = {"queries": 0, "eval": 0}
+        self.calls = {"queries": 0, "eval": 0, "plan": 0, "reflect": 0}
+
+    def _record_call(self) -> None:
+        if not self._budget.can_call_llm():
+            raise RuntimeError("Effort budget exceeded: LLM calls")
+        self._budget.record_llm_call()
 
     def generate_search_queries(
         self, context: dict[str, Any], history: list[dict[str, Any]]
     ) -> SearchQueries:
-        if not self._budget.can_call_llm():
-            raise RuntimeError("Effort budget exceeded: LLM calls")
-        self._budget.record_llm_call()
+        self._record_call()
         self.calls["queries"] += 1
         return SearchQueries.model_validate(MOCK_QUERY_RESPONSE)
 
+    def plan_search(self, context: dict[str, Any]) -> SearchPlan:
+        self._record_call()
+        self.calls["plan"] += 1
+        return SearchPlan.model_validate(MOCK_PLAN_RESPONSE)
+
+    def reflect(
+        self,
+        context: dict[str, Any],
+        history: list[dict[str, Any]],
+        tool_stats: dict[str, Any],
+    ) -> Reflection:
+        self._record_call()
+        self.calls["reflect"] += 1
+        return Reflection.model_validate(MOCK_REFLECTION_RESPONSE)
+
     def evaluate_job(self, cv: str, job_description: str) -> JobEvaluation:
-        if not self._budget.can_call_llm():
-            raise RuntimeError("Effort budget exceeded: LLM calls")
-        self._budget.record_llm_call()
+        self._record_call()
         self.calls["eval"] += 1
         return JobEvaluation.model_validate(MOCK_EVALUATION_RESPONSE)
 
@@ -79,7 +97,8 @@ def run_mock_loop(root: Path) -> MockRunResult:
         request_timeout_seconds=1,
         search_min_delay_seconds=0,
         max_queries_per_iteration=3,
-        budget=EffortBudget(max_llm_calls=10, max_search_iterations=2),
+        budget=EffortBudget(max_llm_calls=10, max_search_iterations=3),
+        memory_path="data/mock_memory.json",
     )
 
     budget = config.budget
@@ -93,6 +112,7 @@ def run_mock_loop(root: Path) -> MockRunResult:
         cache_path=root / config.cache_path,
         results_json=root / config.results_json,
         results_csv=root / config.results_csv,
+        memory_path=root / config.memory_path,
     )
 
     return MockRunResult(

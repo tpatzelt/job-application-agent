@@ -193,6 +193,7 @@ cython_debug/
 .venv
 data/*.json
 data/*.csv
+data/*.txt
 data/cache.json
 data/mock_cache.json
 

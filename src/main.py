@@ -46,6 +46,7 @@ def main() -> None:
         cache_path=root / config.cache_path,
         results_json=root / config.results_json,
         results_csv=root / config.results_csv,
+        memory_path=root / config.memory_path,
     )
 
 

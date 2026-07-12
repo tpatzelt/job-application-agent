@@ -46,6 +46,9 @@ class Config:
     search_min_delay_seconds: int
     max_queries_per_iteration: int
     budget: EffortBudget
+    memory_path: str = "data/memory.json"
+    enable_planning: bool = True
+    enable_reflection: bool = True
 
 
 def _load_pyproject_config(
@@ -101,6 +104,7 @@ def load_config(
     output_data = data.get("output", {})
     llm_data = data.get("llm", {})
     search_data = data.get("search", {})
+    agent_data = data.get("agent", {})
 
     budget = EffortBudget(
         max_llm_calls=int(budget_data.get("max_llm_calls", 25)),
@@ -128,6 +132,9 @@ def load_config(
         search_min_delay_seconds=int(search_data.get("min_delay_seconds", 1)),
         max_queries_per_iteration=int(data.get("max_queries_per_iteration", 10)),
         budget=budget,
+        memory_path=str(output_data.get("memory_path", "data/memory.json")),
+        enable_planning=bool(agent_data.get("enable_planning", True)),
+        enable_reflection=bool(agent_data.get("enable_reflection", True)),
     )
 
 
