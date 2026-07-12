@@ -42,12 +42,14 @@ def brave_search_task(req: Request, data: dict[str, Any]) -> dict[str, Any]:
                 )
         else:
             logger.warning("Brave API request failed: %s", exc)
-        return {"web": {"results": []}}
+        # Signal the error so the caller can retry; an empty result set
+        # here would be indistinguishable from a legitimately empty search.
+        return {"error": str(exc)}
 
     try:
         j = response.json()
-    except Exception:
-        return {"web": {"results": []}}
+    except Exception as exc:
+        return {"error": f"Invalid JSON from Brave API: {exc}"}
 
     if not isinstance(j, dict):
         # ensure we always return a dict for callers
@@ -143,12 +145,15 @@ class CrawlerEngine:
                 "timeout": self._config.request_timeout_seconds,
             }
         )
-        # only count a search iteration if we actually received results
-        if payload:
-            self._budget.record_search_iteration()
-        if not payload:
-            self._logger.warning("Empty Brave search payload for query: %s", query)
+        if not payload or "error" in payload:
+            # Transport-level failure: don't consume search budget for it.
+            self._logger.warning(
+                "Brave search failed for query %r: %s",
+                query,
+                (payload or {}).get("error", "empty payload"),
+            )
             return []
+        self._budget.record_search_iteration()
         web_results = payload.get("web", {}).get("results", [])
 
         def _is_video_item(item: dict[str, Any]) -> bool:
@@ -242,9 +247,17 @@ class CrawlerEngine:
                     self._last_brave_search = time.monotonic()
 
                 result = BRAVE_SEARCH(payload)
-                if result:
+                if result and "error" not in result:
                     return result
-                self._logger.warning("Brave search returned empty payload")
+                error = (result or {}).get("error", "empty payload")
+                self._logger.warning(
+                    "Brave search attempt %s/3 failed: %s", attempt, error
+                )
+                if attempt < 3:
+                    time.sleep(delay)
+                    delay *= 2
+                    continue
+                return result or {"error": "empty payload"}
             except Exception as exc:
                 self._logger.warning(
                     "Brave search failed on attempt %s/3: %s",
