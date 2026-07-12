@@ -270,6 +270,29 @@ def test_rejected_jobs_recorded_but_not_returned(tmp_path: Path):
     assert memory.productive_domains() == []
 
 
+def test_postings_processed_before_index_pages(tmp_path: Path):
+    config = _make_config(max_results=2)
+    llm = ScriptedLLM(config.budget, [["q"]])
+    crawler = ScriptedCrawler(
+        config.budget,
+        {
+            "q": [
+                "https://www.stepstone.de/jobs/project-manager/in-berlin",
+                "https://company.com/careers/software-engineer",
+                "https://boards.greenhouse.io/acme/jobs/12345",
+            ]
+        },
+    )
+    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    # Posting first, then the generic careers page; max_results is hit
+    # before the down-ranked board index page is ever fetched.
+    assert crawler.fetch_calls == [
+        "https://boards.greenhouse.io/acme/jobs/12345",
+        "https://company.com/careers/software-engineer",
+    ]
+
+
 def test_max_results_stops_loop(tmp_path: Path):
     config = _make_config(max_results=2)
     llm = ScriptedLLM(config.budget, [["q1", "q2", "q3"]])

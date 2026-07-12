@@ -10,6 +10,7 @@ from .agent_memory import AgentMemory
 from .config_manager import Config, EffortBudget
 from .models import JobResult, Reflection, SearchPlan
 from .tools import ToolRegistry
+from .url_heuristics import INDEX, LISTING, OTHER, POSTING, classify_url
 
 
 class Orchestrator:
@@ -106,16 +107,35 @@ class Orchestrator:
                 self._logger.info("Searching with query: %s", query)
                 urls = self._tools.invoke("search", query)
                 new_urls = [url for url in urls if url not in seen_urls]
+                postings, listings, index_pages = self._triage_urls(
+                    new_urls, seen_urls
+                )
                 history.append(
-                    {"query": query, "urls_found": len(urls), "new": len(new_urls)}
+                    {
+                        "query": query,
+                        "urls_found": len(urls),
+                        "new": len(new_urls),
+                        "postings": len(postings),
+                        "index_pages": len(index_pages),
+                    }
                 )
                 memory.record_query(query, urls_found=len(urls), new_urls=len(new_urls))
-                self._logger.info("Found %s URLs (%s new)", len(urls), len(new_urls))
+                self._logger.info(
+                    "Found %s URLs (%s new: %s postings, %s listings, %s index pages)",
+                    len(urls),
+                    len(new_urls),
+                    len(postings),
+                    len(listings),
+                    len(index_pages),
+                )
+                if new_urls:
+                    made_progress = True
 
-                for url in new_urls:
+                # Individual postings first, generic careers pages next,
+                # board index pages only if capacity remains.
+                for url in postings + listings + index_pages:
                     if len(results) >= self._config.max_results:
                         break
-                    made_progress = True
                     accepted = self._process_url(
                         url, query, cv_text, seen_urls, results, memory
                     )
@@ -141,6 +161,27 @@ class Orchestrator:
         self._logger.info("Wrote %s results", len(results))
         return results
 
+    def _triage_urls(
+        self, urls: list[str], seen_urls: set[str]
+    ) -> tuple[list[str], list[str], list[str]]:
+        """Split URLs by kind; non-job URLs are marked seen and dropped."""
+        postings: list[str] = []
+        listings: list[str] = []
+        index_pages: list[str] = []
+        for url in urls:
+            kind = classify_url(url)
+            if kind == POSTING:
+                postings.append(url)
+            elif kind == LISTING:
+                listings.append(url)
+            elif kind == INDEX:
+                self._logger.info("Down-ranking board index page: %s", url)
+                index_pages.append(url)
+            else:
+                self._logger.info("Skipping non-job URL: %s", url)
+                seen_urls.add(url)
+        return postings, listings, index_pages
+
     def _process_url(
         self,
         url: str,
@@ -150,11 +191,7 @@ class Orchestrator:
         results: list[JobResult],
         memory: AgentMemory,
     ) -> bool:
-        """Fetch, filter, and score one URL. Returns True if accepted."""
-        if not self._looks_like_listing(url):
-            self._logger.info("Skipping non-job URL: %s", url)
-            seen_urls.add(url)
-            return False
+        """Fetch and score one triaged URL. Returns True if accepted."""
         self._logger.info("Fetching job page: %s", url)
         try:
             job_text = self._tools.invoke("fetch_job_text", url)
@@ -319,5 +356,4 @@ class Orchestrator:
         return "Unknown"
 
     def _looks_like_listing(self, url: str) -> bool:
-        tokens = ["/jobs", "/job", "careers", "apply", "greenhouse", "lever"]
-        return any(token in url.lower() for token in tokens)
+        return classify_url(url) != OTHER
