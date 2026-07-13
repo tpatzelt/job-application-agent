@@ -13,7 +13,7 @@ MOCK_BRAVE_RESPONSE = {
     }
 }
 
-MOCK_JOB_TEXT = "We are looking for a Python developer. " + ("Details " * 200)
+MOCK_JOB_TEXT = "We are looking for a Python developer in Berlin. " + ("Details " * 200)
 
 MOCK_QUERY_RESPONSE = {
     "queries": [
