@@ -294,6 +294,13 @@ class LLMService:
                     "from context.preferences (city or country); if the "
                     "user wants remote work, use 'remote' plus the country."
                 ),
+                (
+                    "Write every query in the language named by "
+                    "context.preferences.language when it is set (e.g. "
+                    "German job titles and keywords for 'german'); "
+                    "otherwise match the language of the CV and "
+                    "preferences."
+                ),
             ],
         }
         return json.dumps(payload, ensure_ascii=True)
@@ -323,6 +330,10 @@ class LLMService:
                     "target locations that are likely to hire for these "
                     "roles, so their career pages can be searched directly. "
                     "Do not list job boards or staffing agencies."
+                ),
+                (
+                    "If context.preferences.language is set, express "
+                    "target_roles and key_skills in that language."
                 ),
             ],
         }
@@ -383,6 +394,7 @@ class LLMService:
                 "job_titles": ["string"],
                 "keywords": ["string"],
                 "locations": ["string"],
+                "language": "string",
                 "questions": ["string"],
             },
             "rules": [
@@ -390,6 +402,11 @@ class LLMService:
                 "Do not include explanations.",
                 "Only include the keys in the output_schema.",
                 "locations entries should look like 'Berlin, Germany'.",
+                (
+                    "language: the language the user wants job postings "
+                    "written in (e.g. 'German'), but only when the documents "
+                    "or answers state one; otherwise leave it empty."
+                ),
                 "Ask at most 3 questions, only about missing essentials.",
                 "If locations are known, do not ask about locations.",
                 "If user_answers_to_previous_questions covers a topic, "

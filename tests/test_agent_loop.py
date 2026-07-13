@@ -124,13 +124,20 @@ class ScriptedCrawler:
         self._link_map = link_map or {}
         self.search_calls: list[str] = []
         self.search_countries: list[str | None] = []
+        self.search_langs: list[str | None] = []
         self.fetch_calls: list[str] = []
         self.fetch_fallback_flags: dict[str, bool] = {}
 
-    def search(self, query: str, country: str | None = None) -> list[str]:
+    def search(
+        self,
+        query: str,
+        country: str | None = None,
+        search_lang: str | None = None,
+    ) -> list[str]:
         self._budget.record_search_iteration()
         self.search_calls.append(query)
         self.search_countries.append(country)
+        self.search_langs.append(search_lang)
         return self._url_map.get(query, [])
 
     def fetch_job_text(self, url: str, use_browser_fallback: bool = False) -> str:

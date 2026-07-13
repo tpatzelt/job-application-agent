@@ -112,6 +112,52 @@ def test_country_derived_from_preferences_and_passed_to_search(tmp_path: Path):
     assert crawler.search_countries == ["DE"]
 
 
+def test_language_preference_passed_to_search_and_context(tmp_path: Path):
+    config = _make_config(max_results=1)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": [POSTING_URL]}
+    )
+    orchestrator = Orchestrator(config, config.budget, llm, crawler)
+    orchestrator.run(
+        cv_text="Python developer CV",
+        preferences={"location": "Berlin, Germany", "language": "German"},
+        cache_path=tmp_path / "cache.json",
+        results_json=tmp_path / "results.json",
+        results_csv=tmp_path / "results.csv",
+        memory_path=tmp_path / "memory.json",
+    )
+
+    assert crawler.search_langs == ["de"]
+    # Normalized language is exposed to the query-generation prompt context.
+    assert llm.query_contexts[0]["preferences"]["language"] == "german"
+
+
+def test_language_detected_from_cv_when_preference_unset(tmp_path: Path):
+    german_cv = (
+        "Ich bin Softwareentwickler mit mehrjähriger Erfahrung und suche "
+        "eine neue Stelle in Berlin. Die Arbeit mit modernen Technologien "
+        "ist mir wichtig, und ich möchte bei einem Unternehmen arbeiten."
+    )
+    config = _make_config(max_results=1)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": [POSTING_URL]}
+    )
+    orchestrator = Orchestrator(config, config.budget, llm, crawler)
+    orchestrator.run(
+        cv_text=german_cv,
+        preferences={"location": "Berlin, Germany"},
+        cache_path=tmp_path / "cache.json",
+        results_json=tmp_path / "results.json",
+        results_csv=tmp_path / "results.csv",
+        memory_path=tmp_path / "memory.json",
+    )
+
+    assert crawler.search_langs == ["de"]
+    assert llm.query_contexts[0]["preferences"]["language"] == "german"
+
+
 def _search_config(**overrides: Any) -> Config:
     return _make_config(
         budget=EffortBudget(max_llm_calls=5, max_search_iterations=5),
@@ -131,11 +177,12 @@ def test_brave_params_include_freshness_and_country(monkeypatch):
     config = _search_config(search_freshness="pm")
     engine = CrawlerEngine(config, config.budget, "key")
 
-    urls = engine.search("ml engineer berlin", country="DE")
+    urls = engine.search("ml engineer berlin", country="DE", search_lang="de")
 
     assert urls == [POSTING_URL]
     assert captured["params"]["freshness"] == "pm"
     assert captured["params"]["country"] == "DE"
+    assert captured["params"]["search_lang"] == "de"
 
 
 def test_brave_params_omit_freshness_and_country_when_unset(monkeypatch):
@@ -154,6 +201,7 @@ def test_brave_params_omit_freshness_and_country_when_unset(monkeypatch):
 
     assert "freshness" not in captured["params"]
     assert "country" not in captured["params"]
+    assert "search_lang" not in captured["params"]
 
 
 def test_evaluation_prompt_contains_location_rules():

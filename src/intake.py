@@ -4,6 +4,7 @@ import logging
 from typing import Any, Callable, Protocol
 
 from .document_text import DocumentExtractionError, extract_text
+from .language import detect_language, normalize_language
 from .models import IntakeExtraction
 from .telegram_api import IncomingMessage, TelegramError
 from .user_store import (
@@ -24,6 +25,11 @@ QUESTION_LOCATIONS = (
     "(e.g. 'Berlin and Hamburg, Germany' or 'remote, EU')"
 )
 QUESTION_ROLES = "Which job titles or roles should I look for?"
+QUESTION_LANGUAGE = (
+    "In which language should the job postings be? "
+    "(e.g. 'English' or 'German' — send /skip to use the language "
+    "your messages are written in)"
+)
 
 # Stop asking follow-ups after this many answered questions.
 MAX_ANSWERED_QUESTIONS = 6
@@ -174,6 +180,8 @@ class IntakeManager:
         if not record.pending_questions:
             return self._run_extraction(record)
         question = record.pending_questions.pop(0)
+        if answer.startswith("/skip"):
+            answer = "no preference"
         record.answers.append({"question": question, "answer": answer})
         if record.pending_questions:
             return self._ask_next_question(record)
@@ -218,6 +226,10 @@ class IntakeManager:
             questions.append(QUESTION_LOCATIONS)
         if not extraction.job_titles and QUESTION_ROLES not in answered:
             questions.append(QUESTION_ROLES)
+        if not normalize_language(extraction.language) and (
+            QUESTION_LANGUAGE not in answered
+        ):
+            questions.append(QUESTION_LANGUAGE)
         deduped: list[str] = []
         for question in questions:
             if question not in answered and question not in deduped:
@@ -230,6 +242,7 @@ class IntakeManager:
         """Build a minimal extraction from raw answers when the LLM fails."""
         locations: list[str] = []
         job_titles: list[str] = []
+        language = ""
         for entry in record.answers:
             if entry["question"] == QUESTION_LOCATIONS:
                 locations = [entry["answer"]]
@@ -239,20 +252,31 @@ class IntakeManager:
                     for part in entry["answer"].replace(";", ",").split(",")
                     if part.strip()
                 ]
+            elif entry["question"] == QUESTION_LANGUAGE:
+                language = entry["answer"]
         keywords = [
             word for word in prefs_text.replace(",", " ").split() if len(word) > 3
         ][:8]
         return IntakeExtraction(
-            job_titles=job_titles, keywords=keywords, locations=locations
+            job_titles=job_titles,
+            keywords=keywords,
+            locations=locations,
+            language=language,
         )
 
     def _finalize(self, record: UserRecord, extraction: IntakeExtraction) -> str:
         location = extraction.locations[0] if extraction.locations else ""
+        language = normalize_language(extraction.language)
+        if not language:
+            # No stated preference: search in the language the user's own
+            # input (documents and answers) is written in.
+            language = detect_language(self._user_input_text(record))
         record.preferences = {
             "location": location,
             "locations": extraction.locations,
             "job_titles": extraction.job_titles,
             "job_description_keywords": extraction.keywords,
+            "language": language,
         }
         record.pending_questions = []
         record.state = STATE_ACTIVE
@@ -265,6 +289,15 @@ class IntakeManager:
             "ones. Use /run to start a scan right now, /status to check "
             "your setup, or /reset to change your documents."
         )
+
+    def _user_input_text(self, record: UserRecord) -> str:
+        """Everything the user wrote, freshest first, for language detection."""
+        answers = " ".join(entry["answer"] for entry in record.answers)
+        documents = " ".join(
+            self._store.load_document(record.chat_id, name)
+            for name in ("job_prefs", "motivation", "cv")
+        )
+        return f"{answers} {documents}"
 
     # ------------------------------------------------------------------
     # Helpers
@@ -331,10 +364,12 @@ class IntakeManager:
         titles = ", ".join(preferences.get("job_titles", [])) or "-"
         locations = ", ".join(preferences.get("locations", [])) or "-"
         keywords = ", ".join(preferences.get("job_description_keywords", [])) or "-"
+        language = (preferences.get("language") or "-").capitalize()
         return (
             f"\U0001f3af Roles: {titles}\n"
             f"\U0001f4cd Locations: {locations}\n"
-            f"\U0001f511 Keywords: {keywords}"
+            f"\U0001f511 Keywords: {keywords}\n"
+            f"\U0001f310 Language: {language}"
         )
 
     def _format_interval(self) -> str:
