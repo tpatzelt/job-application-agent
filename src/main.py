@@ -15,18 +15,14 @@ from .config_manager import (
 )
 from .crawler_engine import CrawlerEngine
 from .llm_service import LLMService
+from .logging_setup import configure_logging
 from .notifier import TelegramNotifier
 from .orchestrator import Orchestrator
 
 
 def main() -> None:
     root = Path(__file__).resolve().parent.parent
-    # Allow overriding log level and profile via environment variables
-    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
-    logging.basicConfig(
-        level=getattr(logging, log_level, logging.INFO),
-        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-    )
+    configure_logging(root, "crawler")
     load_dotenv()
     # Optional: set JOB_CRAWLER_PROFILE to select a config profile from pyproject.toml
     profile = os.getenv("JOB_CRAWLER_PROFILE")

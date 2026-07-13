@@ -4,7 +4,7 @@ import logging
 import time
 import threading
 from typing import Any, Callable, cast
-from urllib.parse import urlparse
+from urllib.parse import urldefrag, urljoin, urlparse
 
 from botasaurus.browser import Driver, browser
 from botasaurus.request import Request, request
@@ -72,6 +72,24 @@ def extract_visible_text(html: str | None) -> str:
         tag.decompose()
     text = soup.get_text(separator=" ", strip=True)
     return " ".join(text.split())
+
+
+def extract_links(html: str | None, base_url: str) -> list[str]:
+    """Absolute, de-duplicated http(s) hrefs in document order."""
+    if not html:
+        return []
+    soup = soupify(html)
+    links: list[str] = []
+    seen: set[str] = set()
+    for anchor in soup.find_all("a", href=True):
+        href = urldefrag(urljoin(base_url, anchor["href"].strip())).url
+        if not href.startswith(("http://", "https://")):
+            continue
+        if href in seen:
+            continue
+        seen.add(href)
+        links.append(href)
+    return links
 
 
 # --no-sandbox: Ubuntu 23.10+ restricts unprivileged user namespaces, which
@@ -191,6 +209,13 @@ class CrawlerEngine:
         return urls
 
     def fetch_job_text(self, url: str, use_browser_fallback: bool = False) -> str:
+        text, _ = self.fetch_page(url, use_browser_fallback=use_browser_fallback)
+        return text
+
+    def fetch_page(
+        self, url: str, use_browser_fallback: bool = False
+    ) -> tuple[str, list[str]]:
+        """Fetch a page and return (visible text, outbound links)."""
         self._logger.info("Fetching URL via botasaurus: %s", url)
         html = FETCH_JOB({"url": url, "timeout": self._config.request_timeout_seconds})
         text = self._extract_text(html)
@@ -204,25 +229,25 @@ class CrawlerEngine:
                 len(text),
                 url,
             )
-            browser_text = self._fetch_with_browser(url)
+            browser_html = self._fetch_html_with_browser(url)
+            browser_text = self._extract_text(browser_html)
             if len(browser_text) > len(text):
                 self._logger.info(
                     "Browser fallback recovered %s chars for %s",
                     len(browser_text),
                     url,
                 )
-                return browser_text
-        return text
+                return browser_text, extract_links(browser_html, url)
+        return text, extract_links(html, url)
 
-    def _fetch_with_browser(self, url: str) -> str:
+    def _fetch_html_with_browser(self, url: str) -> str:
         try:
-            html = FETCH_JOB_BROWSER(
+            return FETCH_JOB_BROWSER(
                 {"url": url, "min_text_chars": self._config.min_job_text_chars}
             )
         except Exception as exc:
             self._logger.warning("Browser fetch failed for %s: %s", url, exc)
             return ""
-        return self._extract_text(html)
 
     def _extract_text(self, html: str | None) -> str:
         return extract_visible_text(html)

@@ -50,9 +50,15 @@ class Config:
     enable_planning: bool = True
     enable_reflection: bool = True
     ats_query_boost: bool = True
+    company_query_boost: bool = True
+    exclude_aggregator_sites: bool = True
     browser_fallback: bool = True
     min_job_text_chars: int = 800
+    max_harvest_links: int = 5
     telegram_notifications: bool = True
+    bot_poll_timeout_seconds: int = 50
+    bot_scan_interval_hours: float = 6.0
+    bot_intake_max_llm_calls: int = 6
 
 
 def _load_pyproject_config(
@@ -110,6 +116,7 @@ def load_config(
     search_data = data.get("search", {})
     agent_data = data.get("agent", {})
     notify_data = data.get("notify", {})
+    bot_data = data.get("bot", {})
 
     budget = EffortBudget(
         max_llm_calls=int(budget_data.get("max_llm_calls", 25)),
@@ -141,9 +148,17 @@ def load_config(
         enable_planning=bool(agent_data.get("enable_planning", True)),
         enable_reflection=bool(agent_data.get("enable_reflection", True)),
         ats_query_boost=bool(agent_data.get("ats_query_boost", True)),
+        company_query_boost=bool(agent_data.get("company_query_boost", True)),
+        exclude_aggregator_sites=bool(
+            agent_data.get("exclude_aggregator_sites", True)
+        ),
         browser_fallback=bool(search_data.get("browser_fallback", True)),
         min_job_text_chars=int(search_data.get("min_job_text_chars", 800)),
+        max_harvest_links=int(search_data.get("max_harvest_links", 5)),
         telegram_notifications=bool(notify_data.get("telegram", True)),
+        bot_poll_timeout_seconds=int(bot_data.get("poll_timeout_seconds", 50)),
+        bot_scan_interval_hours=float(bot_data.get("scan_interval_hours", 6.0)),
+        bot_intake_max_llm_calls=int(bot_data.get("intake_max_llm_calls", 6)),
     )
 
 

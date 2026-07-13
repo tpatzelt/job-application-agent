@@ -27,8 +27,10 @@ def _make_config(**overrides: Any) -> Config:
         max_queries_per_iteration=5,
         budget=EffortBudget(max_llm_calls=50, max_search_iterations=20),
         # Off by default so scripted-query tests stay deterministic;
-        # ATS-boost tests enable it explicitly.
+        # boost/exclusion tests enable them explicitly.
         ats_query_boost=False,
+        company_query_boost=False,
+        exclude_aggregator_sites=False,
     )
     params.update(overrides)
     return Config(**params)
@@ -44,12 +46,14 @@ class ScriptedLLM:
         score: int = 85,
         fail_reflect: bool = False,
         fail_plan: bool = False,
+        plan_companies: list[str] | None = None,
     ):
         self._budget = budget
         self._query_batches = query_batches
         self._score = score
         self._fail_reflect = fail_reflect
         self._fail_plan = fail_plan
+        self._plan_companies = plan_companies or []
         self.query_contexts: list[dict[str, Any]] = []
         self.plan_calls = 0
         self.reflect_calls = 0
@@ -76,7 +80,8 @@ class ScriptedLLM:
             target_roles=["Python Developer"],
             key_skills=["Python"],
             locations=["Berlin"],
-            strategy="Focus on job boards.",
+            target_companies=self._plan_companies,
+            strategy="Focus on employer career sites.",
         )
 
     def reflect(
@@ -102,9 +107,15 @@ class ScriptedLLM:
 class ScriptedCrawler:
     """Fake crawler that maps queries to fixed URL lists."""
 
-    def __init__(self, budget: EffortBudget, url_map: dict[str, list[str]]):
+    def __init__(
+        self,
+        budget: EffortBudget,
+        url_map: dict[str, list[str]],
+        link_map: dict[str, list[str]] | None = None,
+    ):
         self._budget = budget
         self._url_map = url_map
+        self._link_map = link_map or {}
         self.search_calls: list[str] = []
         self.fetch_calls: list[str] = []
         self.fetch_fallback_flags: dict[str, bool] = {}
@@ -118,6 +129,13 @@ class ScriptedCrawler:
         self.fetch_calls.append(url)
         self.fetch_fallback_flags[url] = use_browser_fallback
         return LONG_JOB_TEXT
+
+    def fetch_page(
+        self, url: str, use_browser_fallback: bool = False
+    ) -> tuple[str, list[str]]:
+        self.fetch_calls.append(url)
+        self.fetch_fallback_flags[url] = use_browser_fallback
+        return LONG_JOB_TEXT, self._link_map.get(url, [])
 
 
 def _run(orchestrator: Orchestrator, tmp_path: Path) -> list[Any]:
@@ -298,16 +316,119 @@ def test_postings_processed_before_index_pages(tmp_path: Path):
     ]
 
 
-def test_browser_fallback_requested_only_for_postings(tmp_path: Path):
-    config = _make_config(max_results=3)
+def test_browser_fallback_for_postings_and_listings_not_index(tmp_path: Path):
+    config = _make_config(max_results=5)
     llm = ScriptedLLM(config.budget, [["q"]])
     posting = "https://boards.greenhouse.io/acme/jobs/12345"
     listing = "https://company.com/careers/software-engineer"
-    crawler = ScriptedCrawler(config.budget, {"q": [posting, listing]})
+    index = "https://jobboard.example.com/jobs?q=python"
+    crawler = ScriptedCrawler(config.budget, {"q": [posting, listing, index]})
     _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
 
     assert crawler.fetch_fallback_flags[posting] is True
-    assert crawler.fetch_fallback_flags[listing] is False
+    assert crawler.fetch_fallback_flags[listing] is True
+    assert crawler.fetch_fallback_flags[index] is False
+
+
+def test_listing_posting_links_harvested_and_scored(tmp_path: Path):
+    config = _make_config(max_results=5)
+    llm = ScriptedLLM(config.budget, [["q"]])
+    listing = "https://company.com/careers/openings"
+    posting_a = "https://boards.greenhouse.io/company/jobs/111"
+    posting_b = "https://company.com/careers/positions/22222-python-developer"
+    crawler = ScriptedCrawler(
+        config.budget,
+        {"q": [listing]},
+        link_map={
+            listing: [
+                "https://company.com/about",
+                posting_a,
+                posting_b,
+            ]
+        },
+    )
+    results = _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    # The hub page itself is never scored; its posting links are.
+    assert sorted(r.url for r in results) == sorted([posting_a, posting_b])
+    assert crawler.fetch_calls == [listing, posting_a, posting_b]
+
+
+def test_listing_without_posting_links_scored_directly(tmp_path: Path):
+    config = _make_config(max_results=1)
+    llm = ScriptedLLM(config.budget, [["q"]])
+    listing = "https://company.com/careers/software-engineer"
+    crawler = ScriptedCrawler(
+        config.budget,
+        {"q": [listing]},
+        link_map={listing: ["https://company.com/about"]},
+    )
+    results = _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    assert [r.url for r in results] == [listing]
+
+
+def test_harvest_prefers_employer_links_and_respects_cap(tmp_path: Path):
+    config = _make_config(max_results=5, max_harvest_links=2)
+    llm = ScriptedLLM(config.budget, [["q"]])
+    listing = "https://company.com/careers/openings"
+    aggregator_posting = "https://www.linkedin.com/jobs/view/3712345678"
+    posting_a = "https://boards.greenhouse.io/company/jobs/111"
+    posting_b = "https://boards.greenhouse.io/company/jobs/222"
+    crawler = ScriptedCrawler(
+        config.budget,
+        {"q": [listing]},
+        link_map={listing: [aggregator_posting, posting_a, posting_b]},
+    )
+    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    # Cap of 2: both employer postings make it, the aggregator mirror does not.
+    assert crawler.fetch_calls == [listing, posting_a, posting_b]
+
+
+def test_company_queries_injected_from_plan(tmp_path: Path):
+    config = _make_config(max_results=1, company_query_boost=True)
+    llm = ScriptedLLM(
+        config.budget,
+        [["python jobs berlin"]],
+        plan_companies=["Acme GmbH", "Globex"],
+    )
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
+    )
+    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    assert crawler.search_calls[0] == '"Acme GmbH" careers Python Developer'
+    assert crawler.search_calls[1] == "python jobs berlin"
+
+
+def test_aggregator_index_pages_dropped_when_excluded(tmp_path: Path):
+    config = _make_config(max_results=5, exclude_aggregator_sites=True)
+    llm = ScriptedLLM(config.budget, [["q"]])
+    aggregator_index = "https://www.linkedin.com/jobs/search/?keywords=python"
+    generic_index = "https://jobboard.example.com/jobs?q=python"
+    posting = "https://boards.greenhouse.io/acme/jobs/12345"
+    crawler = ScriptedCrawler(
+        config.budget, {"q": [aggregator_index, generic_index, posting]}
+    )
+    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    # The LinkedIn search page is never fetched; the generic index still is.
+    assert crawler.fetch_calls == [posting, generic_index]
+
+
+def test_aggregator_postings_processed_after_employer_urls(tmp_path: Path):
+    config = _make_config(max_results=5)
+    llm = ScriptedLLM(config.budget, [["q"]])
+    aggregator_posting = "https://www.linkedin.com/jobs/view/3712345678"
+    listing = "https://company.com/careers/software-engineer"
+    posting = "https://boards.greenhouse.io/acme/jobs/12345"
+    crawler = ScriptedCrawler(
+        config.budget, {"q": [aggregator_posting, listing, posting]}
+    )
+    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    assert crawler.fetch_calls == [posting, listing, aggregator_posting]
 
 
 def test_ats_queries_injected_before_llm_queries(tmp_path: Path):

@@ -72,6 +72,12 @@ class MockCrawler:
         self.fetch_calls.append(url)
         return MOCK_JOB_TEXT
 
+    def fetch_page(
+        self, url: str, use_browser_fallback: bool = False
+    ) -> tuple[str, list[str]]:
+        self.fetch_calls.append(url)
+        return MOCK_JOB_TEXT, []
+
 
 @dataclass
 class MockRunResult:
@@ -101,6 +107,8 @@ def run_mock_loop(root: Path) -> MockRunResult:
         memory_path="data/mock_memory.json",
         # Keep the mock loop deterministic on the LLM-driven flow.
         ats_query_boost=False,
+        company_query_boost=False,
+        exclude_aggregator_sites=False,
     )
 
     budget = config.budget

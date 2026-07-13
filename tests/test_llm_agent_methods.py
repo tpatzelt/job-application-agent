@@ -90,6 +90,7 @@ def test_prompts_include_agent_context():
         "target_roles",
         "key_skills",
         "locations",
+        "target_companies",
         "strategy",
     }
 

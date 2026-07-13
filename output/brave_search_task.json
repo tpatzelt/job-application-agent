@@ -1,10 +1,9 @@
 {
     "type": "search",
     "query": {
-        "original": "site:boards.greenhouse.io Project Manager Berlin",
+        "original": "\"Merantix\" careers Senior AI Engineer -site:linkedin.com -site:indeed.com -site:glassdoor.com -site:stepstone.de -site:xing.com",
         "show_strict_warning": false,
-        "cleaned": "Project Manager Berlin",
-        "is_navigational": true,
+        "is_navigational": false,
         "is_news_breaking": false,
         "spellcheck_off": false,
         "country": "us",
@@ -14,14 +13,7 @@
         "city": "",
         "header_country": "",
         "more_results_available": true,
-        "state": "",
-        "search_operators": {
-            "applied": true,
-            "cleaned_query": "Project Manager Berlin",
-            "sites": [
-                "boards.greenhouse.io"
-            ]
-        }
+        "state": ""
     },
     "mixed": {
         "type": "mixed",
@@ -134,16 +126,16 @@
         "type": "search",
         "results": [
             {
-                "title": "Job Application for Senior Project Manager at Highsnobiety",
-                "url": "https://boards.greenhouse.io/titelmedia/jobs/4830986002",
+                "title": "Jobs | Merantix AI Campus Job Board",
+                "url": "https://careers.merantix-aicampus.com/jobs",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "Berlin \u00b7 We are looking for an experienced Senior Project Manager to join our award-winning in-house creative agency. This key role requires a reliable and self-motivated individual who wants to join a fast-paced and highly creative environment.",
+                "description": "Search job openings across the Merantix AI Campus network.",
                 "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/titelmedia/jobs/4830986002",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                    "name": "Merantix-aicampus",
+                    "url": "https://careers.merantix-aicampus.com/jobs",
+                    "long_name": "careers.merantix-aicampus.com",
+                    "img": "https://imgs.search.brave.com/PSqL4v_L6K6hCW8ZWpcj5lV7kNPaqxXUnIlSu8eSfg0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ2MmMzMTkx/ZmM2Yjc3NjhiOTI3/M2E1YmM5YzFlMTZk/MDI1YTQzMzgxYTY1/ZjEwMzFmNWEzOTBl/ZjY3ODVkNS9jYXJl/ZXJzLm1lcmFudGl4/LWFpY2FtcHVzLmNv/bS8"
                 },
                 "language": "en",
                 "family_friendly": true,
@@ -152,113 +144,28 @@
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a titelmedia  \u203a jobs  \u203a 4830986002"
-                },
-                "cluster_type": "generic",
-                "cluster": [
-                    {
-                        "title": "Jobs at 2K",
-                        "url": "https://boards.greenhouse.io/2k",
-                        "is_source_local": false,
-                        "is_source_both": false,
-                        "description": "Level-up your career by having opportunities at 2K sent directly to your inbox \u00b7 Customer Success Associate",
-                        "family_friendly": true
-                    },
-                    {
-                        "title": "Jobs at hims & hers",
-                        "url": "https://boards.greenhouse.io/himshers",
-                        "is_source_local": false,
-                        "is_source_both": false,
-                        "description": "Hims &amp; Hers Health, Inc. (better known as Hims &amp; Hers) is the leading health and wellness platform, on a mission to help the world feel great through the power of better health. We are revolutionizing telehealth for providers and their patients alike. Making personalized solutions accessible ...",
-                        "family_friendly": true
-                    },
-                    {
-                        "title": "Jobs at The Pok\u00e9mon Company International",
-                        "url": "https://boards.greenhouse.io/pokemoncareers",
-                        "is_source_local": false,
-                        "is_source_both": false,
-                        "description": "The Pok\u00e9mon Company International (TPCi), <strong>manages</strong> the Pok\u00e9mon property outside of Asia and is responsible for brand <strong>management</strong>, licensing and marketing, the Pok\u00e9mon Trading Card Game, the animated TV series, home entertainment, and the official Pok\u00e9mon website.",
-                        "family_friendly": true
-                    },
-                    {
-                        "title": "Current openings at The New York Times",
-                        "url": "https://boards.greenhouse.io/thenewyorktimes",
-                        "is_source_local": false,
-                        "is_source_both": false,
-                        "description": "At The Times, our mission is to seek the truth and help people understand the world. Having a diverse staff with a broad range of backgrounds and experiences is vital to ensuring we cover the world fully and fairly and offering products that have a wide appeal.",
-                        "family_friendly": true
-                    }
-                ]
-            },
-            {
-                "title": "Job Application for (Senior) Creative Content Project Manager (f/m/x) at Berlin Brands Group",
-                "url": "https://boards.greenhouse.io/berlinbrands/jobs/5128233004",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Track project timelines meticulously, identify potential bottlenecks, and proactively mitigate delays \u00b7 Continuous participation in the improvement of procedures to enhance productivity such as process improvements, task automation, or new technology \u00b7 Bachelor&#x27;s degree in Marketing, Communications, Business, or related field (or equivalent work experience) 2-3+ years experience as a Traffic Manager, Content Coordinator, or Project Manager in a content-driven environment in a similar industry (ideally e-commerce/B2C)",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/berlinbrands/jobs/5128233004",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a berlinbrands  \u203a jobs  \u203a 5128233004"
-                }
-            },
-            {
-                "title": "Trade Republic. Invest, spend and bank.",
-                "url": "https://boards.greenhouse.io/traderepublicbank/jobs/4453700003",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Earn 2.25 % p.a. on your cash. Invest easily and safely with just 1 \u20ac. Get your subscription free card to spend and earn 1 % Saveback.",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/traderepublicbank/jobs/4453700003",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a traderepublicbank  \u203a jobs  \u203a 4453700003"
+                    "netloc": "careers.merantix-aicampus.com",
+                    "hostname": "careers.merantix-aicampus.com",
+                    "favicon": "https://imgs.search.brave.com/PSqL4v_L6K6hCW8ZWpcj5lV7kNPaqxXUnIlSu8eSfg0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ2MmMzMTkx/ZmM2Yjc3NjhiOTI3/M2E1YmM5YzFlMTZk/MDI1YTQzMzgxYTY1/ZjEwMzFmNWEzOTBl/ZjY3ODVkNS9jYXJl/ZXJzLm1lcmFudGl4/LWFpY2FtcHVzLmNv/bS8",
+                    "path": "\u203a jobs"
                 },
                 "thumbnail": {
-                    "src": "https://imgs.search.brave.com/nkmOG1_gPVBC4BzeMaX-7ytv-ZzYFUOfX9lcuPMIVYY/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuY3RmYXNzZXRz/Lm5ldC92a2l6ZnEz/cGJ0emMvMXFaOThQ/NTdxdzNralVNUzZE/M1BRRC82ZmZlNDVm/ZmRmNWVjZTJjNzUw/OTk1YzNkM2I0ZDZi/MS9Ib21lcGFnZVRS/X1RodW1ibmFpbF9t/ZWRpdW0uanBn",
-                    "original": "https://images.ctfassets.net/vkizfq3pbtzc/1qZ98P57qw3kjUMS6D3PQD/6ffe45ffdf5ece2c750995c3d3b4d6b1/HomepageTR_Thumbnail_medium.jpg",
+                    "src": "https://imgs.search.brave.com/zU8GnNwf1IYgUtd3guSXBWArnP6nm98tKG5S-uFhTaw/rs:fit:200:200:1:0/g:ce/aHR0cDovL2Nkbi5n/ZXRyby5jb20vY29s/bGVjdGlvbnMvOGFj/ZTI2OTYtNTUwNi00/M2ZhLThlNzUtZDgx/MzI2NjE2MmNjLTE3/ODE1MTAwNTc",
+                    "original": "http://cdn.getro.com/collections/8ace2696-5506-43fa-8e75-d813266162cc-1781510057",
                     "logo": false
                 }
             },
             {
-                "title": "Job Application for Product Program Manager (Berlin or remote within EU) at FREE NOW",
-                "url": "https://boards.greenhouse.io/freenow/jobs/3521697",
+                "title": "Merantix Jobs & Careers - 15 Open Positions | Glassdoor",
+                "url": "https://www.glassdoor.com/Jobs/Merantix-Jobs-E2237393.htm",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "In this role you will centrally own and improve a variety of Product Success KPIs, Product Configurations and related projects. As a Program Manager, you <strong>act as a central conduit between various Product Tribes and the wider organisation orchestrating cross functional processes and teams</strong>.",
+                "description": "Visiting Analyst: AI Automations &amp; Content (@Merantix Capital) Berlin \u00b7 Easy Apply \u00b7 30d+ Founding VC Investor \u00b7 Berlin \u00b7 Easy Apply \u00b7 30d+ AI Engineering Intern (Stealth AI Venture) Berlin \u00b7 Easy Apply \u00b7 24h \u00b7 Growth &amp; Sales Intern (f/m/d) (Stealth AI Energy Venture) Berlin \u00b7 Easy Apply \u00b7 30d+ Founding GTM Operator @ Stealth AI Recruiting Venture \u00b7 Berlin \u00b7 Easy Apply \u00b7 30d+ Senior Software Engineer (m/w/d) @ FICUS Health \u00b7",
                 "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/freenow/jobs/3521697",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                    "name": "Glassdoor",
+                    "url": "https://www.glassdoor.com/Jobs/Merantix-Jobs-E2237393.htm",
+                    "long_name": "glassdoor.com",
+                    "img": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8"
                 },
                 "language": "en",
                 "family_friendly": true,
@@ -267,23 +174,23 @@
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a freenow  \u203a jobs  \u203a 3521697"
+                    "netloc": "glassdoor.com",
+                    "hostname": "www.glassdoor.com",
+                    "favicon": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8",
+                    "path": "\u203a Jobs  \u203a Merantix-Jobs-E2237393.htm"
                 }
             },
             {
-                "title": "Job Application for Senior Project Manager - Operations Suppliers (m/w/d) at TIER Mobility",
-                "url": "https://boards.greenhouse.io/tiermobility/jobs/4415986004",
+                "title": "Career - Merantix Momentum",
+                "url": "https://en.merantix-momentum.com/karriere",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "Min 2 years of experience in relevant field, e.g. Procurement, Project Management, Asset Management, Operations in (Micro) Mobility Sector",
+                "description": "Become part of Merantix Momentum: AI startup in Berlin is looking for talents for B2B &amp; research projects. Help shape the future of artificial intelligence.",
                 "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/tiermobility/jobs/4415986004",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                    "name": "Merantix-momentum",
+                    "url": "https://en.merantix-momentum.com/karriere",
+                    "long_name": "en.merantix-momentum.com",
+                    "img": "https://imgs.search.brave.com/08GFywy8YrhOx5m1Bnhwbw5Jy0N_ijIgQQJTlbq9A6k/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTJlMzQ5MGZk/ODEwMjA4MzQ0NTI3/MmZkZGQ0Yjc3ZGMw/NzdmYjdmNzAzZDAz/NzQ4NWM3NTMzODQx/OWFhYWI5OC9lbi5t/ZXJhbnRpeC1tb21l/bnR1bS5jb20v"
                 },
                 "language": "en",
                 "family_friendly": true,
@@ -292,28 +199,474 @@
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a tiermobility  \u203a jobs  \u203a 4415986004"
+                    "netloc": "en.merantix-momentum.com",
+                    "hostname": "en.merantix-momentum.com",
+                    "favicon": "https://imgs.search.brave.com/08GFywy8YrhOx5m1Bnhwbw5Jy0N_ijIgQQJTlbq9A6k/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTJlMzQ5MGZk/ODEwMjA4MzQ0NTI3/MmZkZGQ0Yjc3ZGMw/NzdmYjdmNzAzZDAz/NzQ4NWM3NTMzODQx/OWFhYWI5OC9lbi5t/ZXJhbnRpeC1tb21l/bnR1bS5jb20v",
+                    "path": "\u203a karriere"
                 },
                 "thumbnail": {
-                    "src": "https://imgs.search.brave.com/Gp2FhuqMYuHMBPd0DhOrcco9OSk0Vb57bvISbziwhtg/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zNC1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMDQ0/LzYwMC9vcmlnaW5h/bC9USUVSX2xvZ28u/cG5nPzE2Mjc1NjYy/NTY",
-                    "original": "https://s4-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/044/600/original/TIER_logo.png?1627566256",
+                    "src": "https://imgs.search.brave.com/GXqHcA-heJm5xxo-EkNki-WPFvnaTla-DPxeSrVyyx4/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9jZG4u/cHJvZC53ZWJzaXRl/LWZpbGVzLmNvbS82/M2YzM2EzYjU0YjFm/OGU5YmFmYjU1N2Uv/NjYwMTMwZjllYjY3/MzkyMGQ3NzM0NzI2/X0JpbGRzY2hpcm1m/b3RvJTIwMjAyNC0w/My0yNSUyMHVtJTIw/MDkuMDguMDcud2Vi/cA",
+                    "original": "https://cdn.prod.website-files.com/63f33a3b54b1f8e9bafb557e/660130f9eb673920d7734726_Bildschirmfoto%202024-03-25%20um%2009.08.07.webp",
+                    "logo": false
+                }
+            },
+            {
+                "title": "43 Merantix jobs in Worldwide",
+                "url": "https://www.linkedin.com/jobs/merantix-jobs-worldwide",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "We cannot provide a description for this page right now",
+                "profile": {
+                    "name": "LinkedIn",
+                    "url": "https://www.linkedin.com/jobs/merantix-jobs-worldwide",
+                    "long_name": "linkedin.com",
+                    "img": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "linkedin.com",
+                    "hostname": "www.linkedin.com",
+                    "favicon": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw",
+                    "path": "\u203a jobs  \u203a merantix-jobs-worldwide"
+                }
+            },
+            {
+                "title": "Merantix | LinkedIn",
+                "url": "https://www.linkedin.com/company/merantix",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Merantix | 14,243 followers on LinkedIn. The Artificial Intelligence Investment Platform | At Merantix we <strong>build and scale and invest in machine learning companies</strong>. Through our unique incubation platform, seed financing and exceptional teams ...",
+                "page_age": "2021-10-01T00:00:00",
+                "profile": {
+                    "name": "LinkedIn",
+                    "url": "https://www.linkedin.com/company/merantix",
+                    "long_name": "linkedin.com",
+                    "img": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "linkedin.com",
+                    "hostname": "www.linkedin.com",
+                    "favicon": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw",
+                    "path": "\u203a company  \u203a merantix"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/xKmmFUK89PxsStasKmvzYD4T2vrGGkRbq6Ba-FtYjzY/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9tZWRp/YS5saWNkbi5jb20v/ZG1zL2ltYWdlL0M0/RTBCQVFGVWl6WXNS/Z0V0ZWcvY29tcGFu/eS1sb2dvXzIwMF8y/MDAvMC8xNjU3MTMw/Nzg4MTk3L21lcmFu/dGl4X2xvZ28_ZT0y/MTQ3NDgzNjQ3JmFt/cDt2PWJldGEmYW1w/O3Q9czJheHg0YjJh/NmpGa2NwSk13VWZp/bld1aXVsYnd2ZElD/Rlc3SFprYTNtTQ",
+                    "original": "https://media.licdn.com/dms/image/C4E0BAQFUizYsRgEteg/company-logo_200_200/0/1657130788197/merantix_logo?e=2147483647&amp;v=beta&amp;t=s2axx4b2a6jFkcpJMwUfinWuiulbwvdICFW7HZka3mM",
+                    "logo": true
+                },
+                "age": "October 1, 2021"
+            },
+            {
+                "title": "Companies | Merantix AI Campus Job Board",
+                "url": "https://careers.merantix-aicampus.com/companies",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Entrusted by customers in growing industries like FinTech, MedTech, and e-commerce, we are on this mission every day. If you picture yourself in a machine learning start-up environment, our fun and dynamic team will be happy to hear from you! Check our open positions: https://enjins.com/careers/",
+                "profile": {
+                    "name": "Merantix-aicampus",
+                    "url": "https://careers.merantix-aicampus.com/companies",
+                    "long_name": "careers.merantix-aicampus.com",
+                    "img": "https://imgs.search.brave.com/PSqL4v_L6K6hCW8ZWpcj5lV7kNPaqxXUnIlSu8eSfg0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ2MmMzMTkx/ZmM2Yjc3NjhiOTI3/M2E1YmM5YzFlMTZk/MDI1YTQzMzgxYTY1/ZjEwMzFmNWEzOTBl/ZjY3ODVkNS9jYXJl/ZXJzLm1lcmFudGl4/LWFpY2FtcHVzLmNv/bS8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "careers.merantix-aicampus.com",
+                    "hostname": "careers.merantix-aicampus.com",
+                    "favicon": "https://imgs.search.brave.com/PSqL4v_L6K6hCW8ZWpcj5lV7kNPaqxXUnIlSu8eSfg0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ2MmMzMTkx/ZmM2Yjc3NjhiOTI3/M2E1YmM5YzFlMTZk/MDI1YTQzMzgxYTY1/ZjEwMzFmNWEzOTBl/ZjY3ODVkNS9jYXJl/ZXJzLm1lcmFudGl4/LWFpY2FtcHVzLmNv/bS8",
+                    "path": "\u203a companies"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/DdXBDb2XKVf7qJjAiJVocvIQ2OQu1qxmTEz-KgMkp4c/rs:fit:200:200:1:0/g:ce/aHR0cDovL2Nkbi5m/aWxlcGlja2VyLmlv/L2FwaS9maWxlL0x2/dXRPdWx5UmVDZlRF/UUc4Vjds",
+                    "original": "http://cdn.filepicker.io/api/file/LvutOulyReCfTEQG8V7l",
+                    "logo": false
+                }
+            },
+            {
+                "title": "Merantix Careers - Insights and Opportunities",
+                "url": "https://wellfound.com/company/merantix",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Founder @Merantix \u2022 @Computer Vision @Deep Learning at @ETH Zurich @Princeton University @University of Oxford \u2022 @Google @The Boston Consulting Group ... Serial entrepreneur in #DigitalHealth and #ArtificialIntelligence, tech geek, husband and proud dad. ... Senior Tech QA Analyst - Monopoly GO!",
+                "profile": {
+                    "name": "Wellfound",
+                    "url": "https://wellfound.com/company/merantix",
+                    "long_name": "wellfound.com",
+                    "img": "https://imgs.search.brave.com/J5_Uo_L6zzooRejqc4c5OvjLbQrlvNtNtSHCgUKTSBg/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMjBlOTdiZDg5/ODJiZGRlZDYxOTBh/YTk4YWViZDgzODQz/ZTNiNTEwY2E4MjIw/ZTVhNDhlZmUxZWFi/NThlMDZkNi93ZWxs/Zm91bmQuY29tLw"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "wellfound.com",
+                    "hostname": "wellfound.com",
+                    "favicon": "https://imgs.search.brave.com/J5_Uo_L6zzooRejqc4c5OvjLbQrlvNtNtSHCgUKTSBg/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMjBlOTdiZDg5/ODJiZGRlZDYxOTBh/YTk4YWViZDgzODQz/ZTNiNTEwY2E4MjIw/ZTVhNDhlZmUxZWFi/NThlMDZkNi93ZWxs/Zm91bmQuY29tLw",
+                    "path": "\u203a company  \u203a merantix"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/F0ZwNgU8wtYeXGQCQLJ42yGKKRJMX8qTAdxR3C9i88E/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9waG90/b3Mud2VsbGZvdW5k/LmNvbS9zdGFydHVw/cy9pLzEyMDQwODkt/MTJmYjA1YmNlYjFm/MGVmYTVlN2JkM2Nk/MzRjZjYwMmUtdGh1/bWJfanBnLmpwZz9i/dXN0ZXI9MTQ5MDEx/Nzk3Mg",
+                    "original": "https://photos.wellfound.com/startups/i/1204089-12fb05bceb1f0efa5e7bd3cd34cf602e-thumb_jpg.jpg?buster=1490117972",
+                    "logo": false
+                }
+            },
+            {
+                "title": "Senior AI Full Stack Engineer (m/f/d) @ Merantix Momentum | Merantix AI Campus Job Board",
+                "url": "https://careers.merantix-aicampus.com/companies/merantix-momentum-2/jobs/81860734-senior-ai-full-stack-engineer-m-f-d",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Search job openings across the Merantix AI Campus network.",
+                "page_age": "2026-06-06T00:00:00",
+                "profile": {
+                    "name": "Merantix Momentum",
+                    "url": "https://careers.merantix-aicampus.com/companies/merantix-momentum-2/jobs/81860734-senior-ai-full-stack-engineer-m-f-d",
+                    "long_name": "careers.merantix-aicampus.com",
+                    "img": "https://imgs.search.brave.com/PSqL4v_L6K6hCW8ZWpcj5lV7kNPaqxXUnIlSu8eSfg0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ2MmMzMTkx/ZmM2Yjc3NjhiOTI3/M2E1YmM5YzFlMTZk/MDI1YTQzMzgxYTY1/ZjEwMzFmNWEzOTBl/ZjY3ODVkNS9jYXJl/ZXJzLm1lcmFudGl4/LWFpY2FtcHVzLmNv/bS8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "careers.merantix-aicampus.com",
+                    "hostname": "careers.merantix-aicampus.com",
+                    "favicon": "https://imgs.search.brave.com/PSqL4v_L6K6hCW8ZWpcj5lV7kNPaqxXUnIlSu8eSfg0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ2MmMzMTkx/ZmM2Yjc3NjhiOTI3/M2E1YmM5YzFlMTZk/MDI1YTQzMzgxYTY1/ZjEwMzFmNWEzOTBl/ZjY3ODVkNS9jYXJl/ZXJzLm1lcmFudGl4/LWFpY2FtcHVzLmNv/bS8",
+                    "path": "\u203a companies  \u203a merantix-momentum-2  \u203a jobs  \u203a 81860734-senior-ai-full-stack-engineer-m-f-d"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/zU8GnNwf1IYgUtd3guSXBWArnP6nm98tKG5S-uFhTaw/rs:fit:200:200:1:0/g:ce/aHR0cDovL2Nkbi5n/ZXRyby5jb20vY29s/bGVjdGlvbnMvOGFj/ZTI2OTYtNTUwNi00/M2ZhLThlNzUtZDgx/MzI2NjE2MmNjLTE3/ODE1MTAwNTc",
+                    "original": "http://cdn.getro.com/collections/8ace2696-5506-43fa-8e75-d813266162cc-1781510057",
+                    "logo": false
+                },
+                "age": "June 6, 2026"
+            },
+            {
+                "title": "16 Merantix jobs",
+                "url": "https://www.linkedin.com/jobs/merantix-jobs-worldwide?f_C=7943887&trk=top-card_top-card-primary-button-top-card-primary-cta",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Today\u2019s top 16 Merantix jobs. Leverage your professional network, and get hired. New Merantix jobs added daily.",
+                "profile": {
+                    "name": "LinkedIn",
+                    "url": "https://www.linkedin.com/jobs/merantix-jobs-worldwide?f_C=7943887&trk=top-card_top-card-primary-button-top-card-primary-cta",
+                    "long_name": "linkedin.com",
+                    "img": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "linkedin.com",
+                    "hostname": "www.linkedin.com",
+                    "favicon": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw",
+                    "path": "\u203a jobs  \u203a merantix-jobs-worldwide"
+                }
+            },
+            {
+                "title": "Merantix Latest Developer Job Openings | DevJobsScanner",
+                "url": "https://www.devjobsscanner.com/company/merantix/",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Discover current developer jobs at Merantix. Find your next tech role in software engineering, web development, and more with Merantix.",
+                "profile": {
+                    "name": "Devjobsscanner",
+                    "url": "https://www.devjobsscanner.com/company/merantix/",
+                    "long_name": "devjobsscanner.com",
+                    "img": "https://imgs.search.brave.com/ggw7cF3qNOxH4G7PLzHRpYhReNqDydmuYzvLqkyiYhM/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMTc4OWFlODc0/ZDYzNjVmNGRhYjAw/Y2JmYmRkMjNjNzE0/YjllZTUwNWEzZDBl/ZmViMDNjNWM0OGQ2/ZmYzOTEzOC93d3cu/ZGV2am9ic3NjYW5u/ZXIuY29tLw"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "devjobsscanner.com",
+                    "hostname": "www.devjobsscanner.com",
+                    "favicon": "https://imgs.search.brave.com/ggw7cF3qNOxH4G7PLzHRpYhReNqDydmuYzvLqkyiYhM/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMTc4OWFlODc0/ZDYzNjVmNGRhYjAw/Y2JmYmRkMjNjNzE0/YjllZTUwNWEzZDBl/ZmViMDNjNWM0OGQ2/ZmYzOTEzOC93d3cu/ZGV2am9ic3NjYW5u/ZXIuY29tLw",
+                    "path": "\u203a company  \u203a merantix"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/8PRefnQ3Eimd_7rRyGyTOqqnou6i4r5AfwIbYckjRWM/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly93d3cu/ZGV2am9ic3NjYW5u/ZXIuY29tLy9hc3Nl/dHMvaW1hZ2VzL2Rl/dmpvYnNzY2FubmVy/LTAxLmpwZw",
+                    "original": "https://www.devjobsscanner.com//assets/images/devjobsscanner-01.jpg",
+                    "logo": false
+                }
+            },
+            {
+                "title": "Working at Merantix | Glassdoor",
+                "url": "https://www.glassdoor.com/Overview/Working-at-Merantix-EI_IE2237393.11,19.htm",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "How can I get a job at Merantix?To get a job at Merantix, <strong>browse currently open positions and apply for a job near you</strong>. Once you get a positive response, make sure to find out about the interview process at Merantix and prepare for tough questions.",
+                "profile": {
+                    "name": "Glassdoor",
+                    "url": "https://www.glassdoor.com/Overview/Working-at-Merantix-EI_IE2237393.11,19.htm",
+                    "long_name": "glassdoor.com",
+                    "img": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "faq",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "glassdoor.com",
+                    "hostname": "www.glassdoor.com",
+                    "favicon": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8",
+                    "path": "\u203a Overview  \u203a Working-at-Merantix-EI_IE2237393.11,19.htm"
+                }
+            },
+            {
+                "title": "Jobs at Merantix",
+                "url": "https://merantix.jobs.personio.de/?language=en",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Skip to main content \u00b7 English \u00b7 Open positions \u00b7 Briink - 1 position \u00b7 Founding Marketing Manager @ Briink (AI x ESG SaaS) \u00b7 Berlin, Remote / Hybrid \u00b7 Full-time \u00b7 Permanent employee \u00b7 Ficus Health GmbH - 4 positions",
+                "profile": {
+                    "name": "Personio",
+                    "url": "https://merantix.jobs.personio.de/?language=en",
+                    "long_name": "merantix.jobs.personio.de",
+                    "img": "https://imgs.search.brave.com/M7wOlDls3ixuWPdJcEGeJ1rOtispJy4mYTu1nKJhojc/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMjZmMGU2ZmJj/MDkwOTA1YWI0MmRh/ZjA2ZTZmNTBiYzQ5/MDY4YmUyYjcxZGJm/YTZhZjllNTI2NmI0/MThmZjkxZC9tZXJh/bnRpeC5qb2JzLnBl/cnNvbmlvLmRlLw"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "merantix.jobs.personio.de",
+                    "hostname": "merantix.jobs.personio.de",
+                    "favicon": "https://imgs.search.brave.com/M7wOlDls3ixuWPdJcEGeJ1rOtispJy4mYTu1nKJhojc/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMjZmMGU2ZmJj/MDkwOTA1YWI0MmRh/ZjA2ZTZmNTBiYzQ5/MDY4YmUyYjcxZGJm/YTZhZjllNTI2NmI0/MThmZjkxZC9tZXJh/bnRpeC5qb2JzLnBl/cnNvbmlvLmRlLw",
+                    "path": ""
+                }
+            },
+            {
+                "title": "Merantix Jobs and Careers | Welcome to the Jungle (formerly Otta)",
+                "url": "https://app.welcometothejungle.com/companies/Merantix",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "Apply for jobs at Merantix on Welcome to the Jungle (formerly Otta}. To ensure AI drives growth and societal progress with European values and talent.",
+                "profile": {
+                    "name": "Welcome to the Jungle",
+                    "url": "https://app.welcometothejungle.com/companies/Merantix",
+                    "long_name": "app.welcometothejungle.com",
+                    "img": "https://imgs.search.brave.com/_7fddJFW886FqM1FcAeJEeUkH4lPDqeIaj8lxyAz8hQ/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYzExYmVhM2Zi/YzdiM2EzNzBmYjI5/Y2U4MjZkZGEwMTdi/YjFhOGM1OTU2Mjk0/MjM3NjA0MzNjM2Zm/MTZkYzUxZi9hcHAu/d2VsY29tZXRvdGhl/anVuZ2xlLmNvbS8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "app.welcometothejungle.com",
+                    "hostname": "app.welcometothejungle.com",
+                    "favicon": "https://imgs.search.brave.com/_7fddJFW886FqM1FcAeJEeUkH4lPDqeIaj8lxyAz8hQ/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYzExYmVhM2Zi/YzdiM2EzNzBmYjI5/Y2U4MjZkZGEwMTdi/YjFhOGM1OTU2Mjk0/MjM3NjA0MzNjM2Zm/MTZkYzUxZi9hcHAu/d2VsY29tZXRvdGhl/anVuZ2xlLmNvbS8",
+                    "path": "\u203a companies  \u203a Merantix"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/71TshbtJIO6sYn8habvPdCYc4WYwitNB3BBls8v2Rp0/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zdGF0/aWMub3R0YS5jb20v/b3Blbi1ncmFwaC1p/bWFnZXMvd3R0ai5q/cGc",
+                    "original": "https://static.otta.com/open-graph-images/wttj.jpg",
+                    "logo": false
+                }
+            },
+            {
+                "title": "Merantix Machine Learning Jobs in Berlin | Glassdoor",
+                "url": "https://www.glassdoor.com/Jobs/Merantix-machine-learning-Berlin-Jobs-EI_IE2237393.0,8_KO9,25_IL.26,32_IC2622109.htm",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "3 Merantix Machine Learning jobs in Berlin. Search job openings, see if they fit - company salaries, reviews, and more posted by Merantix employees.",
+                "page_age": "2021-12-21T00:00:00",
+                "profile": {
+                    "name": "Glassdoor",
+                    "url": "https://www.glassdoor.com/Jobs/Merantix-machine-learning-Berlin-Jobs-EI_IE2237393.0,8_KO9,25_IL.26,32_IC2622109.htm",
+                    "long_name": "glassdoor.com",
+                    "img": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "glassdoor.com",
+                    "hostname": "www.glassdoor.com",
+                    "favicon": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8",
+                    "path": "\u203a Jobs  \u203a Merantix-machine-learning-Berlin-Jobs-EI_IE2237393.0,8_KO9,25_IL.26,32_IC2622109.htm"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/1OnSWXRyuRfgOnUgsb-2BjIH4X12LzLETS30av62V7k/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nbGFzc2Rvb3Iu/Y29tL2xzdDJ4LzIy/MzczOTMvbWVyYW50/aXgtb2ZmaWNlLmpw/Zw",
+                    "original": "https://media.glassdoor.com/lst2x/2237393/merantix-office.jpg",
+                    "logo": false
+                },
+                "age": "December 21, 2021"
+            },
+            {
+                "title": "11 Merantix Ai Campus jobs",
+                "url": "https://www.linkedin.com/jobs/merantix-ai-campus-jobs-worldwide",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "We cannot provide a description for this page right now",
+                "profile": {
+                    "name": "LinkedIn",
+                    "url": "https://www.linkedin.com/jobs/merantix-ai-campus-jobs-worldwide",
+                    "long_name": "linkedin.com",
+                    "img": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "linkedin.com",
+                    "hostname": "www.linkedin.com",
+                    "favicon": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw",
+                    "path": "\u203a jobs  \u203a merantix-ai-campus-jobs-worldwide"
+                }
+            },
+            {
+                "title": "Merantix Reviews (6): Pros & Cons of Working At Merantix | Glassdoor",
+                "url": "https://www.glassdoor.com/Reviews/Merantix-Reviews-E2237393.htm",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "6 Merantix reviews. A free inside look at company reviews and salaries posted anonymously by employees.",
+                "profile": {
+                    "name": "Glassdoor",
+                    "url": "https://www.glassdoor.com/Reviews/Merantix-Reviews-E2237393.htm",
+                    "long_name": "glassdoor.com",
+                    "img": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "glassdoor.com",
+                    "hostname": "www.glassdoor.com",
+                    "favicon": "https://imgs.search.brave.com/aL6zDoSmUbz3-uGC2B28d5niowHRUV40bk-ePx5bco0/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvMmRiYjJiOTdj/ZjM3Yjg1MDkxMzUx/NWU5OTMzZTc4MDNh/YWY3NTIzNTNjYTZh/NjFiNTQ3NjhjYzBh/NDhmNTRhMy93d3cu/Z2xhc3Nkb29yLmNv/bS8",
+                    "path": "  \u203a merantix reviews  \u203a merantix reviews"
+                }
+            },
+            {
+                "title": "Merantix Capital jobs in Worldwide",
+                "url": "https://www.linkedin.com/jobs/merantix-capital-jobs-worldwide?f_C=7943887",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "We cannot provide a description for this page right now",
+                "profile": {
+                    "name": "LinkedIn",
+                    "url": "https://www.linkedin.com/jobs/merantix-capital-jobs-worldwide?f_C=7943887",
+                    "long_name": "linkedin.com",
+                    "img": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "linkedin.com",
+                    "hostname": "www.linkedin.com",
+                    "favicon": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw",
+                    "path": "\u203a jobs  \u203a merantix-capital-jobs-worldwide"
+                }
+            },
+            {
+                "title": "Merantix Group",
+                "url": "https://www.linkedin.com/company/merantix-group",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "We cannot provide a description for this page right now",
+                "profile": {
+                    "name": "LinkedIn",
+                    "url": "https://www.linkedin.com/company/merantix-group",
+                    "long_name": "linkedin.com",
+                    "img": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "linkedin.com",
+                    "hostname": "www.linkedin.com",
+                    "favicon": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw",
+                    "path": "\u203a company  \u203a merantix-group"
+                }
+            },
+            {
+                "title": "Merantix AI Campus | LinkedIn",
+                "url": "https://www.linkedin.com/company/merantix-ai-campus/",
+                "is_source_local": false,
+                "is_source_both": false,
+                "description": "If you&#x27;re a proactive problem-solver with 2+ years&#x27; experience in facility management, fluent in English and German, we want you! Join us and drive excellence in our 6000m2 campus, oversee finances, and foster stakeholder relationships. A bit about us: The Merantix AI Campus Berlin is the heart of AI innovation in Europe, hosting over 1,200 talents across 80 AI companies.",
+                "profile": {
+                    "name": "LinkedIn",
+                    "url": "https://www.linkedin.com/company/merantix-ai-campus/",
+                    "long_name": "linkedin.com",
+                    "img": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw"
+                },
+                "language": "en",
+                "family_friendly": true,
+                "type": "search_result",
+                "subtype": "generic",
+                "is_live": false,
+                "meta_url": {
+                    "scheme": "https",
+                    "netloc": "linkedin.com",
+                    "hostname": "www.linkedin.com",
+                    "favicon": "https://imgs.search.brave.com/B3dmoKTAgUkkbrvzAxFg_MfHAm5WmWy0N-4kH1AGWOo/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvNGE1YzZjOWNj/NmNiODQ4NzI0ODg1/MGY5ZGQ2YzhjZTRm/N2NjOGIzZjc1NTlj/NDM2ZGI5Yjk3ZWI1/YzBmNzJmZS93d3cu/bGlua2VkaW4uY29t/Lw",
+                    "path": "\u203a company  \u203a merantix-ai-campus"
+                },
+                "thumbnail": {
+                    "src": "https://imgs.search.brave.com/SCd5qbUocVCfq2g9_8v80Bkr-b6TFzlHcqEinzY_vXA/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9tZWRp/YS5saWNkbi5jb20v/ZG1zL2ltYWdlL0M1/NjBCQVFFM0ZPdDZY/bEtZemcvY29tcGFu/eS1sb2dvXzIwMF8y/MDAvMC8xNjMwNjUy/OTY4NTIwL2FpX2Nh/bXB1c19iZXJsaW5f/bG9nbz9lPTIxNDc0/ODM2NDcmYW1wO3Y9/YmV0YSZhbXA7dD01/U1ZiaEtlemkzeE9I/dG5SN1pFdnV0dFdU/WmZaR05jQkNGTXdF/R0VfUUhj",
+                    "original": "https://media.licdn.com/dms/image/C560BAQE3FOt6XlKYzg/company-logo_200_200/0/1630652968520/ai_campus_berlin_logo?e=2147483647&amp;v=beta&amp;t=5SVbhKezi3xOHtnR7ZEvuttWTZfZGNcBCFMwEGE_QHc",
                     "logo": true
                 }
             },
             {
-                "title": "Job Application for Senior Professional Services Consultant at Zscaler",
-                "url": "https://boards.greenhouse.io/zscaler/jobs/4124846007",
+                "title": "Merantix - Europe's leading AI group",
+                "url": "https://www.merantix.com/",
                 "is_source_local": false,
                 "is_source_both": false,
-                "description": "Be part of a deployment project typically spanning several months, work together with a Zscaler Project Manager to keep the project on track",
+                "description": "We are researching, building, investing and connecting to drive impactful AI.",
                 "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/zscaler/jobs/4124846007",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
+                    "name": "Merantix",
+                    "url": "https://www.merantix.com/",
+                    "long_name": "merantix.com",
+                    "img": "https://imgs.search.brave.com/bszOaVPdiKHAQY6i_bOteI6QlRwrnZuDjtWEJx_bQAg/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYjY0NDY4NzQ4/MzM0ZjE2MWIxZTZi/Y2Y2MDYxNzYwMTQ2/MjczNDc0MTQwMmRj/MzI2NTgwZjI3Nzky/NzNkMjI2MS93d3cu/bWVyYW50aXguY29t/Lw"
                 },
                 "language": "en",
                 "family_friendly": true,
@@ -322,412 +675,10 @@
                 "is_live": false,
                 "meta_url": {
                     "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a zscaler  \u203a jobs  \u203a 4124846007"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/WDYHFPU5lupS4I1f05l24uudDsRxX-a5b1XbDamvCQ8/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zNy1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMTA5/LzQwMC9vcmlnaW5h/bC9MaW5rZWRJbi1H/SC1Mb2dvXygxKS5q/cGc_MTcwMDE2OTA1/OA",
-                    "original": "https://s7-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/109/400/original/LinkedIn-GH-Logo_(1).jpg?1700169058",
-                    "logo": true
-                }
-            },
-            {
-                "title": "Jobs at MOIA",
-                "url": "https://boards.greenhouse.io/moia",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Werkstudent*in HR Operations (m/w/d) - People &amp; Relations Berlin, Germany \u00b7 Project Manager (m/f/d) - Autonomous Driving Readiness Berlin, Germany \u00b7 Project Manager (m/f/d) - Autonomous Driving Readiness Hamburg, Germany \u00b7 Senior Project Management Officer (m/f/d) Berlin, Germany \u00b7",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/moia",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a moia"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/--whm8C5vfse756FS3l_4lBZNh5wbFvY5s1UfIenaSY/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMTAx/LXJlY3J1aXRpbmcu/Y2RuLmdyZWVuaG91/c2UuaW8vZXh0ZXJu/YWxfZ3JlZW5ob3Vz/ZV9qb2JfYm9hcmRz/L2xvZ29zLzQwMC8w/NDMvMzEwL29yaWdp/bmFsL0xpbmtlZElu/X0xvZ29fMTZ4OS5q/cGc_MTY0Mzc5Mzk0/MA",
-                    "original": "https://s101-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/043/310/original/LinkedIn_Logo_16x9.jpg?1643793940",
-                    "logo": true
-                }
-            },
-            {
-                "title": "Job Application for Senior Project Manager - Business Technology (all genders) at Urban Sports Club",
-                "url": "https://boards.greenhouse.io/urbansportsclub/jobs/7229775002",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Berlin \u00b7 As a Senior Project Manager - Business Technology at <strong>Urban Sports Club</strong>, you will be pivotal in implementing multiple concurrent large-scale, company-wide technology projects critical to our business&#x27;s evolution, enabling the company ...",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/urbansportsclub/jobs/7229775002",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a urbansportsclub  \u203a jobs  \u203a 7229775002"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/GnGG0oO5x-ybwMMec3hCNkrq8IXFfaR3HzMwplLdN7E/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMi1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvNzYx/LzUwMC9vcmlnaW5h/bC8xNjE2MTcxMjk2/NDc1LmpwZWc_MTYz/MzA5MTc0MQ",
-                    "original": "https://s2-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/761/500/original/1616171296475.jpeg?1633091741",
-                    "logo": true
-                }
-            },
-            {
-                "title": "Job Application for Senior Product Manager - GTM (m/f/d) at Project A Services GmbH & Co. KG",
-                "url": "https://boards.greenhouse.io/projectaservicesgmbhcokg/jobs/7763015002",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Collaboration with top-tier investors and angles (incl. various unicorn founders) as well as leading market experts \u00b7 Apply below and become a part of our success story! <strong>Project A</strong> is committed to diverse and equal opportunities hiring for all ...",
-                "page_age": "2024-12-11T08:00:34",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/projectaservicesgmbhcokg/jobs/7763015002",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a projectaservicesgmbhcokg  \u203a jobs  \u203a 7763015002"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/DBtKe6uBc3CaiMioHAwvY8To9M0rnHGy-l6tiwz8Jc4/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMi1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMjk1/LzEwMC9vcmlnaW5h/bC9Qcm9qZWN0QV9M/b2dvMjAyMC5wbmc_/MTYyMjEwNjEzMA",
-                    "original": "https://s2-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/295/100/original/ProjectA_Logo2020.png?1622106130",
-                    "logo": true
-                },
-                "age": "December 11, 2024"
-            },
-            {
-                "title": "Jobs at unybrands",
-                "url": "https://boards.greenhouse.io/unybrands?t=e6a8a6c34us",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "NPD Project Manager Shanghai Shi, China, Shenzhen Shi, Guangdong, China \u00b7 Photograph Editor Manila, Manila, Philippines \u00b7 Photograph Editor Caracas, Capital District, Venezuela \u00b7 FP&amp;A Analyst London \u00b7 Senior Accountant Berlin \u00b7 Warehouse Associate Rochester, NY \u00b7",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/unybrands?t=e6a8a6c34us",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a unybrands"
-                }
-            },
-            {
-                "title": "Job Application for Senior Business Controller (f/m/x) at Berlin Brands Group",
-                "url": "https://boards.greenhouse.io/berlinbrands/jobs/4738754004",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "As global Senior Business controller for Sourcing, you work every day together with teams and management in Berlin and Hong Kong to come to better decisions, identify new opportunities and initiate actions that will improve our profitability and competitive advantage. Your tools are data, facts and figures, to which you add insights and recommendations. You will be leading performance management and be the project management officer for our key business initiatives.",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/berlinbrands/jobs/4738754004",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a berlinbrands  \u203a jobs  \u203a 4738754004"
-                }
-            },
-            {
-                "title": "Job Application for Global Public Affairs Manager at Too Good To Go",
-                "url": "https://boards.greenhouse.io/toogoodtogo/jobs/5907803003",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Proven project management skills and experience in working cross-functionally",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/toogoodtogo/jobs/5907803003",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a toogoodtogo  \u203a jobs  \u203a 5907803003"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/R_FVZDhLdYEISq6k5YRVdFIBLTFxGM-N__crK85tJ3k/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMy1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMzA5/LzYwMC9vcmlnaW5h/bC9UR1RHX0xPR09f/MTk1MlgyMDAwcHgu/anBnPzE2ODQ5MjA3/ODg",
-                    "original": "https://s3-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/309/600/original/TGTG_LOGO_1952X2000px.jpg?1684920788",
-                    "logo": true
-                }
-            },
-            {
-                "title": "Job Application for Project Manager (Services) - New Grad Summer 2021 (Dublin) at Twilio",
-                "url": "https://boards.greenhouse.io/twilio/jobs/2515740",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Twilio is growing rapidly and seeking a Project Manager for Twilio\u2019s Services team in EMEA which spans Professional Services, Customer Success and Customer Support.. The person in this role will lead cross-functional internal projects that help Twilio move the needle on improving the experience ...",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/twilio/jobs/2515740",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a twilio  \u203a jobs  \u203a 2515740"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/KzAKcn1awuCskeA9aFf_5v0pumeAe_DoP3quVWHAQeE/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9yZWNy/dWl0aW5nLmNkbi5n/cmVlbmhvdXNlLmlv/L2V4dGVybmFsX2dy/ZWVuaG91c2Vfam9i/X2JvYXJkcy9sb2dv/cy8wMDAvMDAwLzI2/OS9vcmlnaW5hbC8y/MFRXSTQ2NDAtT0ct/aW1hZ2UtY2FyZWVy/cy1jYW1wYWlnbi1G/SU4tXzF4LmpwZz8x/NTkwNTE4NDA2",
-                    "original": "https://recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/000/000/269/original/20TWI4640-OG-image-careers-campaign-FIN-_1x.jpg?1590518406",
-                    "logo": true
-                }
-            },
-            {
-                "title": "Jobs at SumUp",
-                "url": "https://boards.greenhouse.io/embed/job_board?for=sumup",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Collections Agent - Lending Berlin, Germany \u00b7 Programa de Est\u00e1gio - SumUp Next S\u00e3o Paulo, S\u00e3o Paulo, Brazil \u00b7 Junior Early lifecycle Specialist - English Dutch Barcelona, Barcelona, Spain \u00b7 Data &amp; Insights Analyst S\u00e3o Paulo, Brazil \u00b7 Fraud Prevention Strategy Analyst S\u00e3o Paulo, S\u00e3o Paulo, Brazil \u00b7 Fraud Prevention Strategy Manager Berlin, Germany \u00b7",
-                "profile": {
-                    "name": "N26",
-                    "url": "https://boards.greenhouse.io/embed/job_board?for=sumup",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a embed  \u203a job_board"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/D5x1e_OZ-P9BMENU1raM0YaObRcpTeM_Lbf00V3uqsU/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMi1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMzQ0/LzUwMC9vcmlnaW5h/bC9TdW1VcF9sb2dv/X01vZGVybklua19S/R0ItRnVsbExvZ29f/d2ViXzI1MHdpZHRo/LmpwZz8xNTY0NzM0/NDY4",
-                    "original": "https://s2-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/344/500/original/SumUp_logo_ModernInk_RGB-FullLogo_web_250width.jpg?1564734468",
-                    "logo": true
-                }
-            },
-            {
-                "title": "Job Application for (Senior) Project Manager (m/f/div) | Business Operations at Solarisbank AG at Solarisbank",
-                "url": "https://boards.greenhouse.io/solarisbank/jobs/5007196002",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Business Operations is a team of highly skilled project managers and process engineers working closely with internal stakeholders to identify, analyse and improve critical processes within the organisation to ensure Solarisbank delivers best-in-class services to Partners and end-customers.",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/solarisbank/jobs/5007196002",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a solarisbank  \u203a jobs  \u203a 5007196002"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/lvk7sTuXUsW9lk-l22AUGJQXH-_JwLVBSOKb2gQxvX8/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMi1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMjQ5/LzQwMC9vcmlnaW5h/bC9zb2xhcmlzc2hh/cmVpbWFnZS5wbmc_/MTU5NDIxNjM3Mw",
-                    "original": "https://s2-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/249/400/original/solarisshareimage.png?1594216373",
-                    "logo": true
-                }
-            },
-            {
-                "title": "Job Application for Senior Product Manager Growth - Berlin or Remote at FREE NOW",
-                "url": "https://boards.greenhouse.io/freenow/jobs/3426840",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "You have 4-6 years of work experience working as a Product Manager, preferably in startup experience appreciated.",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/freenow/jobs/3426840",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a freenow  \u203a jobs  \u203a 3426840"
-                }
-            },
-            {
-                "title": "Job Application for 2019 Technical Project Manager Summer Intern at Yext",
-                "url": "https://boards.greenhouse.io/yext/jobs/1300740",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Assist in monitoring and reviewing project progress and timelines; identify and resolve issues to ensure project success \u00b7 Assist with the management of day-to-day execution of Enterprise project implementations.",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/yext/jobs/1300740",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a yext  \u203a jobs  \u203a 1300740"
-                }
-            },
-            {
-                "title": "Job Application for Corporate Development Manager (all genders) at Urban Sports Club",
-                "url": "https://boards.greenhouse.io/urbansportsclub/jobs/5447485002",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Berlin \u00b7 You will be leading high impact, strategic projects across the organisation as part of the corporate development team to further drive the growth of Urban Sports Club in Europe. Independently manage strategic projects across a variety of topics and departments from start to finish (this can also also include PMI projects) Engage in both internal and external stakeholder management and conflict resolution to drive the project forward \u00b7",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/urbansportsclub/jobs/5447485002",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a urbansportsclub  \u203a jobs  \u203a 5447485002"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/1mRewOmpUHUUS-o1GdBU3dVJBtG-CSI3Pp9ZUdAUk34/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMi1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvNzYx/LzUwMC9vcmlnaW5h/bC9VcmJhblNwb3J0/c0NsdWJfTG9nb19V/bmljb25fQmxhY2st/MDEucG5nPzE2MjE0/MTkxMDQ",
-                    "original": "https://s2-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/761/500/original/UrbanSportsClub_Logo_Unicon_Black-01.png?1621419104",
-                    "logo": true
-                }
-            },
-            {
-                "title": "Job Application for Senior Digital Art Director with B2B focus (all genders) at WongDoody",
-                "url": "https://boards.greenhouse.io/wongdoody/jobs/5746034003",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "Independent and responsible work in interdisciplinary project teams (account management, conception, UX, client)",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/wongdoody/jobs/5746034003",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a wongdoody  \u203a jobs  \u203a 5746034003"
-                }
-            },
-            {
-                "title": "Job Application for Project Manager (French speaker) | Partner Onboarding and Integrations (m/f/div) at Solarisbank AG at Solarisbank",
-                "url": "https://boards.greenhouse.io/solarisbank/jobs/5886602002",
-                "is_source_local": false,
-                "is_source_both": false,
-                "description": "You have 3+ years of Project Management experience, ideally in the (Fin-)Tech industry",
-                "profile": {
-                    "name": "DevRev",
-                    "url": "https://boards.greenhouse.io/solarisbank/jobs/5886602002",
-                    "long_name": "boards.greenhouse.io",
-                    "img": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8"
-                },
-                "language": "en",
-                "family_friendly": true,
-                "type": "search_result",
-                "subtype": "generic",
-                "is_live": false,
-                "meta_url": {
-                    "scheme": "https",
-                    "netloc": "boards.greenhouse.io",
-                    "hostname": "boards.greenhouse.io",
-                    "favicon": "https://imgs.search.brave.com/ni0fsQNzuHYL_HXLgj7hhcQ3pn2PrpbiKRgXpm05O-E/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDQ1MDQ2YmFk/MmU4MjU3ZjBlMjU1/MmYyYzEyMmQ0NTU0/YmFiZGYwNmNlM2M1/OTZlMzA5ODM3N2U1/ODY3OWRlZS9ib2Fy/ZHMuZ3JlZW5ob3Vz/ZS5pby8",
-                    "path": "\u203a solarisbank  \u203a jobs  \u203a 5886602002"
-                },
-                "thumbnail": {
-                    "src": "https://imgs.search.brave.com/lvk7sTuXUsW9lk-l22AUGJQXH-_JwLVBSOKb2gQxvX8/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zMi1y/ZWNydWl0aW5nLmNk/bi5ncmVlbmhvdXNl/LmlvL2V4dGVybmFs/X2dyZWVuaG91c2Vf/am9iX2JvYXJkcy9s/b2dvcy80MDAvMjQ5/LzQwMC9vcmlnaW5h/bC9zb2xhcmlzc2hh/cmVpbWFnZS5wbmc_/MTU5NDIxNjM3Mw",
-                    "original": "https://s2-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/249/400/original/solarisshareimage.png?1594216373",
-                    "logo": true
+                    "netloc": "merantix.com",
+                    "hostname": "www.merantix.com",
+                    "favicon": "https://imgs.search.brave.com/bszOaVPdiKHAQY6i_bOteI6QlRwrnZuDjtWEJx_bQAg/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYjY0NDY4NzQ4/MzM0ZjE2MWIxZTZi/Y2Y2MDYxNzYwMTQ2/MjczNDc0MTQwMmRj/MzI2NTgwZjI3Nzky/NzNkMjI2MS93d3cu/bWVyYW50aXguY29t/Lw",
+                    "path": ""
                 }
             }
         ],

@@ -8,7 +8,13 @@ from typing import Any
 from litellm import completion
 
 from .config_manager import Config, EffortBudget
-from .models import JobEvaluation, Reflection, SearchPlan, SearchQueries
+from .models import (
+    IntakeExtraction,
+    JobEvaluation,
+    Reflection,
+    SearchPlan,
+    SearchQueries,
+)
 from pydantic import ValidationError
 
 
@@ -59,6 +65,29 @@ class LLMService:
                 exc,
             )
             return Reflection()
+
+    def extract_search_profile(
+        self,
+        cv_text: str,
+        motivation_text: str,
+        job_prefs_text: str,
+        answers: list[dict[str, str]] | None = None,
+    ) -> IntakeExtraction:
+        prompt = self._build_intake_prompt(
+            cv_text, motivation_text, job_prefs_text, answers or []
+        )
+        response_text = self._call_llm(prompt)
+        payload = self._parse_json_payload(response_text, prompt)
+        try:
+            return IntakeExtraction.model_validate(payload)
+        except ValidationError as exc:
+            self._logger.warning(
+                "Intake extraction payload failed validation, returning default. "
+                "payload=%s error=%s",
+                payload,
+                exc,
+            )
+            return IntakeExtraction()
 
     def evaluate_job(self, cv: str, job_description: str) -> JobEvaluation:
         prompt = self._build_evaluation_prompt(cv, job_description)
@@ -227,10 +256,25 @@ class LLMService:
                 "Do not include explanations.",
                 "Only include the keys in the output_schema.",
                 (
+                    "Prefer queries that surface individual job postings on "
+                    "employer career sites and applicant tracking systems, "
+                    "not job board search pages."
+                ),
+                (
                     "Mix in queries using the site: operator against applicant "
-                    "tracking systems (e.g. site:boards.greenhouse.io or "
-                    "site:jobs.lever.co) to surface individual job postings "
-                    "instead of job board search pages."
+                    "tracking systems (e.g. site:boards.greenhouse.io, "
+                    "site:jobs.lever.co, site:jobs.ashbyhq.com, "
+                    "site:apply.workable.com, site:jobs.personio.de) to "
+                    "surface individual job postings."
+                ),
+                (
+                    "Mix in company-targeted queries like "
+                    "'\"<company>\" careers <role>' for companies in "
+                    "context.plan.target_companies that match the profile."
+                ),
+                (
+                    "Avoid queries aimed at aggregators such as LinkedIn, "
+                    "Indeed, StepStone, Glassdoor, or XING."
                 ),
             ],
         }
@@ -241,19 +285,27 @@ class LLMService:
             "task": (
                 "Create a job search plan from the CV and preferences: "
                 "which roles to target, which skills to emphasize, "
-                "which locations to search, and the overall strategy."
+                "which locations to search, which specific companies to "
+                "check directly, and the overall strategy."
             ),
             "context": context,
             "output_schema": {
                 "target_roles": ["string"],
                 "key_skills": ["string"],
                 "locations": ["string"],
+                "target_companies": ["string"],
                 "strategy": "string",
             },
             "rules": [
                 "Return ONLY JSON.",
                 "Do not include explanations.",
                 "Only include the keys in the output_schema.",
+                (
+                    "target_companies: list 5-15 real companies in the "
+                    "target locations that are likely to hire for these "
+                    "roles, so their career pages can be searched directly. "
+                    "Do not list job boards or staffing agencies."
+                ),
             ],
         }
         return json.dumps(payload, ensure_ascii=True)
@@ -283,6 +335,47 @@ class LLMService:
                 "Return ONLY JSON.",
                 "Do not include explanations.",
                 "Only include the keys in the output_schema.",
+            ],
+        }
+        return json.dumps(payload, ensure_ascii=True)
+
+    def _build_intake_prompt(
+        self,
+        cv_text: str,
+        motivation_text: str,
+        job_prefs_text: str,
+        answers: list[dict[str, str]],
+    ) -> str:
+        payload = {
+            "task": (
+                "Extract job search parameters from this user's documents. "
+                "Derive concrete job titles to search for, keywords that a "
+                "matching job description would contain, and the locations "
+                "(city and country) where the user wants to work. If any "
+                "essential information is missing or ambiguous (especially "
+                "the country or cities, or what kind of role is wanted), "
+                "add a short clarification question for the user instead of "
+                "guessing."
+            ),
+            "cv": cv_text[:6000],
+            "motivation_letter": motivation_text[:3000],
+            "desired_jobs_description": job_prefs_text[:3000],
+            "user_answers_to_previous_questions": answers,
+            "output_schema": {
+                "job_titles": ["string"],
+                "keywords": ["string"],
+                "locations": ["string"],
+                "questions": ["string"],
+            },
+            "rules": [
+                "Return ONLY JSON.",
+                "Do not include explanations.",
+                "Only include the keys in the output_schema.",
+                "locations entries should look like 'Berlin, Germany'.",
+                "Ask at most 3 questions, only about missing essentials.",
+                "If locations are known, do not ask about locations.",
+                "If user_answers_to_previous_questions covers a topic, "
+                "use those answers and do not re-ask.",
             ],
         }
         return json.dumps(payload, ensure_ascii=True)

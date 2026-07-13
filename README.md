@@ -17,6 +17,49 @@ The orchestrator runs a **plan → act → reflect** loop built on classic AI ag
 
 Planning and reflection can be disabled via `[tool.job_crawler.agent]` in `pyproject.toml` (`enable_planning`, `enable_reflection`).
 
+## Telegram bot service (multi-user, always on)
+
+The recommended way to run the agent is as a persistent Telegram bot. Any
+user who messages the bot gets their own onboarding flow and their own
+isolated search profile, cache, and results:
+
+1. **`/start`** — the bot welcomes the user and asks for their **CV**
+   (PDF, DOCX, or text upload — or pasted as a message).
+2. **Motivation letter** — uploaded next, or skipped with `/skip`.
+3. **Job description** — a free-text description of the jobs they want
+   (roles, industries, remote/on-site, locations).
+4. The bot **extracts search parameters** (job titles, keywords,
+   locations) from the documents with the LLM, and **asks follow-up
+   questions** for anything essential that's missing — e.g. which country
+   or cities to search in.
+5. Once set up, the bot scans automatically every
+   `scan_interval_hours` (default 6, see `[tool.job_crawler.bot]`) and
+   messages the user when new matching jobs are found. `/run` triggers a
+   scan immediately, `/status` shows the current parameters, `/reset`
+   restarts onboarding.
+
+Per-user state lives under `data/users/<chat_id>/` (documents, record,
+seen-URL cache, agent memory, results), so users never share state.
+
+### Run with Docker (recommended)
+
+```bash
+# .env needs BRAVE_API_KEY, OPENROUTER_API_KEY, TELEGRAM_BOT_TOKEN
+docker compose up -d --build
+```
+
+The service restarts automatically (`restart: unless-stopped`) and
+persists all user data in the mounted `./data` volume. Create the bot
+token by messaging [@BotFather](https://t.me/BotFather) with `/newbot`.
+The image includes Chrome for the headless-browser fallback (amd64; on
+arm64 set `browser_fallback = false` or swap in chromium).
+
+### Run without Docker
+
+```bash
+uv run python -m src.bot_service
+```
+
 ## Setup
 
 1. Install dependencies with `uv`:
@@ -68,7 +111,10 @@ To *keep* getting updates, schedule the crawler, e.g. with cron (twice daily):
 The seen-URL cache (`data/cache.json`) persists across runs, so each
 notification only contains jobs you haven't been shown before.
 
-## Run (real mode)
+## Run (single-user CLI mode)
+
+The original one-shot CLI mode still works and uses the repo-level
+`user_profile.txt` / `preferences.json`:
 
 ```bash
 uv run python -m src.main

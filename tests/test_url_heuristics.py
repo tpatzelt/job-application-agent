@@ -1,4 +1,11 @@
-from src.url_heuristics import INDEX, LISTING, OTHER, POSTING, classify_url
+from src.url_heuristics import (
+    INDEX,
+    LISTING,
+    OTHER,
+    POSTING,
+    classify_url,
+    is_aggregator_url,
+)
 
 
 def test_ats_postings():
@@ -78,6 +85,13 @@ def test_generic_search_urls_are_index():
     ]
     for url in urls:
         assert classify_url(url) == INDEX, url
+
+
+def test_is_aggregator_url():
+    assert is_aggregator_url("https://www.linkedin.com/jobs/view/3712345678")
+    assert is_aggregator_url("https://www.stepstone.de/stellenangebote--x--1.html")
+    assert not is_aggregator_url("https://boards.greenhouse.io/acme/jobs/5678")
+    assert not is_aggregator_url("https://company.com/careers/software-engineer")
 
 
 def test_non_job_urls_are_other():

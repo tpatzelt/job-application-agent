@@ -211,3 +211,5 @@ data/mock_cache.json
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+data/logs/
+data/users/

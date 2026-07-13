@@ -100,3 +100,39 @@ def test_empty_plain_content_triggers_browser(monkeypatch):
     text = engine.fetch_job_text("https://a.com/jobs/1", use_browser_fallback=True)
     assert "rendered job posting" in text
     assert calls["browser"] == 1
+
+
+LINKED_HTML = (
+    "<html><body>"
+    '<a href="/careers/jobs/123">Job</a>'
+    '<a href="https://boards.greenhouse.io/acme/jobs/456#app">Apply</a>'
+    '<a href="/careers/jobs/123">Duplicate</a>'
+    '<a href="mailto:hr@acme.com">Mail</a>'
+    "<p>" + ("job details " * 200) + "</p>"
+    "</body></html>"
+)
+
+
+def test_fetch_page_returns_absolute_deduped_links(monkeypatch):
+    engine, calls = _make_engine(monkeypatch, LINKED_HTML, BROWSER_HTML)
+    text, links = engine.fetch_page("https://acme.com/careers")
+    assert "job details" in text
+    assert links == [
+        "https://acme.com/careers/jobs/123",
+        "https://boards.greenhouse.io/acme/jobs/456",
+    ]
+    assert calls["browser"] == 0
+
+
+def test_fetch_page_browser_fallback_returns_browser_links(monkeypatch):
+    browser_html = (
+        '<html><body><a href="/jobs/789">Job</a>'
+        "<p>" + ("rendered job posting " * 200) + "</p></body></html>"
+    )
+    engine, calls = _make_engine(monkeypatch, SHORT_HTML, browser_html)
+    text, links = engine.fetch_page(
+        "https://acme.com/careers", use_browser_fallback=True
+    )
+    assert "rendered job posting" in text
+    assert links == ["https://acme.com/jobs/789"]
+    assert calls["browser"] == 1

@@ -36,6 +36,12 @@ AGGREGATOR_HOSTS = (
 SEARCH_QUERY_PARAMS = {"q", "query", "search", "keywords", "keyword", "k", "what", "where"}
 
 
+def is_aggregator_url(url: str) -> bool:
+    """True if the URL lives on a known job board/aggregator host."""
+    host = (urlparse(url).hostname or "").lower()
+    return any(aggregator in host for aggregator in AGGREGATOR_HOSTS)
+
+
 def classify_url(url: str) -> str:
     """Classify a URL as POSTING, LISTING, INDEX, or OTHER.
 

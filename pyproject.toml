@@ -10,6 +10,8 @@ dependencies = [
   "requests",
   "python-dotenv",
   "beautifulsoup4",
+  "pypdf>=6.14.2",
+  "python-docx>=1.2.0",
 ]
 
 [dependency-groups]
@@ -18,11 +20,11 @@ dev = ["pytest"]
 [tool.job_crawler]
 max_results = 5
 min_score = 70
-max_queries_per_iteration = 3
+max_queries_per_iteration = 4
 
 [tool.job_crawler.budget]
-max_llm_calls = 20
-max_search_iterations = 3
+max_llm_calls = 40
+max_search_iterations = 8
 
 [tool.job_crawler.output]
 results_json = "data/results.json"
@@ -34,6 +36,8 @@ memory_path = "data/memory.json"
 enable_planning = true
 enable_reflection = true
 ats_query_boost = true
+company_query_boost = true
+exclude_aggregator_sites = true
 
 [tool.job_crawler.llm]
 model = "openrouter/openrouter/free"
@@ -44,6 +48,11 @@ min_delay_seconds = 1
 [tool.job_crawler.notify]
 telegram = true
 
+[tool.job_crawler.bot]
+poll_timeout_seconds = 50
+scan_interval_hours = 6.0
+intake_max_llm_calls = 6
+
 [tool.job_crawler.search]
 brave_endpoint = "https://api.search.brave.com/res/v1/web/search"
 results_per_query = 20
@@ -51,6 +60,7 @@ request_timeout_seconds = 30
 min_delay_seconds = 1
 browser_fallback = true
 min_job_text_chars = 800
+max_harvest_links = 5
 
 [tool.job_crawler.profiles.minimal]
 max_results = 2

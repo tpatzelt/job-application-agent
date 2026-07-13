@@ -1,0 +1,11 @@
+services:
+  job-agent:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./data:/app/data
+    # Headless Chrome needs more shared memory than Docker's 64MB default.
+    shm_size: "1gb"
