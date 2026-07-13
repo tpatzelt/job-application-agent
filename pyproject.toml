@@ -41,6 +41,9 @@ temperature = 0.2
 max_retries = 3
 min_delay_seconds = 1
 
+[tool.job_crawler.notify]
+telegram = true
+
 [tool.job_crawler.search]
 brave_endpoint = "https://api.search.brave.com/res/v1/web/search"
 results_per_query = 20

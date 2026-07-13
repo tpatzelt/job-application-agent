@@ -367,6 +367,49 @@ def test_ats_queries_empty_without_plan_roles(tmp_path: Path):
     assert crawler.search_calls == ["python jobs berlin"]
 
 
+class RecordingNotifier:
+    def __init__(self, fail: bool = False):
+        self._fail = fail
+        self.notified: list[list[Any]] = []
+
+    def notify_results(self, results: list[Any]) -> bool:
+        if self._fail:
+            raise RuntimeError("telegram exploded")
+        self.notified.append(results)
+        return True
+
+
+def test_notifier_receives_accepted_results(tmp_path: Path):
+    config = _make_config(max_results=1)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
+    )
+    notifier = RecordingNotifier()
+    results = _run(
+        Orchestrator(config, config.budget, llm, crawler, notifier=notifier),
+        tmp_path,
+    )
+
+    assert len(results) == 1
+    assert notifier.notified == [results]
+
+
+def test_notifier_failure_does_not_break_run(tmp_path: Path):
+    config = _make_config(max_results=1)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
+    )
+    notifier = RecordingNotifier(fail=True)
+    results = _run(
+        Orchestrator(config, config.budget, llm, crawler, notifier=notifier),
+        tmp_path,
+    )
+
+    assert len(results) == 1
+
+
 def test_max_results_stops_loop(tmp_path: Path):
     config = _make_config(max_results=2)
     llm = ScriptedLLM(config.budget, [["q1", "q2", "q3"]])

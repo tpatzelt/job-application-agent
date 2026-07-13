@@ -30,9 +30,43 @@ uv sync
 ```bash
 BRAVE_API_KEY=your_brave_key
 OPENROUTER_API_KEY=your_openrouter_key
+# Optional, for Telegram notifications about new jobs:
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
 ```
 
 3. Update `user_profile.txt` and `preferences.json`.
+
+## Telegram notifications
+
+When `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are set, every run ends by
+sending the newly accepted jobs (title, score, URL) to your Telegram chat.
+Runs that find nothing send nothing. Disable via `telegram = false` in
+`[tool.job_crawler.notify]`.
+
+One-time setup:
+
+1. Message [@BotFather](https://t.me/BotFather) on Telegram, send `/newbot`,
+   and copy the token it gives you.
+2. Send any message to your new bot (bots can't message you first).
+3. Run the setup script, which verifies the token, discovers your chat ID
+   from that message, and writes both into `.env`:
+
+```bash
+uv run python scripts/telegram_setup.py <bot_token>
+```
+
+It sends a test message to confirm delivery works. If it reports multiple
+chat IDs (e.g. the bot is in a group too), set `TELEGRAM_CHAT_ID` manually.
+
+To *keep* getting updates, schedule the crawler, e.g. with cron (twice daily):
+
+```cron
+0 9,18 * * * cd /path/to/job-application-agent && uv run python -m src.main
+```
+
+The seen-URL cache (`data/cache.json`) persists across runs, so each
+notification only contains jobs you haven't been shown before.
 
 ## Run (real mode)
 

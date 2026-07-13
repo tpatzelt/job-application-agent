@@ -39,11 +39,13 @@ class Orchestrator:
         budget: EffortBudget,
         llm_service: Any,
         crawler: Any,
+        notifier: Any = None,
     ) -> None:
         self._config = config
         self._budget = budget
         self._llm_service = llm_service
         self._crawler = crawler
+        self._notifier = notifier
         self._logger = logging.getLogger(self.__class__.__name__)
         self._tools = ToolRegistry()
         if crawler is not None:
@@ -174,7 +176,16 @@ class Orchestrator:
         self._logger.info("Saved agent memory to %s", memory_path)
         self._write_results(results_json, results_csv, results)
         self._logger.info("Wrote %s results", len(results))
+        self._notify(results)
         return results
+
+    def _notify(self, results: list[JobResult]) -> None:
+        if self._notifier is None:
+            return
+        try:
+            self._notifier.notify_results(results)
+        except Exception as exc:
+            self._logger.warning("Notification failed: %s", exc)
 
     def _ats_queries(
         self,

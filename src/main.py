@@ -15,6 +15,7 @@ from .config_manager import (
 )
 from .crawler_engine import CrawlerEngine
 from .llm_service import LLMService
+from .notifier import TelegramNotifier
 from .orchestrator import Orchestrator
 
 
@@ -38,7 +39,20 @@ def main() -> None:
 
     llm = LLMService(config, config.budget, keys.get("openrouter"))
     crawler = CrawlerEngine(config, config.budget, keys.get("brave"))
-    orchestrator = Orchestrator(config, config.budget, llm, crawler)
+    notifier = None
+    if config.telegram_notifications:
+        bot_token = keys.get("telegram_bot_token")
+        chat_id = keys.get("telegram_chat_id")
+        if bot_token and chat_id:
+            notifier = TelegramNotifier(
+                bot_token, chat_id, config.request_timeout_seconds
+            )
+        else:
+            logging.getLogger().info(
+                "TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID not set; "
+                "skipping Telegram notifications"
+            )
+    orchestrator = Orchestrator(config, config.budget, llm, crawler, notifier=notifier)
 
     orchestrator.run(
         cv_text=cv_text,

@@ -52,6 +52,7 @@ class Config:
     ats_query_boost: bool = True
     browser_fallback: bool = True
     min_job_text_chars: int = 800
+    telegram_notifications: bool = True
 
 
 def _load_pyproject_config(
@@ -108,6 +109,7 @@ def load_config(
     llm_data = data.get("llm", {})
     search_data = data.get("search", {})
     agent_data = data.get("agent", {})
+    notify_data = data.get("notify", {})
 
     budget = EffortBudget(
         max_llm_calls=int(budget_data.get("max_llm_calls", 25)),
@@ -141,6 +143,7 @@ def load_config(
         ats_query_boost=bool(agent_data.get("ats_query_boost", True)),
         browser_fallback=bool(search_data.get("browser_fallback", True)),
         min_job_text_chars=int(search_data.get("min_job_text_chars", 800)),
+        telegram_notifications=bool(notify_data.get("telegram", True)),
     )
 
 
@@ -148,8 +151,14 @@ def load_api_keys() -> dict[str, str]:
     keys: dict[str, str] = {}
     brave_key = _get_env_var("BRAVE_API_KEY")
     openrouter_key = _get_env_var("OPENROUTER_API_KEY")
+    telegram_token = _get_env_var("TELEGRAM_BOT_TOKEN")
+    telegram_chat_id = _get_env_var("TELEGRAM_CHAT_ID")
     if brave_key:
         keys["brave"] = brave_key
     if openrouter_key:
         keys["openrouter"] = openrouter_key
+    if telegram_token:
+        keys["telegram_bot_token"] = telegram_token
+    if telegram_chat_id:
+        keys["telegram_chat_id"] = telegram_chat_id
     return keys
