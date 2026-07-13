@@ -134,6 +134,11 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+# Personal CLI preset data (dev/testing only; use the *.example.* templates).
+# Production preferences are set per-user through the Telegram bot intake.
+preferences.json
+user_profile.txt
+
 # Environments
 .env
 .envrc
