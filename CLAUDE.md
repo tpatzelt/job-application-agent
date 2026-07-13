@@ -28,7 +28,7 @@ JOB_CRAWLER_PROFILE=minimal uv run python -m src.main
 
 `LOG_LEVEL` env var controls log verbosity (default `INFO`). Logging is configured by `src/logging_setup.py` (used by both entrypoints): besides the console, logs go to a daily-rotating file under `data/logs/` (`crawler.log` for `src.main`, `bot.log` for `src.bot_service`), rotated at midnight UTC and kept for `LOG_RETENTION_DAYS` days (default 30); `LOG_DIR` overrides the directory. In Docker the files persist via the `./data` volume.
 
-CI (`.github/workflows/ci.yml`) runs `pytest -q` then `python run_mock_test.py` on every push/PR to `main`.
+CI (`.github/workflows/ci.yml`) runs `pytest -q` then `python run_mock_test.py` on every push/PR to `main`. `.github/workflows/docker.yml` builds and pushes the amd64 image to `ghcr.io/tpatzelt/job-application-agent` (`:latest`, branch and `sha-*` tags) on pushes to `main`/`tp/v1` and `v*` tags; `docs/HOSTING.md` documents running that image on a server/homelab.
 
 ## Architecture
 

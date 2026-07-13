@@ -9,9 +9,11 @@ The orchestrator runs a **plan → act → reflect** loop built on classic AI ag
 - **Planning** — the LLM first produces a `SearchPlan` (target roles, key skills, locations, strategy) from your CV and preferences, which steers all query generation.
 - **Tool use** — every action (web search, page fetch, job scoring) runs through a `ToolRegistry` that records call/error telemetry.
 - **Reflection** — after each iteration the LLM critiques query performance (using the history and tool telemetry) and suggests adjustments that feed into the next round of queries. If the LLM fails, a deterministic heuristic reflection takes over.
-- **ATS-targeted queries** — each iteration injects a couple of `site:`-targeted queries against ATS hosts (Greenhouse, Lever, Personio, SmartRecruiters), rotating through the plan's roles, so search results contain individual postings rather than only board search pages.
-- **URL triage** — search results are classified as individual postings (ATS pages, job-ID URLs), generic careers pages, or job-board index pages; postings are processed first and index pages only if capacity remains.
-- **Browser fallback** — postings that return little or no text over plain HTTP (JS-rendered ATS pages, 403-blocking boards) are refetched with a headless browser (`botasaurus` `@browser`); disable via `browser_fallback = false` in `[tool.job_crawler.search]`.
+- **ATS-targeted queries** — each iteration injects a couple of `site:`-targeted queries against ATS hosts (Greenhouse, Lever, Personio, SmartRecruiters, Ashby, Workable, Join, Recruitee), rotating through the plan's roles, so search results contain individual postings rather than only board search pages.
+- **Company-targeted queries** — the search plan also names real companies likely to hire for the target roles, and each iteration injects a `"<company>" careers <role>` query rotating through them, steering results onto employer career sites instead of aggregators.
+- **URL triage** — search results are classified as individual postings (ATS pages, job-ID URLs), generic careers pages, or job-board index pages; employer-hosted postings are processed first, careers pages next, and aggregator-hosted postings only if capacity remains. Aggregator index pages (LinkedIn/Indeed/StepStone/Glassdoor search results) are dropped outright by default (`exclude_aggregator_sites`).
+- **Careers-page harvesting** — a careers or board page that links to individual postings isn't scored itself: up to `max_harvest_links` posting links are extracted from it (employer/ATS hosts first) and each posting is fetched and scored instead, so results point at the actual job on the employer's site.
+- **Browser fallback** — postings and careers pages that return little or no text over plain HTTP (JS-rendered ATS pages, 403-blocking boards) are refetched with a headless browser (`botasaurus` `@browser`); disable via `browser_fallback = false` in `[tool.job_crawler.search]`.
 - **Persistent memory** — `data/memory.json` tracks query effectiveness and per-domain outcomes across runs, so the agent skips queries that never produced new URLs and leans into domains that yielded accepted jobs.
 - **Effort budget** — a shared run-wide cap on LLM calls and search iterations keeps costs bounded.
 
@@ -53,6 +55,11 @@ persists all user data in the mounted `./data` volume. Create the bot
 token by messaging [@BotFather](https://t.me/BotFather) with `/newbot`.
 The image includes Chrome for the headless-browser fallback (amd64; on
 arm64 set `browser_fallback = false` or swap in chromium).
+
+A prebuilt image is published to GHCR on every push
+(`ghcr.io/tpatzelt/job-application-agent:latest`) — see
+[docs/HOSTING.md](docs/HOSTING.md) for running it on a server/homelab
+without building anything locally.
 
 ### Run without Docker
 
@@ -150,6 +157,6 @@ Mock mode wires `MockLLM`/`MockCrawler` fakes through the same `Orchestrator` us
 ## Notes
 
 - The default model is `openrouter/openrouter/free`, which routes to free models on OpenRouter.
-- Fetches use retries and per-request timeouts; content under 500 characters is skipped as likely non-job pages.
+- Fetches use retries and per-request timeouts; content under `min_job_text_chars` (default 800) is skipped as likely non-job pages.
 - LLM responses are repaired when JSON parsing fails, and Brave search uses backoff on rate limits.
-- Default limits reduced to 3 results and 3 search iterations to lower request volume.
+- Per-run effort is capped by `[tool.job_crawler.budget]` (default 40 LLM calls, 8 search iterations) and `max_results` (default 5).
