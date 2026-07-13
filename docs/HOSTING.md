@@ -50,7 +50,14 @@ BRAVE_API_KEY=...        # https://api-dashboard.search.brave.com
 OPENROUTER_API_KEY=...   # https://openrouter.ai/keys
 TELEGRAM_BOT_TOKEN=...   # from @BotFather (/newbot)
 LOG_LEVEL=INFO           # optional
+JOB_CRAWLER_MAX_LLM_CALLS=40         # optional: overrides the per-run LLM-call cap
+JOB_CRAWLER_MAX_SEARCH_ITERATIONS=8  # optional: overrides the per-run search-iteration cap
 ```
+
+The two `JOB_CRAWLER_MAX_*` variables are the search budget (cost cap per
+crawl). When unset they fall back to `[tool.job_crawler.budget]` in
+`pyproject.toml`; setting them in `.env` lets you tune cost per deployment
+without editing the checked-in config.
 
 (`TELEGRAM_CHAT_ID` is only used by the one-shot CLI notifier; the bot
 service discovers each user's chat itself.)

@@ -93,6 +93,19 @@ def _get_env_var(name: str, required: bool = False) -> str | None:
     return value
 
 
+def _env_int_override(name: str, default: int) -> int:
+    """Return int from env var `name` (from .env) if set and valid, else default."""
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        raise RuntimeError(
+            f"Environment variable {name} must be an integer, got {raw!r}"
+        )
+
+
 def load_user_profile(root: Path) -> str:
     profile_path = root / "user_profile.txt"
     if not profile_path.exists():
@@ -121,9 +134,18 @@ def load_config(
     notify_data = data.get("notify", {})
     bot_data = data.get("bot", {})
 
+    # The search budget (LLM-call / search-iteration caps) comes from
+    # pyproject.toml but can be overridden per-deployment via .env so operators
+    # can tune cost without editing the checked-in config.
     budget = EffortBudget(
-        max_llm_calls=int(budget_data.get("max_llm_calls", 25)),
-        max_search_iterations=int(budget_data.get("max_search_iterations", 5)),
+        max_llm_calls=_env_int_override(
+            "JOB_CRAWLER_MAX_LLM_CALLS",
+            int(budget_data.get("max_llm_calls", 25)),
+        ),
+        max_search_iterations=_env_int_override(
+            "JOB_CRAWLER_MAX_SEARCH_ITERATIONS",
+            int(budget_data.get("max_search_iterations", 5)),
+        ),
     )
 
     return Config(
