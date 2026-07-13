@@ -147,7 +147,12 @@ class CrawlerEngine:
         self._brave_lock = threading.Lock()
         self._last_brave_search = 0.0
 
-    def search(self, query: str, country: str | None = None) -> list[str]:
+    def search(
+        self,
+        query: str,
+        country: str | None = None,
+        search_lang: str | None = None,
+    ) -> list[str]:
         if not self._budget.can_search():
             # Don't raise here; let the orchestrator stop iterating gracefully.
             self._logger.warning(
@@ -181,6 +186,9 @@ class CrawlerEngine:
         # employer pages outrank same-language pages from elsewhere.
         if country:
             params["country"] = country
+        # Restrict results to the user's preferred posting language.
+        if search_lang:
+            params["search_lang"] = search_lang
         payload = self._run_brave_search_with_backoff(
             {
                 "endpoint": self._config.brave_endpoint,

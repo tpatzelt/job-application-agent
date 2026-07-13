@@ -93,17 +93,51 @@ def _get_env_var(name: str, required: bool = False) -> str | None:
     return value
 
 
+def _env_int_override(name: str, default: int) -> int:
+    """Return int from env var `name` (from .env) if set and valid, else default."""
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        raise RuntimeError(
+            f"Environment variable {name} must be an integer, got {raw!r}"
+        )
+
+
 def load_user_profile(root: Path) -> str:
+    """Load the CV text for the single-user CLI (`src.main`).
+
+    This preset file is a dev/testing convenience only; production runs go
+    through the Telegram bot, which collects each user's profile via intake.
+    Falls back to the committed synthetic sample when no personal
+    `user_profile.txt` is present, so the CLI works out of the box.
+    """
     profile_path = root / "user_profile.txt"
     if not profile_path.exists():
-        raise FileNotFoundError("user_profile.txt not found")
+        profile_path = root / "user_profile.example.txt"
+    if not profile_path.exists():
+        raise FileNotFoundError(
+            "No user_profile.txt (or user_profile.example.txt) found"
+        )
     return profile_path.read_text(encoding="utf-8")
 
 
 def load_preferences(root: Path) -> dict[str, Any]:
+    """Load search preferences for the single-user CLI (`src.main`).
+
+    Preset dev/testing file only; production preferences are set per-user
+    through the Telegram intake. Falls back to the committed synthetic sample
+    when no personal `preferences.json` is present.
+    """
     preferences_path = root / "preferences.json"
     if not preferences_path.exists():
-        raise FileNotFoundError("preferences.json not found")
+        preferences_path = root / "preferences.example.json"
+    if not preferences_path.exists():
+        raise FileNotFoundError(
+            "No preferences.json (or preferences.example.json) found"
+        )
     with preferences_path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
@@ -121,9 +155,18 @@ def load_config(
     notify_data = data.get("notify", {})
     bot_data = data.get("bot", {})
 
+    # The search budget (LLM-call / search-iteration caps) comes from
+    # pyproject.toml but can be overridden per-deployment via .env so operators
+    # can tune cost without editing the checked-in config.
     budget = EffortBudget(
-        max_llm_calls=int(budget_data.get("max_llm_calls", 25)),
-        max_search_iterations=int(budget_data.get("max_search_iterations", 5)),
+        max_llm_calls=_env_int_override(
+            "JOB_CRAWLER_MAX_LLM_CALLS",
+            int(budget_data.get("max_llm_calls", 25)),
+        ),
+        max_search_iterations=_env_int_override(
+            "JOB_CRAWLER_MAX_SEARCH_ITERATIONS",
+            int(budget_data.get("max_search_iterations", 5)),
+        ),
     )
 
     return Config(

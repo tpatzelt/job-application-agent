@@ -111,6 +111,26 @@ def test_prompts_include_agent_context():
     }
 
 
+def test_prompts_cover_posting_language():
+    config = _make_config()
+    service = LLMService(config, config.budget, api_key=None)
+
+    query_prompt = json.loads(
+        service._build_query_prompt({"preferences": {"language": "german"}}, [])
+    )
+    assert query_prompt["context"]["preferences"]["language"] == "german"
+    assert any("preferences.language" in rule for rule in query_prompt["rules"])
+
+    plan_prompt = json.loads(
+        service._build_plan_prompt({"preferences": {"language": "german"}})
+    )
+    assert any("preferences.language" in rule for rule in plan_prompt["rules"])
+
+    intake_prompt = json.loads(service._build_intake_prompt("cv", "", "", []))
+    assert "language" in intake_prompt["output_schema"]
+    assert any("language:" in rule for rule in intake_prompt["rules"])
+
+
 def test_plan_and_reflect_consume_budget(monkeypatch):
     config = _make_config()
     service = LLMService(config, config.budget, api_key=None)

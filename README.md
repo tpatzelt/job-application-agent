@@ -85,7 +85,20 @@ TELEGRAM_BOT_TOKEN=your_bot_token
 TELEGRAM_CHAT_ID=your_chat_id
 ```
 
-3. Update `user_profile.txt` and `preferences.json`.
+3. (Single-user CLI only) copy the sample presets and edit them with your own
+   details:
+
+   ```bash
+   cp user_profile.example.txt user_profile.txt
+   cp preferences.example.json preferences.json
+   ```
+
+   These files are git-ignored and used only by the `src.main` CLI for local
+   dev/testing. In the multi-user Telegram bot each user's profile and search
+   preferences are collected through the intake conversation, not from these
+   files — see [Telegram bot service](#telegram-bot-service-multi-user-always-on).
+   If you
+   skip this step the CLI falls back to the committed `*.example.*` samples.
 
 ## Telegram notifications
 
@@ -121,7 +134,10 @@ notification only contains jobs you haven't been shown before.
 ## Run (single-user CLI mode)
 
 The original one-shot CLI mode still works and uses the repo-level
-`user_profile.txt` / `preferences.json`:
+`user_profile.txt` / `preferences.json` (git-ignored; falls back to the
+committed `*.example.*` samples if you haven't created your own). This mode is
+for a single user's local dev/testing — production, multi-user runs go through
+the Telegram bot, which sets each user's preferences via intake:
 
 ```bash
 uv run python -m src.main
