@@ -89,8 +89,13 @@ class LLMService:
             )
             return IntakeExtraction()
 
-    def evaluate_job(self, cv: str, job_description: str) -> JobEvaluation:
-        prompt = self._build_evaluation_prompt(cv, job_description)
+    def evaluate_job(
+        self,
+        cv: str,
+        job_description: str,
+        preferences: dict[str, Any] | None = None,
+    ) -> JobEvaluation:
+        prompt = self._build_evaluation_prompt(cv, job_description, preferences)
         response_text = self._call_llm(prompt)
         payload = self._parse_json_payload(response_text, prompt)
         # Ensure required evaluation fields exist to avoid Pydantic
@@ -231,6 +236,14 @@ class LLMService:
                 pass
         if "reason" in payload and isinstance(payload["reason"], (list, dict)):
             payload["reason"] = json.dumps(payload["reason"], ensure_ascii=True)
+        if "location_match" in payload and isinstance(
+            payload["location_match"], str
+        ):
+            payload["location_match"] = payload["location_match"].strip().lower() in (
+                "true",
+                "yes",
+                "1",
+            )
         return payload
 
     def _extract_json_object(self, text: str) -> str | None:
@@ -275,6 +288,11 @@ class LLMService:
                 (
                     "Avoid queries aimed at aggregators such as LinkedIn, "
                     "Indeed, StepStone, Glassdoor, or XING."
+                ),
+                (
+                    "Every query must name one of the preferred locations "
+                    "from context.preferences (city or country); if the "
+                    "user wants remote work, use 'remote' plus the country."
                 ),
             ],
         }
@@ -380,16 +398,45 @@ class LLMService:
         }
         return json.dumps(payload, ensure_ascii=True)
 
-    def _build_evaluation_prompt(self, cv: str, job_description: str) -> str:
+    def _build_evaluation_prompt(
+        self,
+        cv: str,
+        job_description: str,
+        preferences: dict[str, Any] | None = None,
+    ) -> str:
+        preferences = preferences or {}
+        locations = preferences.get("locations") or []
+        if not locations and preferences.get("location"):
+            locations = [preferences["location"]]
         payload = {
-            "task": "Evaluate job relevance to the CV.",
+            "task": "Evaluate job relevance to the CV and preferences.",
             "cv": cv,
+            "preferred_locations": locations,
             "job_description": job_description,
-            "output_schema": {"score": 0, "reason": "string"},
+            "output_schema": {
+                "score": 0,
+                "reason": "string",
+                "location_match": True,
+            },
             "rules": [
                 "Return ONLY JSON.",
                 "Do not include explanations.",
                 "score must be an integer 0-100.",
+                (
+                    "location_match: true only if the job is located in (or "
+                    "is remote work available from) one of the "
+                    "preferred_locations. Locations may appear in another "
+                    "language (e.g. Muenchen for Munich). If "
+                    "preferred_locations is empty, set true."
+                ),
+                (
+                    "If location_match is false, score must be 25 or lower "
+                    "and the reason must mention the location mismatch."
+                ),
+                (
+                    "If the page describes an expired, closed, or already "
+                    "filled position, score must be 10 or lower."
+                ),
             ],
         }
         return json.dumps(payload, ensure_ascii=True)

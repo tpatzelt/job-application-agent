@@ -11,6 +11,7 @@ from botasaurus.request import Request, request
 from botasaurus.soupify import soupify
 
 from .config_manager import Config, EffortBudget
+from .page_signals import redirected_off_posting
 
 
 @request(max_retry=3)
@@ -58,10 +59,12 @@ def brave_search_task(req: Request, data: dict[str, Any]) -> dict[str, Any]:
 
 
 @request(max_retry=3)
-def fetch_job_task(req: Request, data: dict[str, Any]) -> str:
+def fetch_job_task(req: Request, data: dict[str, Any]) -> dict[str, Any]:
     response = req.get(data["url"], timeout=data["timeout"])
     response.raise_for_status()
-    return response.text
+    # final_url exposes silent redirects: dead ATS job IDs 302 to the
+    # company's board page instead of returning 404.
+    return {"html": response.text, "final_url": str(response.url)}
 
 
 def extract_visible_text(html: str | None) -> str:
@@ -103,7 +106,7 @@ def extract_links(html: str | None, base_url: str) -> list[str]:
     output=None,
     add_arguments=["--no-sandbox", "--disable-gpu"],
 )
-def fetch_job_browser_task(driver: Driver, data: dict[str, Any]) -> str:
+def fetch_job_browser_task(driver: Driver, data: dict[str, Any]) -> dict[str, Any]:
     # Real browser fetch for JS-rendered pages (Workday-style ATS) and
     # boards that 403 plain HTTP clients. ATS pages often render the job
     # description via XHR well after page load, so poll until the visible
@@ -116,11 +119,19 @@ def fetch_job_browser_task(driver: Driver, data: dict[str, Any]) -> str:
         html = driver.page_html
         if len(extract_visible_text(html)) >= min_chars:
             break
-    return html
+    return {"html": html, "final_url": driver.current_url}
 
 
 BraveSearchCallable = Callable[[dict[str, Any]], dict[str, Any]]
-FetchJobCallable = Callable[[dict[str, Any]], str]
+# Fetch tasks return {"html": str, "final_url": str}; plain strings are
+# also accepted (test fakes, degraded browser results).
+FetchJobCallable = Callable[[dict[str, Any]], Any]
+
+
+def _unwrap_fetch(payload: Any) -> tuple[str, str | None]:
+    if isinstance(payload, dict):
+        return payload.get("html") or "", payload.get("final_url")
+    return payload or "", None
 BRAVE_SEARCH = cast(BraveSearchCallable, brave_search_task)
 FETCH_JOB = cast(FetchJobCallable, fetch_job_task)
 FETCH_JOB_BROWSER = cast(FetchJobCallable, fetch_job_browser_task)
@@ -136,7 +147,7 @@ class CrawlerEngine:
         self._brave_lock = threading.Lock()
         self._last_brave_search = 0.0
 
-    def search(self, query: str) -> list[str]:
+    def search(self, query: str, country: str | None = None) -> list[str]:
         if not self._budget.can_search():
             # Don't raise here; let the orchestrator stop iterating gracefully.
             self._logger.warning(
@@ -155,11 +166,26 @@ class CrawlerEngine:
 
         self._logger.info("Brave search: %s", query)
         time.sleep(self._config.search_min_delay_seconds)
+        params: dict[str, Any] = {
+            "q": query,
+            "count": self._config.results_per_query,
+        }
+        # Recently indexed pages only: old postings are usually expired.
+        # site:-scoped ATS queries are exempt — those hosts remove filled
+        # postings (and dead IDs are caught by redirect/404 detection at
+        # fetch time), while the freshness filter starves their already
+        # narrow result sets.
+        if self._config.search_freshness and "site:" not in query:
+            params["freshness"] = self._config.search_freshness
+        # Scope results to the user's country so localized boards and
+        # employer pages outrank same-language pages from elsewhere.
+        if country:
+            params["country"] = country
         payload = self._run_brave_search_with_backoff(
             {
                 "endpoint": self._config.brave_endpoint,
                 "headers": headers,
-                "params": {"q": query, "count": self._config.results_per_query},
+                "params": params,
                 "timeout": self._config.request_timeout_seconds,
             }
         )
@@ -217,7 +243,15 @@ class CrawlerEngine:
     ) -> tuple[str, list[str]]:
         """Fetch a page and return (visible text, outbound links)."""
         self._logger.info("Fetching URL via botasaurus: %s", url)
-        html = FETCH_JOB({"url": url, "timeout": self._config.request_timeout_seconds})
+        payload = FETCH_JOB(
+            {"url": url, "timeout": self._config.request_timeout_seconds}
+        )
+        html, final_url = _unwrap_fetch(payload)
+        if redirected_off_posting(url, final_url):
+            self._logger.info(
+                "Posting gone: %s redirected to %s, skipping", url, final_url
+            )
+            return "", []
         text = self._extract_text(html)
         if (
             use_browser_fallback
@@ -229,7 +263,16 @@ class CrawlerEngine:
                 len(text),
                 url,
             )
-            browser_html = self._fetch_html_with_browser(url)
+            browser_html, browser_final_url = _unwrap_fetch(
+                self._fetch_html_with_browser(url)
+            )
+            if redirected_off_posting(url, browser_final_url):
+                self._logger.info(
+                    "Posting gone: %s redirected to %s in browser, skipping",
+                    url,
+                    browser_final_url,
+                )
+                return "", []
             browser_text = self._extract_text(browser_html)
             if len(browser_text) > len(text):
                 self._logger.info(
@@ -240,7 +283,7 @@ class CrawlerEngine:
                 return browser_text, extract_links(browser_html, url)
         return text, extract_links(html, url)
 
-    def _fetch_html_with_browser(self, url: str) -> str:
+    def _fetch_html_with_browser(self, url: str) -> Any:
         try:
             return FETCH_JOB_BROWSER(
                 {"url": url, "min_text_chars": self._config.min_job_text_chars}

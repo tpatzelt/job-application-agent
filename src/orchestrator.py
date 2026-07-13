@@ -9,6 +9,7 @@ from typing import Any
 from .agent_memory import AgentMemory
 from .config_manager import Config, EffortBudget
 from .models import JobResult, Reflection, SearchPlan
+from .page_signals import country_code_for, find_stale_marker, mentions_location
 from .tools import ToolRegistry
 from .url_heuristics import (
     INDEX,
@@ -100,6 +101,9 @@ class Orchestrator:
 
         plan = self._make_plan(cv_text, preferences, memory)
         reflection: Reflection | None = None
+        country = country_code_for(self._preferred_locations(preferences))
+        if country:
+            self._logger.info("Scoping Brave searches to country: %s", country)
 
         while (
             len(results) < self._config.max_results
@@ -142,7 +146,7 @@ class Orchestrator:
                     continue
                 searched_this_run.add(query)
                 self._logger.info("Searching with query: %s", query)
-                urls = self._tools.invoke("search", query)
+                urls = self._tools.invoke("search", query, country=country)
                 new_urls = [url for url in urls if url not in seen_urls]
                 postings, listings, low_priority = self._triage_urls(
                     new_urls, seen_urls
@@ -174,7 +178,7 @@ class Orchestrator:
                     if len(results) >= self._config.max_results:
                         break
                     accepted = self._process_url(
-                        url, query, cv_text, seen_urls, results, memory
+                        url, query, cv_text, preferences, seen_urls, results, memory
                     )
                     if accepted:
                         self._logger.info("Accepted job: %s", url)
@@ -288,6 +292,7 @@ class Orchestrator:
         url: str,
         query: str,
         cv_text: str,
+        preferences: dict[str, Any],
         seen_urls: set[str],
         results: list[JobResult],
         memory: AgentMemory,
@@ -316,7 +321,14 @@ class Orchestrator:
                     if harvested:
                         seen_urls.add(url)
                         return self._process_harvested(
-                            harvested, url, query, cv_text, seen_urls, results, memory
+                            harvested,
+                            url,
+                            query,
+                            cv_text,
+                            preferences,
+                            seen_urls,
+                            results,
+                            memory,
                         )
         except Exception as exc:
             self._logger.warning("Failed to fetch %s: %s", url, exc)
@@ -332,14 +344,41 @@ class Orchestrator:
             )
             seen_urls.add(url)
             return False
+        stale_marker = find_stale_marker(job_text)
+        if stale_marker:
+            self._logger.info(
+                "Skipping stale posting %s (marker: %r)", url, stale_marker
+            )
+            seen_urls.add(url)
+            return False
+        # Deterministic location gate: small models sometimes ignore the
+        # location_match prompt rule, so don't even score a page that never
+        # mentions any preferred location (or remote, when wanted).
+        locations = self._preferred_locations(preferences)
+        if locations and not mentions_location(job_text, locations):
+            self._logger.info(
+                "Skipping %s: page never mentions preferred locations %s",
+                url,
+                locations,
+            )
+            seen_urls.add(url)
+            return False
         self._logger.info("Scoring job page: %s", url)
         try:
-            evaluation = self._tools.invoke("evaluate_job", cv_text, job_text)
+            evaluation = self._tools.invoke(
+                "evaluate_job", cv_text, job_text, preferences=preferences
+            )
         except Exception as exc:
             self._logger.warning("Failed to score %s: %s", url, exc)
             seen_urls.add(url)
             return False
         seen_urls.add(url)
+        if evaluation.location_match is False:
+            self._logger.info(
+                "Rejected job (%s): location mismatch — %s", url, evaluation.reason
+            )
+            memory.record_evaluation(url, accepted=False, query=query)
+            return False
         accepted = evaluation.score >= self._config.min_score
         memory.record_evaluation(url, accepted=accepted, query=query)
         if accepted:
@@ -379,6 +418,7 @@ class Orchestrator:
         source_url: str,
         query: str,
         cv_text: str,
+        preferences: dict[str, Any],
         seen_urls: set[str],
         results: list[JobResult],
         memory: AgentMemory,
@@ -393,7 +433,14 @@ class Orchestrator:
             if not self._budget.can_call_llm():
                 break
             if self._process_url(
-                link, query, cv_text, seen_urls, results, memory, allow_harvest=False
+                link,
+                query,
+                cv_text,
+                preferences,
+                seen_urls,
+                results,
+                memory,
+                allow_harvest=False,
             ):
                 accepted_any = True
                 self._logger.info("Accepted harvested job: %s", link)
@@ -461,6 +508,12 @@ class Orchestrator:
             ineffective_queries=ineffective,
             adjustments=adjustments,
         )
+
+    def _preferred_locations(self, preferences: dict[str, Any]) -> list[str]:
+        locations = preferences.get("locations") or []
+        if not locations and preferences.get("location"):
+            locations = [preferences["location"]]
+        return [str(location) for location in locations]
 
     def _build_context(
         self,

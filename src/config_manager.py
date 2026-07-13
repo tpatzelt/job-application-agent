@@ -53,6 +53,9 @@ class Config:
     company_query_boost: bool = True
     exclude_aggregator_sites: bool = True
     browser_fallback: bool = True
+    # Brave freshness filter (pd/pw/pm/py or "" to disable): postings
+    # indexed long ago are usually expired by the time a user clicks them.
+    search_freshness: str = "pm"
     min_job_text_chars: int = 800
     max_harvest_links: int = 5
     telegram_notifications: bool = True
@@ -153,6 +156,7 @@ def load_config(
             agent_data.get("exclude_aggregator_sites", True)
         ),
         browser_fallback=bool(search_data.get("browser_fallback", True)),
+        search_freshness=str(search_data.get("freshness", "pm")),
         min_job_text_chars=int(search_data.get("min_job_text_chars", 800)),
         max_harvest_links=int(search_data.get("max_harvest_links", 5)),
         telegram_notifications=bool(notify_data.get("telegram", True)),

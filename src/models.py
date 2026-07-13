@@ -10,6 +10,9 @@ class SearchQueries(BaseModel):
 class JobEvaluation(BaseModel):
     score: int
     reason: str
+    # None when the model didn't say; False triggers rejection regardless
+    # of score (preferred-location mismatch).
+    location_match: bool | None = None
 
 
 class SearchPlan(BaseModel):

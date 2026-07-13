@@ -49,7 +49,12 @@ class MockLLM:
         self.calls["reflect"] += 1
         return Reflection.model_validate(MOCK_REFLECTION_RESPONSE)
 
-    def evaluate_job(self, cv: str, job_description: str) -> JobEvaluation:
+    def evaluate_job(
+        self,
+        cv: str,
+        job_description: str,
+        preferences: dict[str, Any] | None = None,
+    ) -> JobEvaluation:
         self._record_call()
         self.calls["eval"] += 1
         return JobEvaluation.model_validate(MOCK_EVALUATION_RESPONSE)
@@ -61,7 +66,7 @@ class MockCrawler:
         self.search_calls: list[str] = []
         self.fetch_calls: list[str] = []
 
-    def search(self, query: str) -> list[str]:
+    def search(self, query: str, country: str | None = None) -> list[str]:
         if not self._budget.can_search():
             raise RuntimeError("Effort budget exceeded: search iterations")
         self._budget.record_search_iteration()

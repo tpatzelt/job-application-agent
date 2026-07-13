@@ -59,6 +59,7 @@ results_per_query = 20
 request_timeout_seconds = 30
 min_delay_seconds = 1
 browser_fallback = true
+freshness = "pm"
 min_job_text_chars = 800
 max_harvest_links = 5
 

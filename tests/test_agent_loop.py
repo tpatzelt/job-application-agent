@@ -6,7 +6,7 @@ from src.config_manager import Config, EffortBudget
 from src.models import JobEvaluation, Reflection, SearchPlan, SearchQueries
 from src.orchestrator import Orchestrator
 
-LONG_JOB_TEXT = "We are hiring a Python developer. " + ("Details " * 200)
+LONG_JOB_TEXT = "We are hiring a Python developer in Berlin. " + ("Details " * 200)
 
 
 def _make_config(**overrides: Any) -> Config:
@@ -99,8 +99,14 @@ class ScriptedLLM:
             adjustments=["Try different keywords."],
         )
 
-    def evaluate_job(self, cv: str, job_description: str) -> JobEvaluation:
+    def evaluate_job(
+        self,
+        cv: str,
+        job_description: str,
+        preferences: dict[str, Any] | None = None,
+    ) -> JobEvaluation:
         self._record_call()
+        self.eval_preferences = preferences
         return JobEvaluation(score=self._score, reason="scripted")
 
 
@@ -117,12 +123,14 @@ class ScriptedCrawler:
         self._url_map = url_map
         self._link_map = link_map or {}
         self.search_calls: list[str] = []
+        self.search_countries: list[str | None] = []
         self.fetch_calls: list[str] = []
         self.fetch_fallback_flags: dict[str, bool] = {}
 
-    def search(self, query: str) -> list[str]:
+    def search(self, query: str, country: str | None = None) -> list[str]:
         self._budget.record_search_iteration()
         self.search_calls.append(query)
+        self.search_countries.append(country)
         return self._url_map.get(query, [])
 
     def fetch_job_text(self, url: str, use_browser_fallback: bool = False) -> str:
