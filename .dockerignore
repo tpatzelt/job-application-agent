@@ -1,0 +1,15 @@
+.git
+.venv
+.env
+.ruff_cache
+.devcontainer
+.claude
+__pycache__
+**/__pycache__
+data
+error_logs
+output
+tests
+*.md
+user_profile.txt
+preferences.json

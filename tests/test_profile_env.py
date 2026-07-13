@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from src.config_manager import load_config
