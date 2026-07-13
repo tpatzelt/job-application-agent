@@ -37,6 +37,8 @@ class IntakeExtraction(BaseModel):
     job_titles: list[str] = Field(default_factory=list)
     keywords: list[str] = Field(default_factory=list)
     locations: list[str] = Field(default_factory=list)
+    # Language the user wants job postings in; empty unless they stated one.
+    language: str = ""
     questions: list[str] = Field(default_factory=list)
 
 

@@ -66,7 +66,12 @@ class MockCrawler:
         self.search_calls: list[str] = []
         self.fetch_calls: list[str] = []
 
-    def search(self, query: str, country: str | None = None) -> list[str]:
+    def search(
+        self,
+        query: str,
+        country: str | None = None,
+        search_lang: str | None = None,
+    ) -> list[str]:
         if not self._budget.can_search():
             raise RuntimeError("Effort budget exceeded: search iterations")
         self._budget.record_search_iteration()

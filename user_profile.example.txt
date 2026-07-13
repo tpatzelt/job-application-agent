@@ -1,0 +1,18 @@
+SAMPLE PROFILE — synthetic data for local CLI testing only. Replace with your
+own CV summary in user_profile.txt (git-ignored), or use the Telegram bot, which
+collects each user's profile through the intake conversation instead.
+
+A backend software engineer with roughly 6 years of experience building and
+operating web services in Python. Comfortable across the stack that surrounds an
+API: designing REST/JSON endpoints with FastAPI and Flask, modelling data in
+PostgreSQL, and shipping everything with Docker and CI/CD pipelines. Has worked
+on distributed systems handling background jobs, queues, and third-party
+integrations, with a focus on reliability, observability, and clear failure
+handling.
+
+Enjoys turning fuzzy product requirements into well-scoped services, writing
+maintainable code with good test coverage, and mentoring less experienced
+engineers. Familiar with cloud deployment on AWS, infrastructure-as-code, and
+basic Kubernetes operations. Communicates fluently in English and German and is
+looking for backend or platform engineering roles, ideally with a remote-friendly
+team based in or around Berlin.

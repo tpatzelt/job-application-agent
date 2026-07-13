@@ -8,6 +8,7 @@ from typing import Any
 
 from .agent_memory import AgentMemory
 from .config_manager import Config, EffortBudget
+from .language import detect_language, language_code_for, normalize_language
 from .models import JobResult, Reflection, SearchPlan
 from .page_signals import country_code_for, find_stale_marker, mentions_location
 from .tools import ToolRegistry
@@ -99,11 +100,24 @@ class Orchestrator:
         history: list[dict[str, Any]] = []
         searched_this_run: set[str] = set()
 
+        # Posting language: the stated preference, else the language the
+        # user's own input is written in. Exposed via preferences so the
+        # query/plan prompts generate queries in that language.
+        language = normalize_language(
+            str(preferences.get("language", ""))
+        ) or detect_language(cv_text)
+        if language:
+            preferences = {**preferences, "language": language}
+            self._logger.info("Searching for postings in language: %s", language)
+
         plan = self._make_plan(cv_text, preferences, memory)
         reflection: Reflection | None = None
         country = country_code_for(self._preferred_locations(preferences))
         if country:
             self._logger.info("Scoping Brave searches to country: %s", country)
+        search_lang = language_code_for(language)
+        if search_lang:
+            self._logger.info("Scoping Brave searches to language: %s", search_lang)
 
         while (
             len(results) < self._config.max_results
@@ -146,7 +160,9 @@ class Orchestrator:
                     continue
                 searched_this_run.add(query)
                 self._logger.info("Searching with query: %s", query)
-                urls = self._tools.invoke("search", query, country=country)
+                urls = self._tools.invoke(
+                    "search", query, country=country, search_lang=search_lang
+                )
                 new_urls = [url for url in urls if url not in seen_urls]
                 postings, listings, low_priority = self._triage_urls(
                     new_urls, seen_urls

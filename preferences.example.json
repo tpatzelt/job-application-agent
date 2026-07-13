@@ -1,0 +1,17 @@
+{
+  "location": "Berlin, Germany",
+  "locations": ["Berlin, Germany"],
+  "job_titles": [
+    "Backend Engineer",
+    "Software Engineer",
+    "Python Developer",
+    "Platform Engineer"
+  ],
+  "job_description_keywords": [
+    "python",
+    "backend",
+    "distributed systems",
+    "apis",
+    "docker"
+  ]
+}
