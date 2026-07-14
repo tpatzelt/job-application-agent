@@ -236,14 +236,13 @@ class LLMService:
                 pass
         if "reason" in payload and isinstance(payload["reason"], (list, dict)):
             payload["reason"] = json.dumps(payload["reason"], ensure_ascii=True)
-        if "location_match" in payload and isinstance(
-            payload["location_match"], str
-        ):
-            payload["location_match"] = payload["location_match"].strip().lower() in (
-                "true",
-                "yes",
-                "1",
-            )
+        for key in ("location_match", "domain_match"):
+            if key in payload and isinstance(payload[key], str):
+                payload[key] = payload[key].strip().lower() in (
+                    "true",
+                    "yes",
+                    "1",
+                )
         return payload
 
     def _extract_json_object(self, text: str) -> str | None:
@@ -295,6 +294,12 @@ class LLMService:
                     "user wants remote work, use 'remote' plus the country."
                 ),
                 (
+                    "When context.preferences.industries is set, every "
+                    "query must pair the role with one of those industry "
+                    "or domain terms (e.g. 'product manager food Berlin', "
+                    "not just 'product manager Berlin')."
+                ),
+                (
                     "Write every query in the language named by "
                     "context.preferences.language when it is set (e.g. "
                     "German job titles and keywords for 'german'); "
@@ -329,7 +334,16 @@ class LLMService:
                     "target_companies: list 5-15 real companies in the "
                     "target locations that are likely to hire for these "
                     "roles, so their career pages can be searched directly. "
-                    "Do not list job boards or staffing agencies."
+                    "Do not list job boards or staffing agencies. When "
+                    "context.preferences.industries is set, only list "
+                    "companies in those industries, not generic tech "
+                    "companies."
+                ),
+                (
+                    "target_roles must carry the industry/domain qualifier "
+                    "when context.preferences.industries is set or the CV "
+                    "shows a clear industry (e.g. 'Product Manager Food', "
+                    "not just 'Product Manager')."
                 ),
                 (
                     "If context.preferences.language is set, express "
@@ -393,6 +407,7 @@ class LLMService:
             "output_schema": {
                 "job_titles": ["string"],
                 "keywords": ["string"],
+                "industries": ["string"],
                 "locations": ["string"],
                 "language": "string",
                 "questions": ["string"],
@@ -402,6 +417,21 @@ class LLMService:
                 "Do not include explanations.",
                 "Only include the keys in the output_schema.",
                 "locations entries should look like 'Berlin, Germany'.",
+                (
+                    "industries: the industries or product domains the user "
+                    "has worked in or wants to work in (e.g. 'food & "
+                    "beverage', 'FMCG', 'public sector software')."
+                ),
+                (
+                    "job_titles must carry the domain qualifier when the "
+                    "documents show a clear industry: e.g. 'Product Manager "
+                    "Food' rather than just 'Product Manager'."
+                ),
+                (
+                    "If the documents span several industries and the "
+                    "target industry is ambiguous, ask a clarification "
+                    "question about it."
+                ),
                 (
                     "language: the language the user wants job postings "
                     "written in (e.g. 'German'), but only when the documents "
@@ -429,11 +459,16 @@ class LLMService:
             "task": "Evaluate job relevance to the CV and preferences.",
             "cv": cv,
             "preferred_locations": locations,
+            "preferred_job_titles": preferences.get("job_titles") or [],
+            "preferred_keywords": preferences.get("job_description_keywords")
+            or [],
+            "industries": preferences.get("industries") or [],
             "job_description": job_description,
             "output_schema": {
                 "score": 0,
                 "reason": "string",
                 "location_match": True,
+                "domain_match": True,
             },
             "rules": [
                 "Return ONLY JSON.",
@@ -449,6 +484,20 @@ class LLMService:
                 (
                     "If location_match is false, score must be 25 or lower "
                     "and the reason must mention the location mismatch."
+                ),
+                (
+                    "domain_match: true only if the job's industry and "
+                    "product domain match the candidate's actual experience "
+                    "and the stated industries. A shared job title is NOT "
+                    "enough: e.g. a software/AI product manager posting "
+                    "does not match a CV of a product manager for food "
+                    "products. If industries is empty, judge the domain "
+                    "from the CV."
+                ),
+                (
+                    "If domain_match is false, score must be 25 or lower "
+                    "and the reason must name both the job's industry and "
+                    "the candidate's industry."
                 ),
                 (
                     "If the page describes an expired, closed, or already "

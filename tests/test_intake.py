@@ -67,6 +67,7 @@ def _manager(tmp_path: Path, extractor) -> tuple[IntakeManager, UserStore]:
 COMPLETE = IntakeExtraction(
     job_titles=["Project Manager"],
     keywords=["digital transformation"],
+    industries=["public sector"],
     locations=["Berlin, Germany"],
     language="English",
 )
@@ -95,6 +96,7 @@ def test_full_intake_happy_path(tmp_path: Path) -> None:
     assert record.preferences["job_titles"] == ["Project Manager"]
     assert record.preferences["location"] == "Berlin, Germany"
     assert record.preferences["locations"] == ["Berlin, Germany"]
+    assert record.preferences["industries"] == ["public sector"]
     assert record.preferences["language"] == "english"
     assert extractor.calls[0]["prefs"] == "PM roles in Berlin, public sector"
 

@@ -241,8 +241,14 @@ class Orchestrator:
             return []
         locations = plan.locations or [str(preferences.get("location", ""))]
         location = locations[0]
+        industries = preferences.get("industries") or []
+        industry = str(industries[0]) if industries else ""
         queries: list[str] = []
         for role in roles:
+            # Keep the industry in site: queries even when the plan's roles
+            # dropped the qualifier — don't rely on the model complying.
+            if industry and industry.lower() not in role.lower():
+                role = f"{role} {industry}"
             for site in ATS_QUERY_SITES:
                 query = f"site:{site} {role} {location}".strip()
                 if query in searched or query in queries:
@@ -395,6 +401,12 @@ class Orchestrator:
             )
             memory.record_evaluation(url, accepted=False, query=query)
             return False
+        if evaluation.domain_match is False:
+            self._logger.info(
+                "Rejected job (%s): domain mismatch — %s", url, evaluation.reason
+            )
+            memory.record_evaluation(url, accepted=False, query=query)
+            return False
         accepted = evaluation.score >= self._config.min_score
         memory.record_evaluation(url, accepted=accepted, query=query)
         if accepted:
@@ -538,7 +550,7 @@ class Orchestrator:
         results: list[JobResult],
     ) -> dict[str, Any]:
         return {
-            "cv_summary": cv_text[:1500],
+            "cv_summary": cv_text[:4000],
             "preferences": preferences,
             "results": [item.model_dump() for item in results],
         }

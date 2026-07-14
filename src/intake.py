@@ -276,6 +276,7 @@ class IntakeManager:
             "locations": extraction.locations,
             "job_titles": extraction.job_titles,
             "job_description_keywords": extraction.keywords,
+            "industries": extraction.industries,
             "language": language,
         }
         record.pending_questions = []
@@ -365,12 +366,16 @@ class IntakeManager:
         locations = ", ".join(preferences.get("locations", [])) or "-"
         keywords = ", ".join(preferences.get("job_description_keywords", [])) or "-"
         language = (preferences.get("language") or "-").capitalize()
-        return (
-            f"\U0001f3af Roles: {titles}\n"
-            f"\U0001f4cd Locations: {locations}\n"
-            f"\U0001f511 Keywords: {keywords}\n"
-            f"\U0001f310 Language: {language}"
-        )
+        lines = [
+            f"\U0001f3af Roles: {titles}",
+            f"\U0001f4cd Locations: {locations}",
+            f"\U0001f511 Keywords: {keywords}",
+        ]
+        industries = ", ".join(preferences.get("industries", []))
+        if industries:
+            lines.append(f"\U0001f3ed Industries: {industries}")
+        lines.append(f"\U0001f310 Language: {language}")
+        return "\n".join(lines)
 
     def _format_interval(self) -> str:
         hours = self._scan_interval_hours
