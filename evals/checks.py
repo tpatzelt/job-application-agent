@@ -6,12 +6,15 @@ dimensions the agent is supposed to get right:
 - live:        the page still resolves and has real content
 - fresh:       live and no closed/expired marker on the page
 - location_ok: the page mentions one of the preferred locations
+- domain_ok:   the page mentions one of the profile's industries
+               (None when the profile states no industries)
 - posting:     the URL is shaped like an individual job posting
 """
 
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 import requests
@@ -33,8 +36,29 @@ USER_AGENT = (
 MIN_LIVE_TEXT_CHARS = 300
 
 
+def mentions_domain(text: str, industries: list[str]) -> bool:
+    """Deterministic proxy for industry fit: the page names one of the
+    profile's industries, either as the full term or any of its
+    significant words (so 'food & beverage' matches a page saying
+    'food products')."""
+    lowered = text.lower()
+    for industry in industries:
+        term = industry.strip().lower()
+        if not term:
+            continue
+        if term in lowered:
+            return True
+        for word in re.split(r"[^a-z0-9]+", term):
+            if len(word) >= 4 and word in lowered:
+                return True
+    return False
+
+
 def check_result(
-    url: str, locations: list[str], timeout: int = 25
+    url: str,
+    locations: list[str],
+    industries: list[str] | None = None,
+    timeout: int = 25,
 ) -> dict[str, Any]:
     status: int | None = None
     text = ""
@@ -70,6 +94,11 @@ def check_result(
         "redirected_off_posting": redirected,
         "fresh": live and stale_marker is None and not redirected,
         "location_ok": bool(text) and mentions_location(text, locations),
+        "domain_ok": (
+            bool(text) and mentions_domain(text, industries)
+            if industries
+            else None
+        ),
         "posting": classify_url(url) == POSTING,
         "aggregator": is_aggregator_url(url),
     }
@@ -83,14 +112,28 @@ def summarize_checks(checks: list[dict[str, Any]]) -> dict[str, Any]:
             return None
         return round(sum(1 for c in checks if c[key]) / total, 3)
 
+    # domain_ok is None for profiles without stated industries; rate it
+    # only over the checks where it applies.
+    domain_checks = [c for c in checks if c.get("domain_ok") is not None]
+    domain_rate = (
+        round(sum(1 for c in domain_checks if c["domain_ok"]) / len(domain_checks), 3)
+        if domain_checks
+        else None
+    )
     good = [
-        c for c in checks if c["fresh"] and c["location_ok"] and c["posting"]
+        c
+        for c in checks
+        if c["fresh"]
+        and c["location_ok"]
+        and c["posting"]
+        and c.get("domain_ok") is not False
     ]
     return {
         "results": total,
         "live_rate": rate("live"),
         "fresh_rate": rate("fresh"),
         "location_rate": rate("location_ok"),
+        "domain_rate": domain_rate,
         "posting_rate": rate("posting"),
         "aggregator_rate": rate("aggregator"),
         "good_results": len(good),

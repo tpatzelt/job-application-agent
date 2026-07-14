@@ -42,6 +42,7 @@ REPORT_COLUMNS = (
     "good_rate",
     "fresh_rate",
     "location_rate",
+    "domain_rate",
     "posting_rate",
     "live_rate",
 )
@@ -89,7 +90,10 @@ def run_profile(
         len(results),
         duration,
     )
-    checks = [check_result(item.url, profile.locations) for item in results]
+    checks = [
+        check_result(item.url, profile.locations, profile.industries)
+        for item in results
+    ]
     scorecard: dict[str, Any] = {
         "profile": profile.name,
         "locations": profile.locations,
@@ -145,7 +149,7 @@ def write_report(run_dir: Path, scorecards: list[dict[str, Any]]) -> str:
             checks = item["checks"]
             flags = ", ".join(
                 key
-                for key in ("live", "fresh", "location_ok", "posting")
+                for key in ("live", "fresh", "location_ok", "domain_ok", "posting")
                 if checks.get(key)
             ) or "none"
             stale = (

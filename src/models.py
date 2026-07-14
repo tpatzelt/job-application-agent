@@ -13,6 +13,9 @@ class JobEvaluation(BaseModel):
     # None when the model didn't say; False triggers rejection regardless
     # of score (preferred-location mismatch).
     location_match: bool | None = None
+    # Same contract for industry/product-domain fit: a shared job title in
+    # a different industry is not a match.
+    domain_match: bool | None = None
 
 
 class SearchPlan(BaseModel):
@@ -36,6 +39,7 @@ class IntakeExtraction(BaseModel):
 
     job_titles: list[str] = Field(default_factory=list)
     keywords: list[str] = Field(default_factory=list)
+    industries: list[str] = Field(default_factory=list)
     locations: list[str] = Field(default_factory=list)
     # Language the user wants job postings in; empty unless they stated one.
     language: str = ""

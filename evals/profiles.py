@@ -22,6 +22,10 @@ class EvalProfile:
     def locations(self) -> list[str]:
         return list(self.preferences.get("locations", []))
 
+    @property
+    def industries(self) -> list[str]:
+        return list(self.preferences.get("industries", []))
+
 
 PROFILES: list[EvalProfile] = [
     EvalProfile(
@@ -179,6 +183,39 @@ PROFILES: list[EvalProfile] = [
                 "Redis", "Kubernetes", "AWS", "Terraform", "remote",
                 "distributed systems",
             ],
+        },
+    ),
+    EvalProfile(
+        name="food-product-manager-berlin",
+        cv_text=(
+            "Product manager with 8 years of experience in the food and "
+            "beverage industry. Managed the full lifecycle of packaged "
+            "food products from concept to shelf: market and consumer "
+            "research, recipe development with food technologists, "
+            "supplier selection, packaging design, pricing, and retail "
+            "launch across DACH grocery chains. Deep knowledge of food "
+            "regulations (EU labeling, HACCP), private label and brand "
+            "portfolios, category management and trade marketing. Led "
+            "cross-functional teams with R&D, quality assurance, "
+            "procurement and sales; grew a snack category by 30% in two "
+            "years. Fluent German and English. Based in Berlin, looking "
+            "for product management roles in the food industry — not "
+            "software or tech product management."
+        ),
+        preferences={
+            "location": "Berlin, Germany",
+            "locations": ["Berlin, Germany"],
+            "job_titles": [
+                "Product Manager Food",
+                "Produktmanager Lebensmittel",
+                "Category Manager Food",
+            ],
+            "job_description_keywords": [
+                "food", "beverage", "FMCG", "Lebensmittel",
+                "product launch", "category management", "retail",
+                "private label", "HACCP", "trade marketing",
+            ],
+            "industries": ["food & beverage", "FMCG", "Lebensmittel"],
         },
     ),
 ]
