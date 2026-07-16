@@ -1,9 +1,10 @@
 # Hosting the Telegram bot service
 
 The bot is a single always-on container that long-polls the Telegram API.
-It exposes **no ports** — nothing to reverse-proxy or firewall — so hosting
-it means: pull the image, give it an env file and a data volume, keep it
-running.
+Its only listening port is the optional **monitoring dashboard** (8765,
+see below), which you should keep bound to localhost — beyond that there
+is nothing to reverse-proxy or firewall, so hosting it means: pull the
+image, give it an env file and a data volume, keep it running.
 
 ## The image
 
@@ -37,6 +38,12 @@ services:
     container_name: job-agent
     restart: unless-stopped
     env_file: ./.env
+    environment:
+      # Bind the dashboard inside the container on all interfaces; the port
+      # mapping below keeps it reachable from the host only.
+      - JOB_CRAWLER_DASHBOARD_HOST=0.0.0.0
+    ports:
+      - "127.0.0.1:8765:8765"   # monitoring dashboard (no auth — keep it local)
     volumes:
       - /opt/dockerdata/job-agent:/app/data
     # Headless Chrome needs more shared memory than Docker's 64MB default.
@@ -68,6 +75,23 @@ Start it:
 docker compose up -d
 docker compose logs -f   # expect: "Bot @<YourBot> online"
 ```
+
+## Monitoring dashboard
+
+The service ships a read-only web dashboard (jobs found per user, intake
+states, live log tail, per-query/domain agent memory). With the compose
+stack above it listens on `http://127.0.0.1:8765` **on the server only** —
+it has no authentication, so don't publish the port. To view it from your
+machine, tunnel it:
+
+```bash
+ssh -L 8765:127.0.0.1:8765 <server>   # then open http://localhost:8765
+```
+
+`[tool.job_crawler.dashboard]` in `pyproject.toml` configures it
+(`enabled`, `host`, `port`); `JOB_CRAWLER_DASHBOARD_HOST` /
+`JOB_CRAWLER_DASHBOARD_PORT` override host and port per deployment. It can
+also run standalone next to CLI runs: `uv run python -m src.dashboard`.
 
 ## State and migration
 

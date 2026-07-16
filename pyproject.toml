@@ -53,6 +53,11 @@ poll_timeout_seconds = 50
 scan_interval_hours = 6.0
 intake_max_llm_calls = 6
 
+[tool.job_crawler.dashboard]
+enabled = true
+host = "127.0.0.1"  # no auth: bind loopback; Docker sets JOB_CRAWLER_DASHBOARD_HOST=0.0.0.0
+port = 8765
+
 [tool.job_crawler.search]
 brave_endpoint = "https://api.search.brave.com/res/v1/web/search"
 results_per_query = 20

@@ -62,6 +62,9 @@ class Config:
     bot_poll_timeout_seconds: int = 50
     bot_scan_interval_hours: float = 6.0
     bot_intake_max_llm_calls: int = 6
+    dashboard_enabled: bool = True
+    dashboard_host: str = "127.0.0.1"
+    dashboard_port: int = 8765
 
 
 def _load_pyproject_config(
@@ -154,6 +157,7 @@ def load_config(
     agent_data = data.get("agent", {})
     notify_data = data.get("notify", {})
     bot_data = data.get("bot", {})
+    dashboard_data = data.get("dashboard", {})
 
     # The search budget (LLM-call / search-iteration caps) comes from
     # pyproject.toml but can be overridden per-deployment via .env so operators
@@ -206,6 +210,16 @@ def load_config(
         bot_poll_timeout_seconds=int(bot_data.get("poll_timeout_seconds", 50)),
         bot_scan_interval_hours=float(bot_data.get("scan_interval_hours", 6.0)),
         bot_intake_max_llm_calls=int(bot_data.get("intake_max_llm_calls", 6)),
+        dashboard_enabled=bool(dashboard_data.get("enabled", True)),
+        # Host/port can be overridden per-deployment: Docker needs 0.0.0.0
+        # (compose sets it) while bare-metal defaults stay loopback-only —
+        # the dashboard has no auth, so it must not bind publicly by default.
+        dashboard_host=os.getenv("JOB_CRAWLER_DASHBOARD_HOST")
+        or str(dashboard_data.get("host", "127.0.0.1")),
+        dashboard_port=_env_int_override(
+            "JOB_CRAWLER_DASHBOARD_PORT",
+            int(dashboard_data.get("port", 8765)),
+        ),
     )
 
 

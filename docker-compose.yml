@@ -5,6 +5,11 @@ services:
     env_file: .env
     environment:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      # Bind inside the container on all interfaces; the port mapping below
+      # keeps the (unauthenticated) dashboard reachable from the host only.
+      - JOB_CRAWLER_DASHBOARD_HOST=0.0.0.0
+    ports:
+      - "127.0.0.1:8765:8765"
     volumes:
       - ./data:/app/data
     # Headless Chrome needs more shared memory than Docker's 64MB default.
