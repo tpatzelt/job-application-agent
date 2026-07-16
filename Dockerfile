@@ -27,5 +27,6 @@ COPY src ./src
 COPY scripts ./scripts
 
 VOLUME ["/app/data"]
+EXPOSE 8765
 
 CMD ["uv", "run", "--no-sync", "python", "-m", "src.bot_service"]

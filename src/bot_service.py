@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 
 from .config_manager import Config, EffortBudget, load_api_keys, load_config
 from .crawler_engine import CrawlerEngine
+from .dashboard import DashboardServer
 from .intake import IntakeManager
 from .llm_service import LLMService
 from .logging_setup import configure_logging
@@ -60,6 +61,8 @@ class BotService:
         self._queued_or_running: set[str] = set()
         self._queue_lock = threading.Lock()
         self._stop = threading.Event()
+        self._started_at = time.time()
+        self._current_scan: str | None = None
 
     # ------------------------------------------------------------------
     # Main loops
@@ -67,6 +70,16 @@ class BotService:
     def run(self) -> None:
         me = self._telegram.get_me()
         self._logger.info("Bot @%s online", me.get("username"))
+        if self._config.dashboard_enabled:
+            try:
+                DashboardServer(
+                    self._root / "data",
+                    self._config.dashboard_host,
+                    self._config.dashboard_port,
+                    status_provider=self._dashboard_status,
+                ).start()
+            except OSError as exc:
+                self._logger.warning("Dashboard failed to start: %s", exc)
         threading.Thread(
             target=self._scan_worker, name="scan-worker", daemon=True
         ).start()
@@ -151,6 +164,7 @@ class BotService:
             except queue.Empty:
                 continue
             try:
+                self._current_scan = chat_id
                 self._run_scan(chat_id)
             except Exception as exc:
                 self._logger.exception("Scan failed for %s: %s", chat_id, exc)
@@ -160,6 +174,7 @@ class BotService:
                     "next scheduled run.",
                 )
             finally:
+                self._current_scan = None
                 with self._queue_lock:
                     self._queued_or_running.discard(chat_id)
 
@@ -235,6 +250,16 @@ class BotService:
 
     # ------------------------------------------------------------------
     # Helpers
+
+    def _dashboard_status(self) -> dict[str, object]:
+        with self._queue_lock:
+            queued = sorted(self._queued_or_running)
+        return {
+            "service": "bot",
+            "started_at": self._started_at,
+            "queued_or_running": queued,
+            "running": self._current_scan,
+        }
 
     def _safe_send(self, chat_id: str, text: str) -> None:
         try:
