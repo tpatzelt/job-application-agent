@@ -7,7 +7,9 @@ import os
 import queue
 import threading
 import time
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from dotenv import load_dotenv
 
@@ -30,7 +32,8 @@ class BotService:
     """Always-on multi-user Telegram bot.
 
     Main thread long-polls Telegram and drives the intake conversation;
-    a scheduler thread enqueues users whose scan interval has elapsed;
+    a scheduler thread enqueues each active user once per day the first
+    time local time passes the configured morning scan hour;
     a single worker thread runs crawls sequentially (one at a time keeps
     the shared Brave/LLM rate limits and botasaurus tasks well-behaved).
     """
@@ -51,11 +54,13 @@ class BotService:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._telegram = TelegramClient(bot_token, config.request_timeout_seconds)
         self._store = UserStore(root / "data")
+        self._scan_tz = self._resolve_timezone(config.bot_scan_timezone)
         self._intake = IntakeManager(
             self._store,
             self._telegram,
             self._extract_profile,
-            scan_interval_hours=config.bot_scan_interval_hours,
+            scan_hour=config.bot_scan_hour,
+            scan_timezone=config.bot_scan_timezone,
         )
         self._scan_queue: queue.Queue[str] = queue.Queue()
         self._queued_or_running: set[str] = set()
@@ -139,8 +144,36 @@ class BotService:
         else:
             self._safe_send(chat_id, "A scan is already queued or running for you.")
 
+    def _resolve_timezone(self, name: str) -> ZoneInfo:
+        try:
+            return ZoneInfo(name)
+        except (ZoneInfoNotFoundError, ValueError):
+            self._logger.warning(
+                "Unknown scan timezone %r, falling back to UTC", name
+            )
+            return ZoneInfo("UTC")
+
+    def _todays_scan_time(self, now: float) -> float:
+        """Epoch of today's morning scan hour, in the configured timezone."""
+        local_now = datetime.fromtimestamp(now, self._scan_tz)
+        target = local_now.replace(
+            hour=self._config.bot_scan_hour,
+            minute=0,
+            second=0,
+            microsecond=0,
+        )
+        return target.timestamp()
+
+    def _is_due(self, last_scan_at: float, now: float) -> bool:
+        """True when today's scan hour has passed and this user hasn't run since.
+
+        `last_scan_at` is written when a scan runs, so each user fires at most
+        once per day; a manual `/run` also counts as that day's scan.
+        """
+        target = self._todays_scan_time(now)
+        return now >= target and last_scan_at < target
+
     def _scheduler(self) -> None:
-        interval_seconds = self._config.bot_scan_interval_hours * 3600
         while not self._stop.is_set():
             try:
                 now = time.time()
@@ -148,10 +181,10 @@ class BotService:
                     record = self._store.load(chat_id)
                     if record.state != STATE_ACTIVE:
                         continue
-                    if now - record.last_scan_at >= interval_seconds:
+                    if self._is_due(record.last_scan_at, now):
                         if self._enqueue_scan(chat_id):
                             self._logger.info(
-                                "Scheduled scan for user %s", chat_id
+                                "Scheduled morning scan for user %s", chat_id
                             )
             except Exception as exc:
                 self._logger.exception("Scheduler error: %s", exc)

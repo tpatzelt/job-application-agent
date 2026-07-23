@@ -74,12 +74,14 @@ class IntakeManager:
         store: UserStore,
         downloader: DocumentSource,
         extract: Callable[[str, str, str, list[dict[str, str]]], IntakeExtraction],
-        scan_interval_hours: float = 6.0,
+        scan_hour: int = 7,
+        scan_timezone: str = "UTC",
     ) -> None:
         self._store = store
         self._downloader = downloader
         self._extract = extract
-        self._scan_interval_hours = scan_interval_hours
+        self._scan_hour = scan_hour
+        self._scan_timezone = scan_timezone
         self._logger = logging.getLogger(self.__class__.__name__)
 
     def handle_message(self, message: IncomingMessage) -> str:
@@ -285,10 +287,10 @@ class IntakeManager:
         return (
             "\U0001f389 You're all set!\n\n"
             f"{summary}\n\n"
-            f"I'll scan for matching jobs about every "
-            f"{self._format_interval()} and message you when I find new "
-            "ones. Use /run to start a scan right now, /status to check "
-            "your setup, or /reset to change your documents."
+            f"I'll scan for matching jobs {self._format_schedule()} and "
+            "message you when I find new ones. Use /run to start a scan "
+            "right now, /status to check your setup, or /reset to change "
+            "your documents."
         )
 
     def _user_input_text(self, record: UserRecord) -> str:
@@ -377,10 +379,8 @@ class IntakeManager:
         lines.append(f"\U0001f310 Language: {language}")
         return "\n".join(lines)
 
-    def _format_interval(self) -> str:
-        hours = self._scan_interval_hours
-        if hours < 1:
-            return f"{int(hours * 60)} minutes"
-        if hours == int(hours):
-            return f"{int(hours)} hour{'s' if hours != 1 else ''}"
-        return f"{hours:g} hours"
+    def _format_schedule(self) -> str:
+        return (
+            f"every morning around {self._scan_hour:02d}:00 "
+            f"({self._scan_timezone})"
+        )

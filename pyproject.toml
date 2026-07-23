@@ -50,7 +50,11 @@ telegram = true
 
 [tool.job_crawler.bot]
 poll_timeout_seconds = 50
-scan_interval_hours = 6.0
+# Scan each active user once per day, the first time local time in
+# scan_timezone passes scan_hour (0-23). Override per-deployment with
+# JOB_CRAWLER_SCAN_HOUR / JOB_CRAWLER_SCAN_TIMEZONE.
+scan_hour = 7
+scan_timezone = "UTC"
 intake_max_llm_calls = 6
 
 [tool.job_crawler.dashboard]

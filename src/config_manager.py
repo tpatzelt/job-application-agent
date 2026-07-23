@@ -60,7 +60,12 @@ class Config:
     max_harvest_links: int = 5
     telegram_notifications: bool = True
     bot_poll_timeout_seconds: int = 50
-    bot_scan_interval_hours: float = 6.0
+    # Daily scan schedule: each active user is scanned once per day, the first
+    # time local wall-clock time in `bot_scan_timezone` passes `bot_scan_hour`
+    # (0-23). This replaces the old fixed-interval scan so results land each
+    # morning rather than drifting around the clock.
+    bot_scan_hour: int = 7
+    bot_scan_timezone: str = "UTC"
     bot_intake_max_llm_calls: int = 6
     dashboard_enabled: bool = True
     dashboard_host: str = "127.0.0.1"
@@ -208,7 +213,14 @@ def load_config(
         max_harvest_links=int(search_data.get("max_harvest_links", 5)),
         telegram_notifications=bool(notify_data.get("telegram", True)),
         bot_poll_timeout_seconds=int(bot_data.get("poll_timeout_seconds", 50)),
-        bot_scan_interval_hours=float(bot_data.get("scan_interval_hours", 6.0)),
+        # The morning scan hour/timezone can be overridden per-deployment via
+        # .env so the homelab controls when scans post without rebuilding.
+        bot_scan_hour=_env_int_override(
+            "JOB_CRAWLER_SCAN_HOUR",
+            int(bot_data.get("scan_hour", 7)),
+        ),
+        bot_scan_timezone=os.getenv("JOB_CRAWLER_SCAN_TIMEZONE")
+        or str(bot_data.get("scan_timezone", "UTC")),
         bot_intake_max_llm_calls=int(bot_data.get("intake_max_llm_calls", 6)),
         dashboard_enabled=bool(dashboard_data.get("enabled", True)),
         # Host/port can be overridden per-deployment: Docker needs 0.0.0.0
