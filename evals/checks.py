@@ -54,6 +54,42 @@ def mentions_domain(text: str, industries: list[str]) -> bool:
     return False
 
 
+def score_page(
+    url: str,
+    final_url: str | None,
+    status: int | None,
+    text: str,
+    locations: list[str],
+    industries: list[str] | None = None,
+) -> dict[str, Any]:
+    """Pure scoring of an already-fetched page. No network access, so this
+    is what the offline G1 harness replays recorded pages through instead
+    of `check_result`, which does the HTTP GET."""
+    stale_marker = find_stale_marker(text) if text else None
+    # Dead ATS postings often 302 to the company's board page with HTTP
+    # 200 — the redirect is the only sign the posting is gone.
+    redirected = redirected_off_posting(url, final_url)
+    live = status is not None and status < 400 and len(text) >= MIN_LIVE_TEXT_CHARS
+    return {
+        "url": url,
+        "final_url": final_url,
+        "http_status": status,
+        "text_chars": len(text),
+        "live": live,
+        "stale_marker": stale_marker,
+        "redirected_off_posting": redirected,
+        "fresh": live and stale_marker is None and not redirected,
+        "location_ok": bool(text) and mentions_location(text, locations),
+        "domain_ok": (
+            bool(text) and mentions_domain(text, industries)
+            if industries
+            else None
+        ),
+        "posting": classify_url(url) == POSTING,
+        "aggregator": is_aggregator_url(url),
+    }
+
+
 def check_result(
     url: str,
     locations: list[str],
@@ -78,30 +114,9 @@ def check_result(
         error = str(exc)
         logger.warning("Eval refetch failed for %s: %s", url, exc)
 
-    stale_marker = find_stale_marker(text) if text else None
-    # Dead ATS postings often 302 to the company's board page with HTTP
-    # 200 — the redirect is the only sign the posting is gone.
-    redirected = redirected_off_posting(url, final_url)
-    live = status is not None and status < 400 and len(text) >= MIN_LIVE_TEXT_CHARS
-    return {
-        "url": url,
-        "final_url": final_url,
-        "http_status": status,
-        "error": error,
-        "text_chars": len(text),
-        "live": live,
-        "stale_marker": stale_marker,
-        "redirected_off_posting": redirected,
-        "fresh": live and stale_marker is None and not redirected,
-        "location_ok": bool(text) and mentions_location(text, locations),
-        "domain_ok": (
-            bool(text) and mentions_domain(text, industries)
-            if industries
-            else None
-        ),
-        "posting": classify_url(url) == POSTING,
-        "aggregator": is_aggregator_url(url),
-    }
+    result = score_page(url, final_url, status, text, locations, industries)
+    result["error"] = error
+    return result
 
 
 def summarize_checks(checks: list[dict[str, Any]]) -> dict[str, Any]:
