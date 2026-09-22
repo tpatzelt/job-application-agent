@@ -31,6 +31,18 @@ AGGREGATOR_HOSTS = (
     "jobrapido.com",
     "kununu.com",
     "devjobs.de",
+    "stellenanzeigen.de",
+    "stellenmarkt.de",
+    "meinestadt.de",
+    "jobware.de",
+    "absolventa.de",
+    "jobvector.de",
+    "talent.com",
+    "careerjet.",
+    "neuvoo.",
+    "simplyhired.",
+    "whatjobs.com",
+    "jobsora.",
 )
 
 # Query parameters that only identify the traffic source, never the job.
@@ -118,7 +130,7 @@ def classify_url(url: str) -> str:
     if ats_kind is not None:
         return ats_kind
 
-    aggregator_kind = _aggregator_kind(host, path)
+    aggregator_kind = _aggregator_kind(host, parts, path, parsed.query)
     if aggregator_kind is not None:
         return aggregator_kind
 
@@ -172,7 +184,7 @@ def _ats_kind(host: str, parts: list[str], path: str, query: str = "") -> str | 
     return None
 
 
-def _aggregator_kind(host: str, path: str) -> str | None:
+def _aggregator_kind(host: str, parts: list[str], path: str, query: str = "") -> str | None:
     lower_path = path.lower()
     if "linkedin.com" in host:
         if "/jobs/view/" in lower_path:
@@ -185,6 +197,63 @@ def _aggregator_kind(host: str, path: str) -> str | None:
     if "stepstone." in host:
         # Individual postings look like /stellenangebote--<slug>--<id>
         return POSTING if "stellenangebote--" in lower_path else INDEX
+    if "stellenanzeigen.de" in host:
+        # Postings: /job/<slug>-<id>/ or /job/detail/<id>/ (singular "job").
+        # Listings: /jobs/<role-or-city>/ (plural "jobs").
+        if parts[:1] == ["job"] and _DIGIT_RUN_RE.search(parts[-1]):
+            return POSTING
+        return INDEX
+    if "stellenmarkt.de" in host:
+        # Postings: /anzeige<id>.html at the root.
+        if len(parts) == 1 and re.match(r"anzeige\d+\.html$", parts[0]):
+            return POSTING
+        return INDEX
+    if "meinestadt.de" in host:
+        # Postings: /<location>/jk/<id> or /<location>/jkl/<id>.
+        if len(parts) >= 3 and parts[-2] in ("jk", "jkl") and _DIGIT_RUN_RE.search(parts[-1]):
+            return POSTING
+        return INDEX
+    if "jobware.de" in host:
+        # Postings: /job/detail/<slug>.<id>.html (singular "job").
+        # Listings: /jobs/<role-or-city> (plural "jobs").
+        if parts[:1] == ["job"] and _DIGIT_RUN_RE.search(parts[-1]):
+            return POSTING
+        return INDEX
+    if "absolventa.de" in host:
+        # Postings: /stellenangebote/<id>-b-<slug>.
+        if len(parts) >= 2 and parts[0] == "stellenangebote" and _DIGIT_RUN_RE.match(parts[1]):
+            return POSTING
+        return INDEX
+    if "jobvector.de" in host:
+        # Postings end in a numeric job id; category/search pages don't.
+        if parts and _DIGIT_RUN_RE.search(parts[-1]):
+            return POSTING
+        return INDEX
+    if "talent.com" in host:
+        # Postings: /view?id=<id>.
+        if parts[:1] == ["view"] and "id" in parse_qs(query):
+            return POSTING
+        return INDEX
+    if "neuvoo." in host:
+        # Postings: /job.php?id=<id>.
+        if path.rstrip("/").lower() == "/job.php" and "id" in parse_qs(query):
+            return POSTING
+        return INDEX
+    if "simplyhired." in host:
+        # Postings: /job/<token> (singular "job"); search is /search.
+        if parts[:1] == ["job"]:
+            return POSTING
+        return INDEX
+    if "whatjobs.com" in host:
+        # Postings: /jobs?id=<id>; category/search pages don't carry id.
+        if parts[:1] == ["jobs"] and "id" in parse_qs(query):
+            return POSTING
+        return INDEX
+    if "jobsora." in host:
+        # Postings: /job-<id>; search/listing pages use "jobs-...".
+        if parts and re.match(r"job-\d+$", parts[0]):
+            return POSTING
+        return INDEX
     if any(aggregator in host for aggregator in AGGREGATOR_HOSTS):
         return INDEX
     return None
