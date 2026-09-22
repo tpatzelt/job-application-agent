@@ -40,6 +40,8 @@ from .profiles import PROFILES_BY_NAME
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CORPUS_DIR = ROOT / "evals" / "fixtures"
 DEFAULT_OUT_DIR = ROOT / "evals" / "runs" / "offline"
+DEFAULT_BASELINE_PATH = ROOT / "evals" / "baseline.json"
+BASELINE_TOLERANCE = 1e-9
 
 METRICS: dict[str, Callable[[list[Record], list[Record]], float | None]] = {
     "posting_shape_rate": posting_shape_rate, "aggregator_drop_rate": aggregator_drop_rate,
@@ -147,13 +149,89 @@ def format_table(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def compare_to_baseline(
+    current: dict[str, float | None],
+    baseline: dict[str, float | None],
+    tolerance: float = BASELINE_TOLERANCE,
+) -> tuple[bool, list[dict[str, Any]]]:
+    """Compare each current metric against its baseline value. A metric
+    regresses if it is more than `tolerance` below the baseline, or if the
+    baseline had a value and the current run no longer does. Returns
+    (all_ok, rows) where rows carry before/after/delta for display."""
+    rows: list[dict[str, Any]] = []
+    all_ok = True
+    for name in METRICS:
+        base = baseline.get(name)
+        cur = current.get(name)
+        if base is None:
+            regressed = False
+            delta: float | None = None
+        elif cur is None:
+            regressed = True
+            delta = None
+        else:
+            delta = cur - base
+            regressed = delta < -tolerance
+        if regressed:
+            all_ok = False
+        rows.append({"metric": name, "baseline": base, "current": cur, "delta": delta, "regressed": regressed})
+    return all_ok, rows
+
+
+def format_baseline_table(rows: list[dict[str, Any]]) -> str:
+    header = ["metric", "baseline", "current", "delta"]
+
+    def fmt_delta(delta: float | None) -> str:
+        return "n/a" if delta is None else f"{delta:+.3f}"
+
+    def row(r: dict[str, Any]) -> list[str]:
+        mark = " !" if r["regressed"] else ""
+        return [
+            r["metric"] + mark, _format_rate(r["baseline"]), _format_rate(r["current"]), fmt_delta(r["delta"])
+        ]
+
+    body = [row(r) for r in rows]
+    widths = [max(len(r[i]) for r in (header, *body)) for i in range(len(header))]
+    lines = ["  ".join(cell.ljust(w) for cell, w in zip(r, widths)) for r in (header, *body)]
+    lines.insert(1, "  ".join("-" * w for w in widths))
+    return "\n".join(lines)
+
+
+def check_baseline(corpus_dir: Path, baseline_path: Path) -> tuple[bool, str]:
+    """Recompute the report over `corpus_dir` and compare its totals against
+    the committed `baseline_path`. Returns (ok, message) for the caller to
+    print and act on."""
+    report = run(corpus_dir)
+    baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+    ok, rows = compare_to_baseline(report["totals"]["metrics"], baseline["totals"]["metrics"])
+    lines = [format_baseline_table(rows)]
+    regressed = [r["metric"] for r in rows if r["regressed"]]
+    if regressed:
+        lines.append("\nRegressed vs baseline: " + ", ".join(regressed))
+    else:
+        lines.append("\nNo metric regressed vs baseline.")
+    return ok, "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Offline, network-free replay of the G1 result-quality harness"
     )
     parser.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS_DIR)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT_DIR)
+    parser.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE_PATH)
+    parser.add_argument(
+        "--check-baseline", action="store_true",
+        help="Recompute metrics and compare against --baseline instead of writing a report; "
+        "exit 1 if any metric regressed.",
+    )
     args = parser.parse_args(argv)
+
+    if args.check_baseline:
+        ok, message = check_baseline(args.corpus, args.baseline)
+        print(message)
+        return 0 if ok else 1
+
     report = run(args.corpus)
     print(format_table(report))
     args.out.mkdir(parents=True, exist_ok=True)
