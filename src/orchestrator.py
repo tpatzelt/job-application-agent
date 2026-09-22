@@ -3,20 +3,23 @@ from __future__ import annotations
 import csv
 import json
 import logging
+import time
 from pathlib import Path
 from typing import Any
 
 from .agent_memory import AgentMemory
 from .config_manager import Config, EffortBudget
+from .job_meta import extract_job_meta
 from .language import detect_language, language_code_for, normalize_language
 from .models import JobResult, Reflection, SearchPlan
 from .page_signals import country_code_for, find_stale_marker, mentions_location
+from .run_report import RunReport, runs_path_for
 from .tools import ToolRegistry
 from .url_heuristics import (
     INDEX,
     LISTING,
-    OTHER,
     POSTING,
+    canonical_url,
     classify_url,
     is_aggregator_url,
 )
@@ -35,6 +38,15 @@ ATS_QUERY_SITES = (
 )
 MAX_ATS_QUERIES_PER_ITERATION = 2
 MAX_COMPANY_QUERIES_PER_ITERATION = 1
+
+
+def _rotated(items: tuple[str, ...] | list[str], offset: int) -> list[str]:
+    """The same items, starting at a different one."""
+    items = list(items)
+    if not items:
+        return items
+    start = offset % len(items)
+    return items[start:] + items[:start]
 
 
 class Orchestrator:
@@ -62,14 +74,10 @@ class Orchestrator:
         self._notifier = notifier
         self._logger = logging.getLogger(self.__class__.__name__)
         self._tools = ToolRegistry()
+        self._report = RunReport.start()
         if crawler is not None:
             self._tools.register(
                 "search", "Search the web for job listing URLs", crawler.search
-            )
-            self._tools.register(
-                "fetch_job_text",
-                "Fetch a job page and extract its plain text",
-                crawler.fetch_job_text,
             )
             self._tools.register(
                 "fetch_page",
@@ -99,6 +107,7 @@ class Orchestrator:
         results: list[JobResult] = []
         history: list[dict[str, Any]] = []
         searched_this_run: set[str] = set()
+        report = self._report = RunReport.start()
 
         # Posting language: the stated preference, else the language the
         # user's own input is written in. Exposed via preferences so the
@@ -131,9 +140,16 @@ class Orchestrator:
                 context["reflection"] = reflection.model_dump()
 
             self._logger.info("Generating queries with %s results so far", len(results))
-            queries = self._llm_service.generate_search_queries(
-                context, history
-            ).queries
+            try:
+                queries = self._llm_service.generate_search_queries(
+                    context, history
+                ).queries
+            except Exception as exc:
+                # A failed query generation used to abort the whole run,
+                # losing the jobs already found and the cache/memory update.
+                self._logger.warning("Query generation failed, stopping: %s", exc)
+                report.record_error("query_generation_failed", "", exc)
+                break
             if not queries:
                 self._logger.info("No queries returned, stopping")
                 break
@@ -163,7 +179,8 @@ class Orchestrator:
                 urls = self._tools.invoke(
                     "search", query, country=country, search_lang=search_lang
                 )
-                new_urls = [url for url in urls if url not in seen_urls]
+                report.count("urls_found", len(urls))
+                new_urls = self._new_urls(urls, seen_urls, report)
                 postings, listings, low_priority = self._triage_urls(
                     new_urls, seen_urls
                 )
@@ -214,10 +231,43 @@ class Orchestrator:
         self._logger.info("Saved cache with %s URLs", len(seen_urls))
         memory.save(memory_path)
         self._logger.info("Saved agent memory to %s", memory_path)
+        report.finish(
+            queries=sorted(searched_this_run),
+            accepted=len(results),
+            tool_stats=self._tools.stats(),
+        )
+        report.save(runs_path_for(results_json))
+        self._logger.info("Run summary: %s", report.summary_line())
         self._write_results(results_json, results_csv, results)
         self._logger.info("Wrote %s results", len(results))
         self._notify(results)
         return results
+
+    def _new_urls(
+        self, urls: list[str], seen_urls: set[str], report: RunReport
+    ) -> list[str]:
+        """Canonicalized, de-duplicated URLs not seen before.
+
+        Postings arrive with referral parameters (?t=, ?gh_src=, /apply),
+        so raw strings would let one job be fetched, scored, and reported
+        several times.
+        """
+        fresh: list[str] = []
+        for url in urls:
+            canonical = canonical_url(url)
+            if canonical in seen_urls:
+                report.count("already_seen")
+                continue
+            if canonical in fresh:
+                report.count("duplicates_skipped")
+                continue
+            fresh.append(canonical)
+        return fresh
+
+    @property
+    def last_report(self) -> RunReport:
+        """Telemetry for the most recent run (see `run_report.RunReport`)."""
+        return self._report
 
     def _notify(self, results: list[JobResult]) -> None:
         if self._notifier is None:
@@ -235,7 +285,12 @@ class Orchestrator:
     ) -> list[str]:
         """Build site:-targeted queries from the plan, rotating through
         roles and ATS hosts across iterations (already-searched queries
-        are skipped, so each iteration tries the next combinations)."""
+        are skipped, so each iteration tries the next combinations).
+
+        The host order also rotates by day, so a service that scans every
+        morning probes different boards instead of re-running yesterday's
+        two queries against a cache that already holds their results.
+        """
         roles = plan.target_roles
         if not roles:
             return []
@@ -243,13 +298,14 @@ class Orchestrator:
         location = locations[0]
         industries = preferences.get("industries") or []
         industry = str(industries[0]) if industries else ""
+        sites = _rotated(ATS_QUERY_SITES, self._rotation_offset())
         queries: list[str] = []
         for role in roles:
             # Keep the industry in site: queries even when the plan's roles
             # dropped the qualifier — don't rely on the model complying.
             if industry and industry.lower() not in role.lower():
                 role = f"{role} {industry}"
-            for site in ATS_QUERY_SITES:
+            for site in sites:
                 query = f"site:{site} {role} {location}".strip()
                 if query in searched or query in queries:
                     continue
@@ -258,13 +314,19 @@ class Orchestrator:
                     return queries
         return queries
 
+    def _rotation_offset(self) -> int:
+        """Days since the epoch: shifts the deterministic query rotation
+        once a day so consecutive daily scans don't repeat themselves."""
+        return int(time.time() // 86400)
+
     def _company_queries(self, plan: SearchPlan, searched: set[str]) -> list[str]:
         """Search target companies from the plan directly — their careers
         pages host the postings that aggregators only mirror. Rotates
-        through companies across iterations via the already-searched set."""
+        through companies across iterations via the already-searched set,
+        and across days via the rotation offset."""
         role = plan.target_roles[0] if plan.target_roles else "jobs"
         queries: list[str] = []
-        for company in plan.target_companies:
+        for company in _rotated(plan.target_companies, self._rotation_offset()):
             query = f'"{company}" careers {role}'
             if query in searched or query in queries:
                 continue
@@ -288,6 +350,7 @@ class Orchestrator:
         aggregator_postings: list[str] = []
         index_pages: list[str] = []
         for url in urls:
+            url = canonical_url(url)
             kind = classify_url(url)
             if kind == POSTING:
                 if is_aggregator_url(url):
@@ -327,43 +390,48 @@ class Orchestrator:
         fetched and scored instead, so results point at the actual job on
         the employer's site rather than at a hub page.
         """
+        url = canonical_url(url)
         kind = classify_url(url)
         self._logger.info("Fetching job page: %s", url)
+        page_title = ""
+        page_gone = False
         try:
-            if kind == POSTING:
-                job_text = self._tools.invoke(
-                    "fetch_job_text", url, use_browser_fallback=True
-                )
-            else:
-                job_text, links = self._tools.invoke(
-                    "fetch_page", url, use_browser_fallback=kind == LISTING
-                )
-                if allow_harvest:
-                    harvested = self._harvest_posting_links(links, seen_urls)
-                    if harvested:
-                        seen_urls.add(url)
-                        return self._process_harvested(
-                            harvested,
-                            url,
-                            query,
-                            cv_text,
-                            preferences,
-                            seen_urls,
-                            results,
-                            memory,
-                        )
+            page = self._tools.invoke(
+                "fetch_page", url, use_browser_fallback=kind in (POSTING, LISTING)
+            )
+            job_text, links = page
+            page_title = getattr(page, "title", "")
+            page_gone = getattr(page, "gone", False)
+            self._report.count("pages_fetched")
+            if kind != POSTING and allow_harvest:
+                harvested = self._harvest_posting_links(links, seen_urls)
+                if harvested:
+                    seen_urls.add(url)
+                    return self._process_harvested(
+                        harvested,
+                        url,
+                        query,
+                        cv_text,
+                        preferences,
+                        seen_urls,
+                        results,
+                        memory,
+                    )
         except Exception as exc:
             self._logger.warning("Failed to fetch %s: %s", url, exc)
+            self._report.record_error("fetch_failed", url, exc)
             seen_urls.add(url)
             return False
         if not job_text:
             self._logger.info("Empty content for %s, skipping", url)
+            self._report.count("skipped_gone" if page_gone else "skipped_empty")
             seen_urls.add(url)
             return False
         if len(job_text) < self._config.min_job_text_chars:
             self._logger.info(
                 "Content too short (%s chars) for %s, skipping", len(job_text), url
             )
+            self._report.count("skipped_too_short")
             seen_urls.add(url)
             return False
         stale_marker = find_stale_marker(job_text)
@@ -371,6 +439,7 @@ class Orchestrator:
             self._logger.info(
                 "Skipping stale posting %s (marker: %r)", url, stale_marker
             )
+            self._report.count("skipped_stale")
             seen_urls.add(url)
             return False
         # Deterministic location gate: small models sometimes ignore the
@@ -383,6 +452,7 @@ class Orchestrator:
                 url,
                 locations,
             )
+            self._report.count("skipped_no_location")
             seen_urls.add(url)
             return False
         self._logger.info("Scoring job page: %s", url)
@@ -392,36 +462,43 @@ class Orchestrator:
             )
         except Exception as exc:
             self._logger.warning("Failed to score %s: %s", url, exc)
+            self._report.record_error("evaluate_failed", url, exc)
             seen_urls.add(url)
             return False
+        self._report.count("evaluated")
         seen_urls.add(url)
         if evaluation.location_match is False:
             self._logger.info(
                 "Rejected job (%s): location mismatch — %s", url, evaluation.reason
             )
+            self._report.count("rejected_location")
             memory.record_evaluation(url, accepted=False, query=query)
             return False
         if evaluation.domain_match is False:
             self._logger.info(
                 "Rejected job (%s): domain mismatch — %s", url, evaluation.reason
             )
+            self._report.count("rejected_domain")
             memory.record_evaluation(url, accepted=False, query=query)
             return False
         accepted = evaluation.score >= self._config.min_score
         memory.record_evaluation(url, accepted=accepted, query=query)
         if accepted:
+            meta = extract_job_meta(url, page_title, job_text)
             results.append(
                 JobResult(
-                    title=self._extract_title(job_text),
-                    company=self._extract_company(job_text),
+                    title=meta.title,
+                    company=meta.company,
                     url=url,
                     score=evaluation.score,
                     reason=evaluation.reason,
                     status="new",
+                    found_at=time.time(),
                 )
             )
             self._logger.info("Saved job (%s) with score %s", url, evaluation.score)
         else:
+            self._report.count("rejected_low_score")
             self._logger.info("Rejected job (%s) with score %s", url, evaluation.score)
         return accepted
 
@@ -433,7 +510,8 @@ class Orchestrator:
         direct: list[str] = []
         aggregator: list[str] = []
         for link in links:
-            if link in seen_urls:
+            link = canonical_url(link)
+            if link in seen_urls or link in direct or link in aggregator:
                 continue
             if classify_url(link) != POSTING:
                 continue
@@ -555,12 +633,38 @@ class Orchestrator:
             "results": [item.model_dump() for item in results],
         }
 
+    def _merge_with_previous(
+        self, results_json: Path, results: list[JobResult]
+    ) -> list[dict[str, Any]]:
+        previous: list[dict[str, Any]] = []
+        if results_json.exists():
+            try:
+                with results_json.open("r", encoding="utf-8") as handle:
+                    loaded = json.load(handle)
+                if isinstance(loaded, list):
+                    previous = [item for item in loaded if isinstance(item, dict)]
+            except (OSError, json.JSONDecodeError) as exc:
+                self._logger.warning(
+                    "Could not read previous results %s: %s", results_json, exc
+                )
+        merged: dict[str, dict[str, Any]] = {}
+        for item in previous:
+            item = {**item, "status": "seen"}
+            merged[canonical_url(str(item.get("url", "")))] = item
+        for result in results:
+            merged[canonical_url(result.url)] = result.model_dump()
+        return sorted(
+            merged.values(),
+            key=lambda item: (item.get("found_at") or 0, item.get("score") or 0),
+            reverse=True,
+        )
+
     def _load_cache(self, cache_path: Path) -> set[str]:
         if not cache_path.exists():
             return set()
         with cache_path.open("r", encoding="utf-8") as handle:
             data = json.load(handle)
-        return set(data.get("seen_urls", []))
+        return {canonical_url(str(url)) for url in data.get("seen_urls", [])}
 
     def _save_cache(self, cache_path: Path, seen_urls: set[str]) -> None:
         cache_path.parent.mkdir(parents=True, exist_ok=True)
@@ -573,15 +677,30 @@ class Orchestrator:
         results_csv: Path,
         results: list[JobResult],
     ) -> None:
+        """Write this run's results merged with earlier ones.
+
+        A daily scan finds few jobs; overwriting the file with only the
+        current run used to erase everything found before it.
+        """
         results_json.parent.mkdir(parents=True, exist_ok=True)
-        payload = [item.model_dump() for item in results]
+        payload = self._merge_with_previous(results_json, results)
         with results_json.open("w", encoding="utf-8") as handle:
             json.dump(payload, handle, indent=2)
 
         with results_csv.open("w", encoding="utf-8", newline="") as handle:
             writer = csv.DictWriter(
                 handle,
-                fieldnames=["title", "company", "url", "score", "reason", "status"],
+                fieldnames=[
+                    "title",
+                    "company",
+                    "url",
+                    "score",
+                    "reason",
+                    "status",
+                    "found_at",
+                ],
+                restval="",
+                extrasaction="ignore",
             )
             writer.writeheader()
             writer.writerows(payload)
@@ -593,12 +712,3 @@ class Orchestrator:
                 if url:
                     handle.write(f"{url}\n")
 
-    def _extract_title(self, job_text: str) -> str:
-        words = job_text.split()
-        return " ".join(words[:8])
-
-    def _extract_company(self, job_text: str) -> str:
-        return "Unknown"
-
-    def _looks_like_listing(self, url: str) -> bool:
-        return classify_url(url) != OTHER

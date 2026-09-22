@@ -79,7 +79,11 @@ docker compose logs -f   # expect: "Bot @<YourBot> online"
 ## Monitoring dashboard
 
 The service ships a read-only web dashboard (jobs found per user, intake
-states, live log tail, per-query/domain agent memory). With the compose
+states, live log tail, per-query/domain agent memory, and a **Runs** tab
+showing what each scan did — how many pages it fetched and where the rest
+dropped out). A banner at the top flags an active user who hasn't been
+scanned in over 36 hours, which is how a stopped or stuck service shows
+up. With the compose
 stack above it listens on `http://127.0.0.1:8765` **on the server only** —
 it has no authentication, so don't publish the port. To view it from your
 machine, tunnel it:

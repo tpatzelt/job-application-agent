@@ -219,3 +219,7 @@ __marimo__/
 data/logs/
 data/users/
 evals/runs/
+
+# botasaurus scratch output (rewritten on every run)
+output/
+error_logs/

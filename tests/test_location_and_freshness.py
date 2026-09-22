@@ -73,11 +73,11 @@ def test_stale_posting_skipped_without_scoring(tmp_path: Path):
     )
 
     class StaleCrawler(ScriptedCrawler):
-        def fetch_job_text(
+        def fetch_page(
             self, url: str, use_browser_fallback: bool = False
-        ) -> str:
+        ) -> tuple[str, list[str]]:
             self.fetch_calls.append(url)
-            return stale_text
+            return stale_text, []
 
     config = _make_config(max_results=1)
     llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
@@ -295,11 +295,11 @@ def test_page_without_location_mention_skipped_before_scoring(tmp_path):
     )
 
     class WrongCityCrawler(ScriptedCrawler):
-        def fetch_job_text(
+        def fetch_page(
             self, url: str, use_browser_fallback: bool = False
-        ) -> str:
+        ) -> tuple[str, list[str]]:
             self.fetch_calls.append(url)
-            return no_location_text
+            return no_location_text, []
 
     config = _make_config(max_results=1)
     llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
@@ -313,19 +313,28 @@ def test_page_without_location_mention_skipped_before_scoring(tmp_path):
     assert orchestrator._tools.get("evaluate_job").calls == 0
 
 
-def test_freshness_not_applied_to_site_queries(monkeypatch):
-    captured: dict[str, Any] = {}
+def test_freshness_applied_to_site_queries_then_dropped_when_empty(monkeypatch):
+    """Stale ATS postings dominate unfiltered site: results (they 404 or
+    redirect away at fetch time), so ask for fresh ones first — but a
+    narrow query with nothing fresh indexed must not come back empty."""
+    captured: list[dict[str, Any]] = []
 
     def fake_search(payload: dict[str, Any]) -> dict[str, Any]:
-        captured.update(payload)
-        return {"web": {"results": []}}
+        captured.append(payload["params"])
+        if "freshness" in payload["params"]:
+            return {"web": {"results": []}}
+        return {"web": {"results": [{"url": "https://jobs.lever.co/acme/1"}]}}
 
     monkeypatch.setattr(crawler_engine, "BRAVE_SEARCH", fake_search)
     monkeypatch.setattr(crawler_engine.time, "sleep", lambda seconds: None)
     config = _search_config(search_freshness="pm")
     engine = CrawlerEngine(config, config.budget, "key")
 
-    engine.search("site:jobs.lever.co ml engineer berlin", country="DE")
+    urls = engine.search("site:jobs.lever.co ml engineer berlin", country="DE")
 
-    assert "freshness" not in captured["params"]
-    assert captured["params"]["country"] == "DE"
+    assert captured[0]["freshness"] == "pm"
+    assert "freshness" not in captured[1]
+    assert captured[1]["country"] == "DE"
+    assert urls == ["https://jobs.lever.co/acme/1"]
+    # The unfiltered retry is part of the same search, not a second one.
+    assert config.budget.search_iterations_used == 1

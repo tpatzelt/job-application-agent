@@ -22,10 +22,35 @@ from .logging_setup import configure_logging
 from .models import IntakeExtraction
 from .notifier import TelegramNotifier
 from .orchestrator import Orchestrator
+from .run_report import COUNTER_LABELS, RunReport
 from .telegram_api import IncomingMessage, TelegramClient, parse_update
 from .user_store import STATE_ACTIVE, UserStore
 
 _OFFSET_FILE = "bot_offset.json"
+
+
+def _empty_scan_explanation(report: RunReport) -> str:
+    """One line on where the pages went, for a scan that found nothing.
+
+    Without it an empty scan is indistinguishable from a broken one.
+    """
+    reasons = [
+        f"{value} {COUNTER_LABELS.get(name, name)}"
+        for name, value in report.counters.items()
+        if value and (name.startswith("skipped_") or name.startswith("rejected_"))
+    ]
+    checked = report.counters.get("pages_fetched", 0)
+    if not checked:
+        seen_before = report.counters.get("already_seen", 0)
+        if seen_before:
+            return (
+                f"Every posting today's searches returned ({seen_before}) was one "
+                "I had already checked for you."
+            )
+        return "I could not fetch any job pages this run."
+    if not reasons:
+        return f"Checked {checked} job page(s)."
+    return f"Checked {checked} job page(s): " + ", ".join(reasons) + "."
 
 
 class BotService:
@@ -261,7 +286,9 @@ class BotService:
             self._safe_send(
                 chat_id,
                 "\U0001f50d Scan finished - no new matching jobs this time. "
-                "I'll keep looking.",
+                "I'll keep looking.\n" + _empty_scan_explanation(
+                    orchestrator.last_report
+                ),
             )
 
     def _extract_profile(

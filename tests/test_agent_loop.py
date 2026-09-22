@@ -153,7 +153,14 @@ class ScriptedCrawler:
         return LONG_JOB_TEXT, self._link_map.get(url, [])
 
 
+def _fixed_rotation(orchestrator: Orchestrator, day: int = 0) -> Orchestrator:
+    """Pin the day-based query rotation so query order is deterministic."""
+    orchestrator._rotation_offset = lambda: day  # type: ignore[method-assign]
+    return orchestrator
+
+
 def _run(orchestrator: Orchestrator, tmp_path: Path) -> list[Any]:
+    tmp_path.mkdir(parents=True, exist_ok=True)
     return orchestrator.run(
         cv_text="Python developer CV",
         preferences={"location": "Berlin"},
@@ -411,10 +418,25 @@ def test_company_queries_injected_from_plan(tmp_path: Path):
     crawler = ScriptedCrawler(
         config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
     )
-    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+    _run(_fixed_rotation(Orchestrator(config, config.budget, llm, crawler)), tmp_path)
 
     assert crawler.search_calls[0] == '"Acme GmbH" careers Python Developer'
     assert crawler.search_calls[1] == "python jobs berlin"
+
+
+def test_company_queries_start_at_a_different_company_the_next_day(tmp_path: Path):
+    config = _make_config(max_results=1, company_query_boost=True)
+    llm = ScriptedLLM(
+        config.budget,
+        [["python jobs berlin"]],
+        plan_companies=["Acme GmbH", "Globex"],
+    )
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
+    )
+    _run(_fixed_rotation(Orchestrator(config, config.budget, llm, crawler), 1), tmp_path)
+
+    assert crawler.search_calls[0] == '"Globex" careers Python Developer'
 
 
 def test_aggregator_index_pages_dropped_when_excluded(tmp_path: Path):
@@ -452,7 +474,7 @@ def test_ats_queries_injected_before_llm_queries(tmp_path: Path):
     crawler = ScriptedCrawler(
         config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
     )
-    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+    _run(_fixed_rotation(Orchestrator(config, config.budget, llm, crawler)), tmp_path)
 
     # ScriptedLLM's plan targets "Python Developer" in "Berlin".
     assert crawler.search_calls[0] == (
@@ -561,3 +583,24 @@ def test_max_results_stops_loop(tmp_path: Path):
 
     assert len(results) == 2
     assert crawler.search_calls == ["q1"]
+
+
+def test_ats_queries_start_at_a_different_host_the_next_day(tmp_path: Path):
+    """Daily scans must not re-run yesterday's two site: queries: their
+    results are already in the seen-URL cache, so the scan finds nothing."""
+    first_day_queries: list[str] = []
+    for day in (0, 1):
+        config = _make_config(max_results=1, ats_query_boost=True)
+        llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+        crawler = ScriptedCrawler(
+            config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
+        )
+        _run(
+            _fixed_rotation(Orchestrator(config, config.budget, llm, crawler), day),
+            tmp_path / str(day),
+        )
+        site_queries = [q for q in crawler.search_calls if q.startswith("site:")]
+        if day == 0:
+            first_day_queries = site_queries
+        else:
+            assert site_queries and site_queries != first_day_queries

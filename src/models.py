@@ -53,3 +53,6 @@ class JobResult(BaseModel):
     score: int
     reason: str
     status: str
+    # Unix timestamp of the run that first accepted this job; kept across
+    # runs so the results file is a history, not just the last scan.
+    found_at: float = 0.0

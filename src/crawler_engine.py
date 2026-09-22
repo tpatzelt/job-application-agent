@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import logging
-import time
 import threading
-from typing import Any, Callable, cast
+import time
+from collections.abc import Callable, Iterator
+from dataclasses import dataclass
+from typing import Any, cast
 from urllib.parse import urldefrag, urljoin, urlparse
 
 from botasaurus.browser import Driver, browser
@@ -61,27 +63,61 @@ def brave_search_task(req: Request, data: dict[str, Any]) -> dict[str, Any]:
 @request(max_retry=3)
 def fetch_job_task(req: Request, data: dict[str, Any]) -> dict[str, Any]:
     response = req.get(data["url"], timeout=data["timeout"])
+    status = response.status_code
+    # A removed posting answers 404/410 and a blocking board answers 403.
+    # Raising would make botasaurus retry the same request three times for
+    # an answer that will not change; report it instead.
+    if 400 <= status < 500 and status != 429:
+        return {"html": "", "final_url": str(response.url), "status": status}
     response.raise_for_status()
     # final_url exposes silent redirects: dead ATS job IDs 302 to the
     # company's board page instead of returning 404.
-    return {"html": response.text, "final_url": str(response.url)}
+    return {"html": response.text, "final_url": str(response.url), "status": status}
 
 
 def extract_visible_text(html: str | None) -> str:
     if not html:
         return ""
-    soup = soupify(html)
+    return _visible_text(soupify(html))
+
+
+def _visible_text(soup: Any) -> str:
     for tag in soup(["script", "style", "noscript", "header", "footer", "nav"]):
         tag.decompose()
     text = soup.get_text(separator=" ", strip=True)
     return " ".join(text.split())
 
 
+def extract_page_title(html: str | None) -> str:
+    """The document <title>, falling back to the first <h1>.
+
+    ATS postings name the role there, which is the only reliable source
+    for a readable result title.
+    """
+    if not html:
+        return ""
+    return _page_title(soupify(html))
+
+
+def _page_title(soup: Any) -> str:
+    if soup.title and soup.title.string:
+        title = " ".join(str(soup.title.string).split())
+        if title:
+            return title
+    heading = soup.find("h1")
+    if heading:
+        return " ".join(heading.get_text(separator=" ", strip=True).split())
+    return ""
+
+
 def extract_links(html: str | None, base_url: str) -> list[str]:
     """Absolute, de-duplicated http(s) hrefs in document order."""
     if not html:
         return []
-    soup = soupify(html)
+    return _links(soupify(html), base_url)
+
+
+def _links(soup: Any, base_url: str) -> list[str]:
     links: list[str] = []
     seen: set[str] = set()
     for anchor in soup.find_all("a", href=True):
@@ -122,16 +158,49 @@ def fetch_job_browser_task(driver: Driver, data: dict[str, Any]) -> dict[str, An
     return {"html": html, "final_url": driver.current_url}
 
 
+@dataclass(frozen=True)
+class PageContent:
+    """A fetched page. Unpacks as (text, links) so callers that only want
+    those two keep working; `title` feeds readable result titles."""
+
+    text: str
+    links: list[str]
+    title: str = ""
+    # True when the URL answered "this posting no longer exists" (404/410,
+    # or a redirect off the posting), as opposed to simply yielding no text.
+    gone: bool = False
+
+    def __iter__(self) -> Iterator[Any]:
+        return iter((self.text, self.links))
+
+
+def page_content(html: str | None, base_url: str) -> PageContent:
+    """Title, links, and visible text from one parse of the document.
+
+    Order matters: the text pass strips nav/header/footer, so links and
+    title are read before it.
+    """
+    if not html:
+        return PageContent("", [])
+    soup = soupify(html)
+    title = _page_title(soup)
+    links = _links(soup, base_url)
+    return PageContent(_visible_text(soup), links, title)
+
+
+# Statuses that mean the posting itself is gone, not that the fetch failed.
+GONE_STATUSES = (404, 410)
+
 BraveSearchCallable = Callable[[dict[str, Any]], dict[str, Any]]
 # Fetch tasks return {"html": str, "final_url": str}; plain strings are
 # also accepted (test fakes, degraded browser results).
 FetchJobCallable = Callable[[dict[str, Any]], Any]
 
 
-def _unwrap_fetch(payload: Any) -> tuple[str, str | None]:
+def _unwrap_fetch(payload: Any) -> tuple[str, str | None, int | None]:
     if isinstance(payload, dict):
-        return payload.get("html") or "", payload.get("final_url")
-    return payload or "", None
+        return payload.get("html") or "", payload.get("final_url"), payload.get("status")
+    return payload or "", None, None
 BRAVE_SEARCH = cast(BraveSearchCallable, brave_search_task)
 FETCH_JOB = cast(FetchJobCallable, fetch_job_task)
 FETCH_JOB_BROWSER = cast(FetchJobCallable, fetch_job_browser_task)
@@ -176,11 +245,11 @@ class CrawlerEngine:
             "count": self._config.results_per_query,
         }
         # Recently indexed pages only: old postings are usually expired.
-        # site:-scoped ATS queries are exempt — those hosts remove filled
-        # postings (and dead IDs are caught by redirect/404 detection at
-        # fetch time), while the freshness filter starves their already
-        # narrow result sets.
-        if self._config.search_freshness and "site:" not in query:
+        # This applies to site:-scoped ATS queries too — without it Brave
+        # returns mostly postings that 404 or redirect away at fetch time —
+        # but because it starves their narrow result sets, an empty result
+        # is retried unfiltered below.
+        if self._config.search_freshness:
             params["freshness"] = self._config.search_freshness
         # Scope results to the user's country so localized boards and
         # employer pages outrank same-language pages from elsewhere.
@@ -189,14 +258,13 @@ class CrawlerEngine:
         # Restrict results to the user's preferred posting language.
         if search_lang:
             params["search_lang"] = search_lang
-        payload = self._run_brave_search_with_backoff(
-            {
-                "endpoint": self._config.brave_endpoint,
-                "headers": headers,
-                "params": params,
-                "timeout": self._config.request_timeout_seconds,
-            }
-        )
+        request_payload = {
+            "endpoint": self._config.brave_endpoint,
+            "headers": headers,
+            "params": params,
+            "timeout": self._config.request_timeout_seconds,
+        }
+        payload = self._run_brave_search_with_backoff(request_payload)
         if not payload or "error" in payload:
             # Transport-level failure: don't consume search budget for it.
             self._logger.warning(
@@ -207,6 +275,20 @@ class CrawlerEngine:
             return []
         self._budget.record_search_iteration()
         web_results = payload.get("web", {}).get("results", [])
+        if not web_results and "freshness" in params:
+            # Narrow queries (site:-scoped ones especially) can have nothing
+            # indexed inside the freshness window; ask again without it
+            # rather than losing the query.
+            self._logger.info(
+                "No fresh results for %r, retrying without the freshness filter",
+                query,
+            )
+            unfiltered = {**params}
+            unfiltered.pop("freshness")
+            payload = self._run_brave_search_with_backoff(
+                {**request_payload, "params": unfiltered}
+            )
+            web_results = (payload or {}).get("web", {}).get("results", [])
 
         def _is_video_item(item: dict[str, Any]) -> bool:
             # Brave may return video results (YouTube, Vimeo, etc.) either via
@@ -243,24 +325,27 @@ class CrawlerEngine:
         return urls
 
     def fetch_job_text(self, url: str, use_browser_fallback: bool = False) -> str:
-        text, _ = self.fetch_page(url, use_browser_fallback=use_browser_fallback)
-        return text
+        return self.fetch_page(url, use_browser_fallback=use_browser_fallback).text
 
     def fetch_page(
         self, url: str, use_browser_fallback: bool = False
-    ) -> tuple[str, list[str]]:
-        """Fetch a page and return (visible text, outbound links)."""
+    ) -> PageContent:
+        """Fetch a page and return its text, outbound links, and title."""
         self._logger.info("Fetching URL via botasaurus: %s", url)
         payload = FETCH_JOB(
             {"url": url, "timeout": self._config.request_timeout_seconds}
         )
-        html, final_url = _unwrap_fetch(payload)
+        html, final_url, status = _unwrap_fetch(payload)
+        if status in GONE_STATUSES:
+            self._logger.info("Posting gone: %s returned HTTP %s", url, status)
+            return PageContent("", [], gone=True)
         if redirected_off_posting(url, final_url):
             self._logger.info(
                 "Posting gone: %s redirected to %s, skipping", url, final_url
             )
-            return "", []
-        text = self._extract_text(html)
+            return PageContent("", [], gone=True)
+        content = page_content(html, url)
+        text = content.text
         if (
             use_browser_fallback
             and self._config.browser_fallback
@@ -271,7 +356,7 @@ class CrawlerEngine:
                 len(text),
                 url,
             )
-            browser_html, browser_final_url = _unwrap_fetch(
+            browser_html, browser_final_url, _ = _unwrap_fetch(
                 self._fetch_html_with_browser(url)
             )
             if redirected_off_posting(url, browser_final_url):
@@ -280,16 +365,20 @@ class CrawlerEngine:
                     url,
                     browser_final_url,
                 )
-                return "", []
-            browser_text = self._extract_text(browser_html)
-            if len(browser_text) > len(text):
+                return PageContent("", [], gone=True)
+            browser_content = page_content(browser_html, url)
+            if len(browser_content.text) > len(text):
                 self._logger.info(
                     "Browser fallback recovered %s chars for %s",
-                    len(browser_text),
+                    len(browser_content.text),
                     url,
                 )
-                return browser_text, extract_links(browser_html, url)
-        return text, extract_links(html, url)
+                if browser_content.title:
+                    return browser_content
+                return PageContent(
+                    browser_content.text, browser_content.links, content.title
+                )
+        return content
 
     def _fetch_html_with_browser(self, url: str) -> Any:
         try:
@@ -299,9 +388,6 @@ class CrawlerEngine:
         except Exception as exc:
             self._logger.warning("Browser fetch failed for %s: %s", url, exc)
             return ""
-
-    def _extract_text(self, html: str | None) -> str:
-        return extract_visible_text(html)
 
     def _run_brave_search_with_backoff(self, payload: dict[str, Any]) -> dict[str, Any]:
         delay = 1
