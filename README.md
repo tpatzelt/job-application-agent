@@ -162,6 +162,29 @@ uv run python run_mock_test.py # mock end-to-end run of the real orchestrator, n
 
 Mock mode wires `MockLLM`/`MockCrawler` fakes through the same `Orchestrator` used in production and asserts exact call counts for planning, query generation, evaluation, and reflection. CI runs both on every push/PR to `main`.
 
+## Offline result-quality harness (G1)
+
+The harness is fully offline: it needs no `BRAVE_API_KEY` or `OPENROUTER_API_KEY`, replaying a
+hand-labelled, committed corpus (`evals/fixtures/`, since `evals/runs/` is gitignored) through
+the real triage/dedup logic instead of calling Brave or an LLM.
+
+```bash
+uv run python -m evals.offline_eval                 # print the metric table, write a report
+uv run python -m evals.offline_eval --check-baseline # compare against evals/baseline.json, exit 1 on regression
+```
+
+The report lands in `evals/runs/offline/report.json` (gitignored). `--corpus` can point at a
+different corpus directory, e.g. one built from a real recorded run, instead of the default
+fixtures.
+
+Each metric is a rate in `[0, 1]` (`n/a` when its denominator is empty):
+
+- **posting_shape_rate** — of the records kept by triage, the fraction that are actually job postings.
+- **aggregator_drop_rate** — of the labelled aggregator index pages, the fraction triage correctly dropped.
+- **location_match_rate** — of the records kept by triage, the fraction that mention one of the profile's preferred locations.
+- **staleness_detection_rate** — of the labelled-stale records, the fraction triage correctly dropped.
+- **dedup_rate** — of the labelled duplicate records, the fraction that collapse onto their original URL under canonicalization.
+
 ## Outputs
 
 - Results JSON: `data/results.json` (accumulates across runs; earlier jobs are kept and marked `seen`)
