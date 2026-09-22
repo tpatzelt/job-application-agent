@@ -94,6 +94,73 @@ def test_is_aggregator_url():
     assert not is_aggregator_url("https://company.com/careers/software-engineer")
 
 
+# Shapes below taken from live Brave Search results for each host (see
+# T-0006 commit message), not guessed, since the corpus fixtures under
+# evals/fixtures/ don't cover these hosts.
+def test_widened_aggregator_hosts_are_flagged():
+    urls = [
+        "https://www.stellenanzeigen.de/jobs/software-developer/",
+        "https://www.stellenmarkt.de/stellenangebote-in-dortmund",
+        "https://jobs.meinestadt.de/berlin",
+        "https://www.jobware.de/jobs/muenchen",
+        "https://www.absolventa.de/jobs",
+        "https://www.jobvector.de/jobs-stellenangebote/datenbanken-data-science/",
+        "https://www.talent.com/jobs/l-madison-wi",
+        "https://www.careerjet.de/technical-manager-jobs.html",
+        "https://neuvoo.de/jobs/N%C3%A4her-jobs",
+        "https://www.simplyhired.com/search?l=mount+vernon%2C+in",
+        "https://www.whatjobs.com/jobs/all",
+        "https://my.jobsora.com/jobs-search",
+    ]
+    for url in urls:
+        assert is_aggregator_url(url), url
+
+
+def test_widened_aggregator_index_pages():
+    urls = [
+        "https://www.stellenanzeigen.de/jobs/software-developer/",
+        "https://www.stellenanzeigen.de/jobs/wiesbaden/",
+        "https://www.stellenmarkt.de/stellenangebote-in-dortmund",
+        "https://www.stellenmarkt.de/stellenangebote-softwareentwickler",
+        "https://jobs.meinestadt.de/berlin",
+        "https://www.jobware.de/jobs/muenchen",
+        "https://www.absolventa.de/jobs",
+        "https://www.absolventa.de/werkstudentenjobs/job/user-interface-design/stadt/regensburg",
+        "https://www.jobvector.de/jobs-stellenangebote/datenbanken-data-science/",
+        "https://www.jobvector.de/jobs/data+scientist/deutschland/",
+        "https://www.talent.com/jobs/l-madison-wi",
+        "https://www.careerjet.de/technical-manager-jobs.html",
+        "https://neuvoo.de/jobs/N%C3%A4her-jobs",
+        "https://www.simplyhired.com/search?l=mount+vernon%2C+in",
+        "https://www.whatjobs.com/jobs/all",
+        "https://www.whatjobs.com/jobs/homelines-sales-associate",
+        "https://my.jobsora.com/jobs-search",
+    ]
+    for url in urls:
+        assert classify_url(url) == INDEX, url
+
+
+def test_widened_aggregator_posting_pages():
+    urls = [
+        "https://www.stellenanzeigen.de/job/strategischer-materialmanager-m-w-d-remscheid-sde-95006/",
+        "https://www.stellenanzeigen.de/job/detail/20260410-16180582/",
+        "https://www.stellenmarkt.de/anzeige25861448.html",
+        "https://jobs.meinestadt.de/deutschland/jk/0-15711-96171",
+        "https://www.jobware.de/job/detail/sps-programmierer-softwareentwickler-m-w-d.756748905.html",
+        "https://www.absolventa.de/stellenangebote/6588713-b-medizintechniker-m-w-d",
+        "https://www.jobvector.de/jobs-stellenangebote/datenbanken-data-science/"
+        "business-intelligence-data-warehouse/"
+        "data-scientist-data-warehouse-business-intelligence-213504/",
+        "https://www.talent.com/view?id=636250678852789108",
+        "https://neuvoo.de/job.php?id=uegi3ng6vr&lang=de",
+        "https://www.simplyhired.com/job/ugMB5E7EsDREVVd2i7cXApdp6ZPp6XrkQB5fVdRPmTetQj3Oe7EZSA",
+        "https://www.whatjobs.com/jobs?id=2047327613",
+        "https://us.jobsora.com/job-52226315573",
+    ]
+    for url in urls:
+        assert classify_url(url) == POSTING, url
+
+
 def test_non_job_urls_are_other():
     urls = [
         "https://blog.company.com/article/how-we-hire",
