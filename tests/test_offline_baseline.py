@@ -71,10 +71,19 @@ def test_check_baseline_passes_when_baseline_matches_current(tmp_path: Path) -> 
     assert "No metric regressed" in message
 
 
+def _inflate(metrics: dict[str, float | None], name: str) -> dict[str, float | None]:
+    """Baseline copy with one metric pushed above whatever the corpus
+    currently yields, so the regression is forced by construction rather
+    than by a hard-coded number that a legitimate quality improvement
+    would silently turn into a no-op."""
+    inflated = dict(metrics)
+    inflated[name] = (metrics.get(name) or 0.0) + 0.1
+    return inflated
+
+
 def test_check_baseline_fails_and_names_regressed_metric(tmp_path: Path) -> None:
     current_totals = run(DEFAULT_CORPUS_DIR)["totals"]["metrics"]
-    inflated = dict(current_totals)
-    inflated["posting_shape_rate"] = 1.0  # higher than what the corpus actually yields
+    inflated = _inflate(current_totals, "posting_shape_rate")
     baseline_path = tmp_path / "baseline.json"
     _write_baseline(baseline_path, inflated)
 
@@ -90,8 +99,7 @@ def test_main_check_baseline_exit_code_zero_on_committed_baseline() -> None:
 
 def test_main_check_baseline_exit_code_one_on_regression(tmp_path: Path) -> None:
     current_totals = run(DEFAULT_CORPUS_DIR)["totals"]["metrics"]
-    inflated = dict(current_totals)
-    inflated["dedup_rate"] = 1.0
+    inflated = _inflate(current_totals, "dedup_rate")
     baseline_path = tmp_path / "baseline.json"
     _write_baseline(baseline_path, inflated)
 

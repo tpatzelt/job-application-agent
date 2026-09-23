@@ -2,9 +2,10 @@
 
 `replay_keep` reimplements only the *ordering* of
 `Orchestrator._triage_urls` / `_process_url` (dedup, non-job drop,
-aggregator-index drop, redirected/dead/stale/no-location drop); each
-drop reason gets its own case so a broken gate fails on its own instead
-of only showing up as a shifted rate downstream.
+aggregator-index drop, redirected/dead/stale/no-location drop, and
+finally the posting-only gate); each drop reason gets its own case so a
+broken gate fails on its own instead of only showing up as a shifted
+rate downstream.
 """
 
 from __future__ import annotations
@@ -57,6 +58,10 @@ DROP_CASES = {
     "empty_page": _record("https://boards.greenhouse.io/acme/jobs/555", text=""),
     "stale_posting": _record("https://boards.greenhouse.io/acme/jobs/222", STALE_TEXT, stale=True),
     "no_preferred_location": _record("https://boards.greenhouse.io/acme/jobs/333", NO_LOCATION_TEXT),
+    "careers_listing_page": _record("https://acme.example/careers", kind="listing"),
+    "non_aggregator_index_page": _record(
+        "https://acme.example.com/jobs?search=manager", kind="index"
+    ),
 }
 
 
@@ -70,11 +75,18 @@ def test_replay_keeps_a_clean_matching_posting() -> None:
     assert replay_keep([record], BERLIN) == [record]
 
 
-def test_replay_keeps_non_aggregator_index_page() -> None:
-    # A company's own /jobs?search= page is INDEX-shaped but not an
-    # aggregator: only aggregator index pages are dropped outright.
-    record = _record("https://acme.example.com/jobs?search=manager", kind="index")
-    assert replay_keep([record], BERLIN) == [record]
+def test_replay_drops_hub_pages_but_keeps_postings_on_the_same_profile() -> None:
+    # A careers page and a company's own INDEX-shaped /jobs?search= page
+    # are both hubs: production harvests posting links out of them and
+    # never scores the hub itself, so neither can become a result. Both
+    # clear every earlier gate (live, fresh, Berlin in the text) -- only
+    # the posting gate removes them -- while the ATS posting alongside
+    # them survives.
+    careers = _record("https://acme.example/careers", kind="listing")
+    company_index = _record("https://acme.example.com/jobs?search=manager", kind="index")
+    posting = _record("https://boards.greenhouse.io/acme/jobs/111")
+
+    assert replay_keep([careers, company_index, posting], BERLIN) == [posting]
 
 
 def test_replay_drops_duplicate_by_canonical_url() -> None:
@@ -94,12 +106,17 @@ def test_locations_for() -> None:
 
 
 # Six records designed so a plausible-but-wrong implementation would
-# disagree: R5 is labelled an aggregator index page but its URL shape
+# disagree. R1 is a clean posting and survives. R2 collapses onto R1
+# under canonicalization. R3 carries a stale marker. R4 is a genuine
+# indeed.com search URL and is dropped as an aggregator index. R5 is
+# labelled an aggregator index page but its URL shape
 # (indeed.com/viewjob) is what the real classifier treats as an
-# individual posting, so it survives triage while R4 (a genuine
-# indeed.com search URL) is correctly dropped -- pinning
-# aggregator_drop_rate and posting_shape_rate at a real 0.5, not a
-# trivial 1.0/0.0.
+# individual posting, so it clears both the aggregator gate and the
+# posting-only gate and survives -- pinning aggregator_drop_rate and
+# posting_shape_rate at a real 0.5, not a trivial 1.0/0.0. R6 is a
+# non-job URL. Ground-truth labels are deliberately left as they are:
+# the metrics score the labels, the gates score the URL shapes, and
+# this corpus is where the two disagree.
 MIXED_CORPUS = [
     _record("https://boards.greenhouse.io/acme/jobs/111"),
     _record("https://boards.greenhouse.io/acme/jobs/111?utm_source=linkedin",
