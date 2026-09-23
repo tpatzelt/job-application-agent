@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
+from urllib.parse import urlparse
 
 import pytest
 
@@ -118,17 +120,57 @@ EXPECTED_PROFILES = {
     "ml-engineer-berlin",
     "frontend-developer-munich",
     "backend-engineer-remote-germany",
+    "project-manager-berlin",
+    "data-engineer-amsterdam",
+    "food-product-manager-berlin",
 }
 ATS_HOSTS = ("greenhouse.io", "lever.co", "personio", "workable.com")
 AGGREGATOR_HOSTS = ("indeed.", "stepstone.", "linkedin.com")
 
+# ATS vendors `src.url_heuristics._ats_kind` has no rule for: their postings and
+# board roots are classified by the generic job-token/digit heuristic, which is
+# where its posting-vs-hub mistakes live.
+UNKNOWN_ATS_HOSTS = (
+    "bamboohr.com",
+    "teamtailor.com",
+    "icims.com",
+    "jobvite.com",
+    "softgarden.io",
+    "pinpointhq.com",
+)
+
+# Aggregator hosts added to `AGGREGATOR_HOSTS` after the arming revision. The
+# corpus has to carry them for the aggregator-drop metric to say anything about
+# that change.
+AGGREGATOR_HOSTS_ADDED_AFTER_ARMING = (
+    "stellenanzeigen.de",
+    "stellenmarkt.de",
+    "meinestadt.de",
+    "jobware.de",
+    "absolventa.de",
+    "jobvector.de",
+    "talent.com",
+    "careerjet.",
+    "neuvoo.",
+    "simplyhired.",
+    "whatjobs.com",
+    "jobsora.",
+)
+
+_DIGIT_RUN = re.compile(r"\d{5,}|(?:^|/)\d{3,}(?:/|$)")
+
 
 @pytest.fixture(scope="module")
-def all_records() -> list[CorpusRecord]:
+def corpus_by_profile() -> dict[str, list[CorpusRecord]]:
     corpus = load_all(FIXTURES_DIR)
     assert EXPECTED_PROFILES <= set(corpus)
     assert set(corpus) <= set(PROFILES_BY_NAME), "corpus profile with no matching eval profile"
-    return [record for records in corpus.values() for record in records]
+    return corpus
+
+
+@pytest.fixture(scope="module")
+def all_records(corpus_by_profile: dict[str, list[CorpusRecord]]) -> list[CorpusRecord]:
+    return [record for records in corpus_by_profile.values() for record in records]
 
 
 def test_at_least_18_records_total(all_records: list[CorpusRecord]) -> None:
@@ -209,3 +251,123 @@ def test_includes_aggregator_and_non_aggregator_records(
 ) -> None:
     assert any(r.label.aggregator for r in all_records)
     assert any(not r.label.aggregator for r in all_records)
+
+
+# --- The shapes the deterministic logic actually gets wrong ------------------
+#
+# With 23 records every metric except dedup_rate scored 1.000 for the arming
+# revision, so no change to the triage logic could move them. These tests pin
+# down the URL shapes that give the metrics headroom: ATS vendors the
+# classifier has no rule for, non-postings whose path looks like a job id,
+# aggregator hosts added after arming, duplicates that differ only in noise,
+# and the newer closed-posting wordings.
+
+
+def test_corpus_is_large_enough_to_move_a_metric(all_records: list[CorpusRecord]) -> None:
+    assert len(all_records) >= 50
+
+
+def test_every_record_is_fully_labelled(all_records: list[CorpusRecord]) -> None:
+    for record in all_records:
+        assert record.label.kind in VALID_KINDS, record.url
+        assert isinstance(record.label.aggregator, bool), record.url
+        assert isinstance(record.label.stale, bool), record.url
+        assert isinstance(record.label.location_ok, bool), record.url
+        assert record.url and record.final_url and record.title, record.url
+        assert isinstance(record.http_status, int), record.url
+
+
+def test_duplicate_of_points_into_the_same_profile(
+    corpus_by_profile: dict[str, list[CorpusRecord]],
+) -> None:
+    for profile, records in corpus_by_profile.items():
+        urls = {record.url for record in records}
+        for record in records:
+            if record.label.duplicate_of is not None:
+                assert record.label.duplicate_of in urls, f"{profile}: {record.url}"
+
+
+@pytest.mark.parametrize("host", UNKNOWN_ATS_HOSTS)
+def test_covers_ats_vendor_without_a_classifier_rule(
+    all_records: list[CorpusRecord], host: str
+) -> None:
+    assert any(host in r.url for r in all_records)
+
+
+def test_covers_ats_vendor_board_roots_as_well_as_postings(
+    all_records: list[CorpusRecord],
+) -> None:
+    on_unknown_ats = [
+        r for r in all_records if any(host in r.url for host in UNKNOWN_ATS_HOSTS)
+    ]
+    assert any(r.label.kind == "posting" for r in on_unknown_ats)
+    assert any(r.label.kind == "listing" for r in on_unknown_ats)
+
+
+@pytest.mark.parametrize("host", AGGREGATOR_HOSTS_ADDED_AFTER_ARMING)
+def test_covers_aggregator_host_added_after_arming(
+    all_records: list[CorpusRecord], host: str
+) -> None:
+    matching = [r for r in all_records if host in (urlparse(r.url).hostname or "")]
+    assert matching, host
+    assert any(r.label.aggregator and r.label.kind == "index" for r in matching), host
+
+
+def test_includes_non_postings_with_job_id_shaped_paths(
+    all_records: list[CorpusRecord],
+) -> None:
+    """Pages whose path carries a long digit run but which are hub or content
+    pages, not postings — the shape that makes a classifier over-report."""
+    confusable = [
+        r
+        for r in all_records
+        if r.label.kind != "posting" and _DIGIT_RUN.search(urlparse(r.url).path)
+    ]
+    assert len(confusable) >= 4, [r.url for r in confusable]
+    assert {r.label.kind for r in confusable} >= {"index", "other"}
+
+
+def test_includes_duplicate_pair_differing_only_in_query_parameter_order(
+    all_records: list[CorpusRecord],
+) -> None:
+    by_url = {r.url: r for r in all_records}
+    for record in all_records:
+        other = by_url.get(record.label.duplicate_of or "")
+        if other is None:
+            continue
+        a, b = urlparse(record.url), urlparse(other.url)
+        if (a.scheme, a.netloc, a.path) != (b.scheme, b.netloc, b.path):
+            continue
+        if a.query != b.query and sorted(a.query.split("&")) == sorted(b.query.split("&")):
+            return
+    pytest.fail("no duplicate pair differs only in query-parameter order")
+
+
+def test_stale_records_cover_the_newer_closed_wordings(
+    all_records: list[CorpusRecord],
+) -> None:
+    stale_text = " ".join(r.text.lower() for r in all_records if r.label.stale)
+    assert "this role is no longer open" in stale_text
+    assert "this position has been closed" in stale_text
+    assert "diese stelle ist nicht mehr ausgeschrieben" in stale_text
+    assert "die stellenanzeige wurde entfernt" in stale_text
+
+
+def test_no_non_stale_record_carries_a_closed_wording(
+    all_records: list[CorpusRecord],
+) -> None:
+    """Guards the staleness metric's denominator: a page labelled fresh must
+    not contain a closed/expired phrase, or the label is simply wrong."""
+    wordings = (
+        "no longer open",
+        "has been closed",
+        "nicht mehr ausgeschrieben",
+        "wurde entfernt",
+        "bereits besetzt",
+        "no longer accepting applications",
+    )
+    for record in all_records:
+        if record.label.stale:
+            continue
+        lowered = record.text.lower()
+        assert not any(w in lowered for w in wordings), record.url
