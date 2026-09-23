@@ -8,6 +8,7 @@ from src.intake import (
     MIN_PASTED_DOC_CHARS,
     QUESTION_LANGUAGE,
     QUESTION_LOCATIONS,
+    QUESTION_ROLES,
     IntakeManager,
 )
 from src.models import IntakeExtraction
@@ -267,3 +268,153 @@ def test_language_skip_falls_back_to_input_language(tmp_path: Path) -> None:
 def test_commands_always_reply(tmp_path: Path, command: str) -> None:
     manager, _ = _manager(tmp_path, ScriptedExtractor([COMPLETE]))
     assert manager.handle_message(_msg(command))
+
+
+def test_uploaded_motivation_letter_reply_and_job_prefs_prompt(tmp_path: Path) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert "✅ Motivation letter received." in reply
+    assert "Now describe the jobs you're looking for" in reply
+    assert "Send /skip to let me infer everything from your CV." in reply
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
+
+
+def test_job_prefs_prompt_after_motivation_skip(tmp_path: Path) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+
+    reply = manager.handle_message(_msg("/skip"))
+    assert "Now describe the jobs you're looking for" in reply
+    assert "Send /skip to let me infer everything from your CV." in reply
+    assert "Motivation letter received" not in reply
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
+
+
+def test_empty_answer_is_rejected(tmp_path: Path) -> None:
+    no_location = IntakeExtraction(
+        job_titles=["Engineer"], keywords=["python"], language="English"
+    )
+    extractor = ScriptedExtractor([no_location, COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    manager.handle_message(_msg("/skip"))
+    manager.handle_message(_msg("backend jobs"))
+    assert store.load("42").state == STATE_AWAITING_ANSWER
+
+    reply = manager.handle_message(_msg("   "))
+    assert reply == "Please answer in a short text message."
+    assert store.load("42").state == STATE_AWAITING_ANSWER
+
+
+def test_active_state_chat_reply(tmp_path: Path) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    manager.handle_message(_msg("/skip"))
+    manager.handle_message(_msg("jobs in Berlin"))
+    assert store.load("42").state == STATE_ACTIVE
+
+    reply = manager.handle_message(_msg("what's up"))
+    assert "You're all set up - I'm scanning for jobs regularly." in reply
+    assert "/status - your profile and search parameters" in reply
+    assert store.load("42").state == STATE_ACTIVE
+
+
+def test_start_reply_when_already_active(tmp_path: Path) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    manager.handle_message(_msg("/skip"))
+    manager.handle_message(_msg("jobs in Berlin"))
+    assert store.load("42").state == STATE_ACTIVE
+
+    reply = manager.handle_message(_msg("/start"))
+    assert "You're already set up." in reply
+    assert "Your search parameters:" in reply
+    assert "Use /run to scan now or /reset to start over." in reply
+    assert store.load("42").state == STATE_ACTIVE
+
+
+def test_need_more_info_lead_in(tmp_path: Path) -> None:
+    no_location = IntakeExtraction(
+        job_titles=["Engineer"], keywords=["python"], language="English"
+    )
+    extractor = ScriptedExtractor([no_location, COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    manager.handle_message(_msg("/skip"))
+
+    reply = manager.handle_message(_msg("backend jobs"))
+    assert "I need a bit more information.\n\n" in reply
+    assert store.load("42").state == STATE_AWAITING_ANSWER
+
+
+def test_question_counter_plural_then_singular(tmp_path: Path) -> None:
+    missing_both = IntakeExtraction(keywords=["python"], language="English")
+    extractor = ScriptedExtractor([missing_both, COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    manager.handle_message(_msg("/skip"))
+
+    reply = manager.handle_message(_msg("open to anything"))
+    assert store.load("42").state == STATE_AWAITING_ANSWER
+    assert record_pending_count(store, "42") == 2
+    assert reply == (
+        "I need a bit more information.\n\n"
+        f"❓ (2 questions left) {QUESTION_LOCATIONS}"
+    )
+
+    reply = manager.handle_message(_msg("Berlin, Germany"))
+    assert store.load("42").state == STATE_AWAITING_ANSWER
+    assert record_pending_count(store, "42") == 1
+    assert f"❓ (1 question left) {QUESTION_ROLES}" == reply
+
+
+def record_pending_count(store: UserStore, chat_id: str) -> int:
+    return len(store.load(chat_id).pending_questions)
+
+
+def test_prompt_for_state_via_status_and_start_while_awaiting_motivation(
+    tmp_path: Path,
+) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+    status_reply = manager.handle_message(_msg("/status"))
+    assert "Setup in progress (step: awaiting_motivation)." in status_reply
+    assert "Please upload your motivation letter, or send /skip." in status_reply
+
+    start_reply = manager.handle_message(_msg("/start"))
+    assert start_reply == "Please upload your motivation letter, or send /skip."
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+
+def test_prompt_for_state_fallback_for_unknown_state(tmp_path: Path) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    record = store.load("42")
+    record.state = "some_unknown_state"
+    store.save(record)
+
+    status_reply = manager.handle_message(_msg("/status"))
+    assert "Setup in progress (step: some_unknown_state)." in status_reply
+    assert "Send /start to begin." in status_reply
+
+    start_reply = manager.handle_message(_msg("/start"))
+    assert start_reply == "Send /start to begin."
+    assert store.load("42").state == "some_unknown_state"
