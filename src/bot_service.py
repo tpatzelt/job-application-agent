@@ -293,11 +293,14 @@ class BotService:
         config = dataclasses.replace(self._config, budget=budget)
         llm = LLMService(config, budget, self._openrouter_key)
         crawler = CrawlerEngine(config, budget, self._brave_key)
+        paths = self._store.crawl_paths(chat_id)
         notifier = TelegramNotifier(
-            self._bot_token, chat_id, config.request_timeout_seconds
+            self._bot_token,
+            chat_id,
+            config.request_timeout_seconds,
+            ledger_path=paths["cache_path"].parent / "notified.json",
         )
         orchestrator = Orchestrator(config, budget, llm, crawler, notifier=notifier)
-        paths = self._store.crawl_paths(chat_id)
         results = orchestrator.run(
             cv_text=cv_text,
             preferences=record.preferences,
