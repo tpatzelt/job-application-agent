@@ -74,15 +74,19 @@ TRACKING_PARAMS = {
 # Path suffixes that address the application form of a posting, not a
 # different posting.
 _APPLY_SUFFIXES = ("apply", "application")
+# Ports a URL carries implicitly; spelling them out doesn't make a new posting.
+_DEFAULT_PORTS = {"http": 80, "https": 443}
 
 
 def canonical_url(url: str) -> str:
     """Collapse the variants of one posting URL into a single key.
 
-    Drops the fragment and tracking parameters, lowercases the host,
-    removes an /apply suffix and a trailing slash. Used for dedup (cache,
-    triage, harvesting, results) so the same job isn't fetched, scored,
-    and reported several times under different referral links.
+    Drops the fragment and tracking parameters, lowercases the host and
+    strips a leading ``www.``, normalises ``http`` to ``https``, sorts the
+    surviving query parameters, and removes an /apply suffix and a trailing
+    slash. Used for dedup (cache, triage, harvesting, results) so the same
+    job isn't fetched, scored, and reported several times under different
+    referral links, hosts or parameter orders.
     """
     if not url:
         return url
@@ -92,9 +96,24 @@ def canonical_url(url: str) -> str:
         return url
     if not parsed.scheme:
         return url
+    scheme = parsed.scheme.lower()
     host = (parsed.hostname or "").lower()
-    if parsed.port:
-        host = f"{host}:{parsed.port}"
+    # "www." in front of an already-qualified host (www.jobs.lever.co) is a
+    # mirror of that host, so drop it. In front of an apex host
+    # (www.linkedin.com) it is that site's own canonical name and often the
+    # only one that resolves, so leave it: canonical_url is also the URL the
+    # orchestrator fetches.
+    if host.startswith("www.") and host.count(".") >= 3:
+        host = host[4:]
+    try:
+        port = parsed.port
+    except ValueError:
+        port = None
+    if port and port != _DEFAULT_PORTS.get(scheme):
+        host = f"{host}:{port}"
+    # http and https serve the same posting; pick one so both variants share a key.
+    if scheme == "http":
+        scheme = "https"
     path = parsed.path or ""
     parts = [part for part in path.split("/") if part]
     if len(parts) > 1 and parts[-1].lower() in _APPLY_SUFFIXES:
@@ -106,8 +125,8 @@ def canonical_url(url: str) -> str:
         if key.lower() not in TRACKING_PARAMS
         and not key.lower().startswith("utm_")
     ]
-    query = urlencode(kept)
-    return urlunparse((parsed.scheme.lower(), host, path, "", query, ""))
+    query = urlencode(sorted(kept))
+    return urlunparse((scheme, host, path, "", query, ""))
 
 
 SEARCH_QUERY_PARAMS = {"q", "query", "search", "keywords", "keyword", "k", "what", "where"}
