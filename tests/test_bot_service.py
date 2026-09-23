@@ -5,9 +5,12 @@ from zoneinfo import ZoneInfo
 
 import requests
 
-from src.bot_service import BotService, _format_scan_error
+from src.bot_service import BotService, _empty_scan_explanation, _format_scan_error
 from src.config_manager import Config, EffortBudget
-from src.telegram_api import MAX_MESSAGE_CHARS
+from src.intake import HELP_TEXT, MIN_PASTED_DOC_CHARS, WELCOME
+from src.run_report import COUNTER_LABELS, RunReport
+from src.telegram_api import MAX_MESSAGE_CHARS, IncomingMessage
+from src.user_store import STATE_ACTIVE
 
 
 def _make_config(**overrides: Any) -> Config:
@@ -152,6 +155,20 @@ class _FakeResponse:
         return self._payload
 
 
+def _capture_telegram_sends(monkeypatch: Any) -> list[dict[str, Any]]:
+    """Patch requests.post so every sendMessage payload lands here, asserting
+    at the same JSON-payload boundary as test_scan_error_at_telegram_send_boundary."""
+    sent: list[dict[str, Any]] = []
+
+    def fake_post(url: str, json: Any = None, timeout: Any = None) -> _FakeResponse:
+        assert url.endswith("/sendMessage")
+        sent.append(json)
+        return _FakeResponse({"ok": True, "result": {}})
+
+    monkeypatch.setattr("src.telegram_api.requests.post", fake_post)
+    return sent
+
+
 def test_scan_error_at_telegram_send_boundary(
     tmp_path: Path, monkeypatch: Any
 ) -> None:
@@ -264,3 +281,224 @@ def test_dispatch_failure_sends_generic_error_at_telegram_send_boundary(
         payload["text"]
         == "⚠️ Something went wrong handling that message. Please try again."
     )
+
+
+# ----------------------------------------------------------------------
+# (a) Replies dispatched through BotService._dispatch
+
+
+def test_dispatch_start_sends_welcome_at_send_boundary(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    sent = _capture_telegram_sends(monkeypatch)
+    svc = _service(tmp_path)
+
+    svc._dispatch(IncomingMessage(chat_id="1", text="/start"))
+
+    assert len(sent) == 1
+    assert sent[0]["chat_id"] == "1"
+    assert sent[0]["text"] == WELCOME.format(name="")
+
+
+def test_dispatch_help_sends_help_text_at_send_boundary(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    sent = _capture_telegram_sends(monkeypatch)
+    svc = _service(tmp_path)
+
+    svc._dispatch(IncomingMessage(chat_id="1", text="/help"))
+
+    assert sent[0]["text"] == HELP_TEXT
+
+
+def test_dispatch_reset_sends_restart_text_at_send_boundary(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    sent = _capture_telegram_sends(monkeypatch)
+    svc = _service(tmp_path)
+
+    svc._dispatch(IncomingMessage(chat_id="1", text="/reset"))
+
+    assert sent[0]["text"] == (
+        "Setup restarted.\n\nPlease upload your CV (PDF, DOCX, or text)."
+    )
+
+
+def test_dispatch_status_not_active_sends_setup_progress_at_send_boundary(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    sent = _capture_telegram_sends(monkeypatch)
+    svc = _service(tmp_path)
+
+    svc._dispatch(IncomingMessage(chat_id="1", text="/status"))
+
+    assert sent[0]["text"] == "Setup in progress (step: new).\nSend /start to begin."
+
+
+def test_dispatch_status_active_sends_parameters_at_send_boundary(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    sent = _capture_telegram_sends(monkeypatch)
+    svc = _service(tmp_path)
+    record = svc._store.load("1")
+    record.state = STATE_ACTIVE
+    record.preferences = {
+        "location": "Berlin",
+        "locations": ["Berlin", "Remote"],
+        "job_titles": ["Data Engineer"],
+        "job_description_keywords": ["python", "spark"],
+        "industries": ["Tech"],
+        "language": "english",
+    }
+    svc._store.save(record)
+
+    svc._dispatch(IncomingMessage(chat_id="1", text="/status"))
+
+    assert sent[0]["text"] == (
+        "Your search parameters:\n"
+        "\U0001f3af Roles: Data Engineer\n"
+        "\U0001f4cd Locations: Berlin, Remote\n"
+        "\U0001f511 Keywords: python, spark\n"
+        "\U0001f3ed Industries: Tech\n"
+        "\U0001f310 Language: English"
+    )
+
+
+def test_dispatch_pasted_cv_sends_confirmation_at_send_boundary(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    sent = _capture_telegram_sends(monkeypatch)
+    svc = _service(tmp_path)
+    svc._dispatch(IncomingMessage(chat_id="1", text="/start"))
+    sent.clear()
+
+    cv_text = "A" * MIN_PASTED_DOC_CHARS
+
+    svc._dispatch(IncomingMessage(chat_id="1", text=cv_text))
+
+    assert sent[0]["text"] == (
+        f"✅ Got your CV ({len(cv_text)} characters).\n\n"
+        "Next: upload or paste your motivation letter. It helps me "
+        "understand what you're looking for. Send /skip if you don't "
+        "have one."
+    )
+
+
+# ----------------------------------------------------------------------
+# (b) _handle_run_command replies, driven through BotService._dispatch
+
+
+def test_run_command_not_active_sends_finish_setup_at_send_boundary(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    sent = _capture_telegram_sends(monkeypatch)
+    svc = _service(tmp_path)
+
+    svc._dispatch(IncomingMessage(chat_id="1", text="/run"))
+
+    assert sent[0]["text"] == "Please finish setup first - send /start to continue."
+
+
+def test_run_command_queued_then_already_queued_at_send_boundary(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    sent = _capture_telegram_sends(monkeypatch)
+    svc = _service(tmp_path)
+    record = svc._store.load("1")
+    record.state = STATE_ACTIVE
+    svc._store.save(record)
+
+    svc._dispatch(IncomingMessage(chat_id="1", text="/run"))
+    svc._dispatch(IncomingMessage(chat_id="1", text="/run"))
+
+    assert len(sent) == 2
+    assert sent[0]["text"] == (
+        "\U0001f50d Scanning for jobs now - I'll message you with "
+        "anything I find. This can take a few minutes."
+    )
+    assert sent[1]["text"] == "A scan is already queued or running for you."
+
+
+# ----------------------------------------------------------------------
+# (c) The no-new-jobs message and its four _empty_scan_explanation branches
+
+
+def test_empty_scan_explanation_when_everything_was_already_seen() -> None:
+    report = RunReport.start()
+    report.count("already_seen", 3)
+
+    assert _empty_scan_explanation(report) == (
+        "Every posting today's searches returned (3) was one "
+        "I had already checked for you."
+    )
+
+
+def test_empty_scan_explanation_when_nothing_was_fetched() -> None:
+    report = RunReport.start()
+
+    assert (
+        _empty_scan_explanation(report) == "I could not fetch any job pages this run."
+    )
+
+
+def test_empty_scan_explanation_when_fetched_with_no_drop_reasons() -> None:
+    report = RunReport.start()
+    report.count("pages_fetched", 4)
+
+    assert _empty_scan_explanation(report) == "Checked 4 job page(s)."
+
+
+def test_empty_scan_explanation_when_fetched_with_one_drop_reason() -> None:
+    report = RunReport.start()
+    report.count("pages_fetched", 4)
+    report.count("rejected_low_score", 2)
+
+    assert _empty_scan_explanation(report) == (
+        f"Checked 4 job page(s): 2 {COUNTER_LABELS['rejected_low_score']}."
+    )
+
+
+def test_run_scan_sends_no_new_jobs_message_at_send_boundary(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    import src.bot_service as bot_service_module
+
+    sent = _capture_telegram_sends(monkeypatch)
+    svc = _service(tmp_path)
+    record = svc._store.load("1")
+    record.state = STATE_ACTIVE
+    record.preferences = {"job_titles": ["Engineer"], "locations": ["Berlin"]}
+    svc._store.save(record)
+    svc._store.save_document("1", "cv", "x" * 200)
+
+    report = RunReport.start()
+    report.count("pages_fetched", 5)
+    report.count("rejected_low_score", 2)
+
+    class FakeLLMService:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    class FakeCrawlerEngine:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    class FakeOrchestrator:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            self.last_report = report
+
+        def run(self, **kwargs: Any) -> list[Any]:
+            return []
+
+    monkeypatch.setattr(bot_service_module, "LLMService", FakeLLMService)
+    monkeypatch.setattr(bot_service_module, "CrawlerEngine", FakeCrawlerEngine)
+    monkeypatch.setattr(bot_service_module, "Orchestrator", FakeOrchestrator)
+
+    svc._run_scan("1")
+
+    assert len(sent) == 1
+    text = sent[0]["text"]
+    assert text.startswith(
+        "\U0001f50d Scan finished - no new matching jobs this time."
+    )
+    assert text.endswith(_empty_scan_explanation(report))
