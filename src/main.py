@@ -41,7 +41,10 @@ def main() -> None:
         chat_id = keys.get("telegram_chat_id")
         if bot_token and chat_id:
             notifier = TelegramNotifier(
-                bot_token, chat_id, config.request_timeout_seconds
+                bot_token,
+                chat_id,
+                config.request_timeout_seconds,
+                ledger_path=(root / config.cache_path).parent / "notified.json",
             )
         else:
             logging.getLogger().info(
