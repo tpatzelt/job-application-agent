@@ -13,6 +13,11 @@ _UUID_RE = re.compile(
     r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.IGNORECASE
 )
 _DIGIT_RUN_RE = re.compile(r"\d{5,}")
+# A bare four-digit segment in 1900-2100 is a calendar year (a blog archive or a
+# dated careers page), not a job id.
+_YEAR_RE = re.compile(r"19\d{2}|20\d{2}|2100")
+# A bare digit segment right after one of these is a page number, not a job id.
+_PAGE_SEGMENTS = ("page", "seite")
 
 JOB_TOKENS = ("/jobs", "/job", "careers", "apply", "greenhouse", "lever")
 
@@ -332,10 +337,20 @@ def _aggregator_kind(host: str, parts: list[str], path: str, query: str = "") ->
 
 
 def _has_posting_id(parts: list[str]) -> bool:
-    for part in parts:
+    for index, part in enumerate(parts):
         if _UUID_RE.search(part):
             return True
-        if part.isdigit() and len(part) >= 3:
+        if part.isdigit() and len(part) <= 4:
+            # A short pure-digit segment is a job id only if it is neither a
+            # calendar year (/careers/2024/…) nor a pagination index
+            # (/jobs/page/3). Skipping the rest of the loop body for a rejected
+            # segment cannot lose a job id: the only branch below that a pure-digit
+            # segment could match is _DIGIT_RUN_RE, which is \d{5,} and so never
+            # matches a segment of at most four characters.
+            if len(part) < 3 or _YEAR_RE.fullmatch(part):
+                continue
+            if index and parts[index - 1].lower() in _PAGE_SEGMENTS:
+                continue
             return True
         if _DIGIT_RUN_RE.search(part):
             return True

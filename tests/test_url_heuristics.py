@@ -220,3 +220,41 @@ def test_non_job_urls_are_other():
     ]
     for url in urls:
         assert classify_url(url) == OTHER, url
+
+
+def test_year_segments_are_not_posting_ids():
+    """A dated careers/blog path is a hub page, not a single posting."""
+    urls = [
+        "https://civicstack.example/careers/2024/",
+        "https://civicstack.example/careers/2024/rueckblick-digitalprojekte",
+        "https://example.com/jobs/1999/review",
+        "https://example.com/jobs/2100/outlook",
+    ]
+    for url in urls:
+        assert classify_url(url) == LISTING, url
+
+
+def test_page_number_segments_are_not_posting_ids():
+    """/jobs/page/<n> paginates a board, it does not identify a job."""
+    urls = [
+        "https://civicstack.example/jobs/page/2",
+        "https://civicstack.example/jobs/page/117",
+        "https://example.de/karriere/jobs/seite/3",
+        "https://example.de/karriere/jobs/Seite/1024",
+    ]
+    for url in urls:
+        assert classify_url(url) in (LISTING, INDEX), url
+
+
+def test_numeric_posting_ids_still_classify_as_postings():
+    """Job ids keep matching: 5+ digit runs, four digits outside the year range, UUIDs."""
+    urls = [
+        "https://careers.example.com/jobs/4821",  # four digits, not a year
+        "https://careers.example.com/jobs/123",
+        "https://careers.example.com/jobs/98765",
+        "https://careers.example.com/jobs/page/98765-senior-engineer",  # not a bare page number
+        "https://careers.example.com/jobs/2024-digital-lead-77310",
+        "https://careers.example.com/jobs/8f6f8a2e-1c2d-4e5f-9a0b-1c2d3e4f5a6b",
+    ]
+    for url in urls:
+        assert classify_url(url) == POSTING, url
