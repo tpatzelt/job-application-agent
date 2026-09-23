@@ -194,12 +194,52 @@ Each metric is a rate in `[0, 1]` (`n/a` when its denominator is empty):
 - **staleness_detection_rate** — of the labelled-stale records, the fraction triage correctly dropped.
 - **dedup_rate** — of the labelled duplicate records, the fraction that collapse onto their original URL under canonicalization.
 
+### The corpus
+
+One JSONL file per search profile under `evals/fixtures/`; the file stem must name an entry in
+`evals/profiles.py`, because that is where the profile's preferred locations come from (an
+unknown stem yields no locations and `location_match_rate` stops meaning anything). Each line is
+one recorded page — `url`, `title`, `final_url`, `http_status`, `text` — plus a `label` holding
+the ground truth: `kind` (`posting`/`listing`/`index`/`other`), `aggregator`, `stale`,
+`location_ok`, and `duplicate_of` (the URL this record is a duplicate of, or `null`).
+
+Labels are read off the page by a human. They are never computed from `classify_url`,
+`is_aggregator_url` or `find_stale_marker` — deriving them from the code under test would make
+every metric tautological.
+
+The corpus deliberately carries the URL shapes the deterministic logic gets *wrong*, since a
+corpus it already handles cannot show a change in quality:
+
+- postings and board roots on ATS vendors `url_heuristics._ats_kind` has no rule for
+  (BambooHR, Teamtailor, iCIMS, Jobvite, softgarden, Pinpoint);
+- non-postings whose path looks like a job id — aggregator category, employer and skill pages
+  such as `jobs.meinestadt.de/<city>/skills/<id>`, and `/careers/<year>/<slug>` blog posts;
+- index pages on each of the twelve aggregator hosts added to `AGGREGATOR_HOSTS` after arming;
+- near-duplicate pairs that differ only by scheme, a leading `www.`, a tracking parameter,
+  an `/apply` suffix, or query-parameter order;
+- postings closed with the English and German wordings `page_signals.STALE_PHRASES` grew later.
+
+URL shapes and page wording were sourced from live Brave searches against the real boards, so
+the corpus reflects what the agent actually meets rather than what the heuristics expect.
+
+### Baseline
+
 `evals/baseline.json` is committed against the *arming* revision's `src/`, not the working
 tree, so G2's "improves over baseline" comparison stays honest as the codebase and corpus both
 move; `uv run python -m evals.rebaseline --corpus evals/fixtures` recomputes it by exporting
 `src/` at a chosen revision (`--rev`, default the arming revision) via `git archive` into an
 isolated tmpdir and replaying there — pass `--out <file>` to write a new baseline JSON, or
 omit it to print only (it never writes `evals/baseline.json` itself).
+
+Re-freeze the baseline whenever the corpus changes — the numbers only compare if both sides ran
+over the same records:
+
+```bash
+uv run python -m evals.rebaseline --corpus evals/fixtures --out evals/baseline.json
+```
+
+The tool writes the resolved absolute corpus path into `corpus_dir`; nothing reads that field
+(only `totals.metrics` is compared), so set it back to `evals/fixtures` before committing.
 
 ## Outputs
 
