@@ -179,7 +179,8 @@ fixtures.
 
 "Kept" means *would be reported as a result*, not merely "would be fetched". The replay applies
 every drop rule in production order (dedup by canonical URL, non-job URL, aggregator index page,
-redirected/dead/empty/stale page, no preferred location) and then keeps only URLs that classify
+redirected/dead/empty/stale page, search/landing page served in place of a posting, no preferred
+location) and then keeps only URLs that classify
 as `POSTING`: `Orchestrator._process_url` harvests posting links out of a careers or board page
 and returns without scoring the hub itself, so a LISTING or INDEX page never becomes a
 `JobResult`. One case is deliberately approximated — a LISTING page from which no posting links
