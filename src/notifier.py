@@ -9,6 +9,9 @@ from .models import JobResult
 TELEGRAM_API_TEMPLATE = "https://api.telegram.org/bot{token}/sendMessage"
 # Telegram rejects messages over 4096 characters.
 MAX_MESSAGE_CHARS = 4096
+# Cap a single result's reason so one verbose LLM explanation can't hog a
+# whole message and crowd out the other results in the same batch.
+MAX_REASON_CHARS = 300
 
 
 class TelegramNotifier:
@@ -42,11 +45,18 @@ class TelegramNotifier:
 
     def _format_result(self, index: int, result: JobResult) -> str:
         company = f" @ {result.company}" if result.company != "Unknown" else ""
-        return (
-            f"{index}. {result.title}{company}\n"
-            f"Score: {result.score}\n"
-            f"{result.url}"
-        )
+        lines = [f"{index}. {result.title}{company}", f"Score: {result.score}"]
+        reason = self._truncate_reason(result.reason)
+        if reason:
+            lines.append(f"Why: {reason}")
+        lines.append(result.url)
+        return "\n".join(lines)
+
+    def _truncate_reason(self, reason: str) -> str:
+        reason = (reason or "").strip()
+        if len(reason) <= MAX_REASON_CHARS:
+            return reason
+        return reason[: MAX_REASON_CHARS - 1].rstrip() + "…"
 
     def _build_messages(self, header: str, entries: list[str]) -> list[str]:
         """Pack the header and entries into as few messages as fit the limit."""
