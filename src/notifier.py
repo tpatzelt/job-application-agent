@@ -114,8 +114,9 @@ class TelegramNotifier:
         company = f" @ {result.company}" if result.company != "Unknown" else ""
         lines = [f"{index}. {result.title}{company}", f"Score: {result.score}"]
         reason = self._truncate_reason(result.reason)
-        if reason:
-            lines.append(f"Why: {reason}")
+        if not reason:
+            reason = f"scored {result.score}; the evaluator gave no explanation"
+        lines.append(f"Why: {reason}")
         lines.append(result.url)
         return "\n".join(lines)
 
