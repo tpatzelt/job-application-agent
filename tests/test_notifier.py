@@ -123,7 +123,17 @@ def test_notify_empty_reason_produces_no_blank_line():
 
     entry = notifier._format_result(1, _result(reason=""))
 
-    assert "Why:" not in entry
+    assert "Why: scored 85; the evaluator gave no explanation" in entry
+    lines = entry.splitlines()
+    assert all(line.strip() != "" for line in lines)
+
+
+def test_notify_whitespace_reason_produces_fallback_why_line():
+    notifier = TelegramNotifier("token", "chat")
+
+    entry = notifier._format_result(1, _result(reason="   \n\t  "))
+
+    assert "Why: scored 85; the evaluator gave no explanation" in entry
     lines = entry.splitlines()
     assert all(line.strip() != "" for line in lines)
 
