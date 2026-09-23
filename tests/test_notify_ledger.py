@@ -89,6 +89,30 @@ def test_corrupt_ledger_degrades_to_empty(tmp_path, monkeypatch):
     assert len(sent) == 1
 
 
+def test_duplicate_posting_in_one_call_is_sent_once(tmp_path, monkeypatch):
+    sent = []
+
+    def fake_post(url, json, timeout):
+        sent.append(json["text"])
+        return _Response()
+
+    monkeypatch.setattr(requests, "post", fake_post)
+    ledger_path = tmp_path / "notified.json"
+
+    notifier = TelegramNotifier("token", "chat", ledger_path=ledger_path)
+    results = [
+        _result(url="https://jobs.lever.co/a/1"),
+        _result(url="http://www.jobs.lever.co/a/1"),
+    ]
+    assert notifier.notify_results(results)
+
+    assert len(sent) == 1
+    message = sent[0]
+    assert "1 new job(s) found:" in message
+    assert message.count("https://jobs.lever.co/a/1") == 1
+    assert "www.jobs.lever.co" not in message
+
+
 def test_ledger_path_none_preserves_prior_behaviour(monkeypatch):
     sent = []
 
