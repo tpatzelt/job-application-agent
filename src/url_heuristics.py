@@ -181,7 +181,79 @@ def _ats_kind(host: str, parts: list[str], path: str, query: str = "") -> str | 
         return LISTING
     if "personio" in host:
         return POSTING if any(part.isdigit() for part in parts) else LISTING
+    if host.endswith("bamboohr.com"):
+        # <company>.bamboohr.com/careers/<id>; /careers and /careers/list are roots
+        if _follows(parts, "careers") and parts[-1].isdigit():
+            return POSTING
+        return LISTING if _is_customer_board(host, "bamboohr.com") else None
+    if host.endswith("teamtailor.com"):
+        # <company>.teamtailor.com/jobs/<id>-<slug>; /jobs and /<lang>/jobs are roots
+        if _follows(parts, "jobs"):
+            return POSTING
+        return LISTING if _is_customer_board(host, "teamtailor.com") else None
+    if host.endswith("softgarden.io") or host.endswith("softgarden.de"):
+        # <company>.softgarden.io/job/<id>; the board root is /<lang>/vacancies
+        if _follows(parts, "job"):
+            return POSTING
+        return LISTING if "vacancies" in parts else None
+    if host.endswith("jobvite.com"):
+        # jobs.jobvite.com/<company>/job/<id>; /<company> and /<company>/jobs are roots
+        if _follows(parts, "job"):
+            return POSTING
+        return LISTING if _is_customer_board(host, "jobvite.com") else None
+    if host.endswith("breezy.hr"):
+        # <company>.breezy.hr/p/<id>-<slug>; the board root is /
+        if _follows(parts, "p"):
+            return POSTING
+        return LISTING if _is_customer_board(host, "breezy.hr") else None
+    if host.endswith("applytojob.com"):
+        # <company>.applytojob.com/apply/<id>/<slug>; /apply and /apply/jobs are roots
+        if _follows(parts, "apply") and len(parts) >= 3:
+            return POSTING
+        return LISTING if _is_customer_board(host, "applytojob.com") else None
+    if host.endswith("icims.com"):
+        # careers-<company>.icims.com/jobs/<id>/<slug>/job; /jobs/intro is the root
+        if _follows(parts, "jobs") and parts[parts.index("jobs") + 1].isdigit():
+            return POSTING
+        if "search" in parts:
+            return INDEX
+        return LISTING if _is_customer_board(host, "icims.com") else None
+    if host.endswith("taleo.net"):
+        # <company>.taleo.net/careersection/<id>/jobdetail.ftl?job=<id>; the board
+        # roots are jobsearch.ftl/joblist.ftl, whose short numeric careersection id
+        # would otherwise read as a job id.
+        lower_path = path.lower()
+        if "jobdetail" in lower_path:
+            return POSTING
+        if "jobsearch" in lower_path or "joblist" in lower_path:
+            return LISTING
+        return None
+    if host.endswith("pinpointhq.com"):
+        # <company>.pinpointhq.com/en/jobs/<id>; the board root is /
+        if _follows(parts, "jobs") and parts[-1].isdigit():
+            return POSTING
+        return LISTING if _is_customer_board(host, "pinpointhq.com") else None
+    if host.endswith("hire.withgoogle.com"):
+        # hire.withgoogle.com/public/jobs/<company>/view/<id>
+        if "view" in parts:
+            return POSTING
+        return LISTING if "jobs" in parts else None
     return None
+
+
+# Subdomains of an ATS vendor's own domain that serve the vendor's marketing or
+# help site rather than a customer's job board.
+_VENDOR_SITE_PREFIXES = ("", "www", "help", "support", "blog", "pages", "docs", "newsroom")
+
+
+def _is_customer_board(host: str, domain: str) -> bool:
+    """True if `host` is a customer's board on `domain`, not the vendor's own site."""
+    return host[: -len(domain)].strip(".") not in _VENDOR_SITE_PREFIXES
+
+
+def _follows(parts: list[str], segment: str) -> bool:
+    """True if `segment` appears in the path with another segment after it."""
+    return segment in parts and parts.index(segment) < len(parts) - 1
 
 
 def _aggregator_kind(host: str, parts: list[str], path: str, query: str = "") -> str | None:
