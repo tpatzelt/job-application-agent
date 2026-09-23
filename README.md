@@ -104,8 +104,19 @@ TELEGRAM_CHAT_ID=your_chat_id
 
 When `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are set, every run ends by
 sending the newly accepted jobs (title, score, URL) to your Telegram chat.
+Each entry also has a `Why:` line explaining the match (falling back to
+"the evaluator gave no explanation" when the LLM left the reason blank).
 Runs that find nothing send nothing. Disable via `telegram = false` in
 `[tool.job_crawler.notify]`.
+
+A posting is never notified twice: `notified.json`, stored next to the
+seen-URL cache (for the bot, under each user's `data/users/<chat_id>/`), is a
+durable ledger of every already-sent job, recorded by canonical URL only
+after its message actually sends, and checked across restarts and within a
+single run's results. In the bot service, if a scan fails you get a warning
+naming the exception; if Telegram delivery of a scan's jobs fails, you're
+told how many jobs were accepted and that they won't be resent
+automatically.
 
 One-time setup:
 
