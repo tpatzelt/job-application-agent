@@ -278,9 +278,13 @@ class Orchestrator:
         if self._notifier is None:
             return
         try:
-            self._notifier.notify_results(results)
+            sent_all = self._notifier.notify_results(results)
         except Exception as exc:
             self._logger.warning("Notification failed: %s", exc)
+            self._report.count("notify_failed")
+            return
+        if not sent_all:
+            self._report.count("notify_failed")
 
     def _ats_queries(
         self,

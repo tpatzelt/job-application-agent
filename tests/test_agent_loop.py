@@ -526,15 +526,16 @@ def test_ats_queries_empty_without_plan_roles(tmp_path: Path):
 
 
 class RecordingNotifier:
-    def __init__(self, fail: bool = False):
+    def __init__(self, fail: bool = False, returns_false: bool = False):
         self._fail = fail
+        self._returns_false = returns_false
         self.notified: list[list[Any]] = []
 
     def notify_results(self, results: list[Any]) -> bool:
         if self._fail:
             raise RuntimeError("telegram exploded")
         self.notified.append(results)
-        return True
+        return not self._returns_false
 
 
 def test_notifier_receives_accepted_results(tmp_path: Path):
@@ -566,6 +567,48 @@ def test_notifier_failure_does_not_break_run(tmp_path: Path):
     )
 
     assert len(results) == 1
+
+
+def test_notify_failed_counted_when_notifier_returns_false(tmp_path: Path):
+    config = _make_config(max_results=1)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
+    )
+    notifier = RecordingNotifier(returns_false=True)
+    orchestrator = Orchestrator(config, config.budget, llm, crawler, notifier=notifier)
+    results = _run(orchestrator, tmp_path)
+
+    assert len(results) == 1
+    assert orchestrator.last_report.counters["notify_failed"] >= 1
+
+
+def test_notify_failed_counted_when_notifier_raises(tmp_path: Path):
+    config = _make_config(max_results=1)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
+    )
+    notifier = RecordingNotifier(fail=True)
+    orchestrator = Orchestrator(config, config.budget, llm, crawler, notifier=notifier)
+    results = _run(orchestrator, tmp_path)
+
+    assert len(results) == 1
+    assert orchestrator.last_report.counters["notify_failed"] >= 1
+
+
+def test_notify_failed_absent_when_notifier_succeeds(tmp_path: Path):
+    config = _make_config(max_results=1)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
+    )
+    notifier = RecordingNotifier()
+    orchestrator = Orchestrator(config, config.budget, llm, crawler, notifier=notifier)
+    results = _run(orchestrator, tmp_path)
+
+    assert len(results) == 1
+    assert orchestrator.last_report.counters.get("notify_failed", 0) == 0
 
 
 def test_max_results_stops_loop(tmp_path: Path):
