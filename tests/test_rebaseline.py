@@ -35,17 +35,16 @@ def arming_rev() -> str:
 
 
 def test_replay_reproduces_committed_baseline_totals(arming_rev: str) -> None:
+    # Compared against the committed baseline rather than against
+    # hard-coded numbers: the arming replay is *how* that file is
+    # produced, so this stays true across every legitimate re-freeze
+    # instead of having to be edited alongside one.
+    committed = json.loads((ROOT / "evals" / "baseline.json").read_text(encoding="utf-8"))
     report = rebaseline.replay(rebaseline.DEFAULT_CORPUS_DIR, arming_rev)
     totals = report["totals"]
-    assert totals["records"] == 23
-    assert totals["kept"] == 12
-    assert totals["metrics"] == {
-        "posting_shape_rate": 0.750,
-        "aggregator_drop_rate": 1.000,
-        "location_match_rate": 1.000,
-        "staleness_detection_rate": 1.000,
-        "dedup_rate": 0.750,
-    }
+    assert totals["records"] == committed["totals"]["records"]
+    assert totals["kept"] == committed["totals"]["kept"]
+    assert totals["metrics"] == committed["totals"]["metrics"]
 
 
 def test_export_src_uses_old_src_not_working_tree(arming_rev: str, tmp_path: Path) -> None:
