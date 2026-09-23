@@ -74,11 +74,14 @@ class TelegramNotifier:
             )
 
     def notify_results(self, results: list[JobResult]) -> bool:
-        pending = [
-            result
-            for result in results
-            if canonical_url(result.url) not in self._notified
-        ]
+        pending = []
+        seen_in_call: set[str] = set()
+        for result in results:
+            canonical = canonical_url(result.url)
+            if canonical in self._notified or canonical in seen_in_call:
+                continue
+            seen_in_call.add(canonical)
+            pending.append(result)
         if not pending:
             if results:
                 self._logger.info(
