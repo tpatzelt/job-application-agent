@@ -118,6 +118,37 @@ def find_stale_marker(text: str) -> str | None:
     return None
 
 
+LANDING_PHRASES: tuple[str, ...] = (
+    # German — generic aggregator search-form / landing boilerplate
+    "suche nach berufsbezeichnung",
+    "suchvorschläge und letzte suchanfragen",
+    "lebenslauf registrieren",
+    "anzeige schalten",
+    "jobs durchsuchen",
+    "unternehmen suchen",
+    # English — generic aggregator search-form / landing boilerplate
+    "search by job title or keyword",
+    "search jobs by title, keyword or company",
+    "post a job with us",
+    "create a job alert",
+    "upload your resume to get started",
+    "browse jobs by category",
+)
+
+
+def find_landing_marker(text: str) -> str | None:
+    """Return a phrase identifying page text as a generic search/home
+    landing page (e.g. an aggregator's search form) rather than a single
+    job posting, or None. A single phrase is not enough evidence — some
+    can appear in a normal posting's footer or navigation — so this only
+    fires when at least two distinct phrases are found."""
+    lowered = _normalize(text)
+    matched = [phrase for phrase in LANDING_PHRASES if phrase in lowered]
+    if len(matched) < 2:
+        return None
+    return matched[0]
+
+
 def location_terms(locations: list[str]) -> list[str]:
     """Expand preference locations ("Berlin, Germany") into the lowercase
     terms a matching page could contain, including local-language names."""
