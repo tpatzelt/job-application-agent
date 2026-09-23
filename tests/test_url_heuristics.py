@@ -212,6 +212,13 @@ def test_widened_aggregator_posting_pages():
         assert classify_url(url) == POSTING, url
 
 
+def test_meinestadt_jkl_is_category_listing_not_posting():
+    # /<location>/jkl/<id> is a category listing page (e.g. "571
+    # Stellenangebote"), unlike /<location>/jk/<id> which is a single
+    # posting (see evals/fixtures/project-manager-berlin.jsonl:4).
+    assert classify_url("https://jobs.meinestadt.de/berlin/jkl/0-15777-15833") == INDEX
+
+
 def test_non_job_urls_are_other():
     urls = [
         "https://blog.company.com/article/how-we-hire",
