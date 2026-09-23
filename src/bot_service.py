@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import queue
+import re
 import threading
 import time
 from datetime import datetime
@@ -51,6 +52,36 @@ def _empty_scan_explanation(report: RunReport) -> str:
     if not reasons:
         return f"Checked {checked} job page(s)."
     return f"Checked {checked} job page(s): " + ", ".join(reasons) + "."
+
+
+# Matches Telegram's `/bot<token>/` URL path segment, which embeds the bot
+# token verbatim; requests exceptions routinely quote the request URL.
+_BOT_TOKEN_PATH_RE = re.compile(r"/bot\d+:[^/\s]+")
+# Query strings can carry the Brave API key (`?key=...`) or other secrets.
+_URL_QUERY_RE = re.compile(r"\?\S*")
+_SCAN_ERROR_CAUSE_MAX_CHARS = 300
+
+
+def _scrub_secrets(text: str) -> str:
+    text = _BOT_TOKEN_PATH_RE.sub("/bot***", text)
+    text = _URL_QUERY_RE.sub("", text)
+    return text
+
+
+def _format_scan_error(exc: BaseException) -> str:
+    """Name the failing exception and its cause, with secrets scrubbed.
+
+    Without this, every scan failure produces the same unhelpful line and
+    the user can't tell a missing CV from a Brave outage.
+    """
+    cause = _scrub_secrets(" ".join(str(exc).split()))
+    if len(cause) > _SCAN_ERROR_CAUSE_MAX_CHARS:
+        cause = cause[:_SCAN_ERROR_CAUSE_MAX_CHARS].rstrip() + "…"
+    detail = f"{type(exc).__name__}: {cause}" if cause else type(exc).__name__
+    return (
+        f"⚠️ The job scan hit an error ({detail}). I'll try again "
+        "at the next scheduled run - you can also send /run to retry sooner."
+    )
 
 
 class BotService:
@@ -226,11 +257,7 @@ class BotService:
                 self._run_scan(chat_id)
             except Exception as exc:
                 self._logger.exception("Scan failed for %s: %s", chat_id, exc)
-                self._safe_send(
-                    chat_id,
-                    "⚠️ The job scan hit an error. I'll try again at the "
-                    "next scheduled run.",
-                )
+                self._safe_send(chat_id, _format_scan_error(exc))
             finally:
                 self._current_scan = None
                 with self._queue_lock:
