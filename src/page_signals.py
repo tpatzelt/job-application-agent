@@ -30,6 +30,9 @@ STALE_PHRASES: tuple[str, ...] = (
     "job not found",
     "posting not found",
     "job does not exist",
+    "this position has been closed",
+    "this role is no longer open",
+    "the job you selected is no longer available",
     # German
     "stelle ist nicht mehr verfügbar",
     "stelle ist leider nicht mehr verfügbar",
@@ -40,6 +43,10 @@ STALE_PHRASES: tuple[str, ...] = (
     "stellenanzeige ist abgelaufen",
     "bewerbungsfrist ist abgelaufen",
     "diese stelle wurde geschlossen",
+    "diese stelle ist nicht mehr ausgeschrieben",
+    "diese position ist nicht mehr verfügbar",
+    "die stellenanzeige wurde entfernt",
+    "diese anzeige ist nicht mehr aktiv",
 )
 
 # City/country names as they appear in local-language postings, keyed by the

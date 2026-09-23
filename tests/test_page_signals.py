@@ -29,6 +29,49 @@ def test_find_stale_marker_clean_page():
     assert find_stale_marker(text) is None
 
 
+def test_find_stale_marker_position_closed():
+    text = "Update: this position has been closed. Please check our other openings."
+    assert find_stale_marker(text) == "this position has been closed"
+
+
+def test_find_stale_marker_role_no_longer_open():
+    text = "Unfortunately, this role is no longer open for applications."
+    assert find_stale_marker(text) == "this role is no longer open"
+
+
+def test_find_stale_marker_job_selected_no_longer_available():
+    text = "Sorry, the job you selected is no longer available on this board."
+    assert find_stale_marker(text) == "the job you selected is no longer available"
+
+
+def test_find_stale_marker_german_not_advertised_anymore():
+    text = "Leider ist diese Stelle ist nicht mehr ausgeschrieben."
+    assert find_stale_marker(text) == "diese stelle ist nicht mehr ausgeschrieben"
+
+
+def test_find_stale_marker_german_position_unavailable():
+    text = "Diese Position ist nicht mehr verfügbar. Vielen Dank für Ihr Interesse."
+    assert find_stale_marker(text) == "diese position ist nicht mehr verfügbar"
+
+
+def test_find_stale_marker_german_listing_removed():
+    text = "Die Stellenanzeige wurde entfernt, da die Position besetzt ist."
+    assert find_stale_marker(text) == "die stellenanzeige wurde entfernt"
+
+
+def test_find_stale_marker_german_listing_inactive():
+    text = "Diese Anzeige ist nicht mehr aktiv."
+    assert find_stale_marker(text) == "diese anzeige ist nicht mehr aktiv"
+
+
+def test_find_stale_marker_ignores_application_deadline():
+    text = (
+        "Senior Backend Engineer (m/f/d) Berlin. Apply now! "
+        "Application deadline: October 15th. We look forward to your application."
+    )
+    assert find_stale_marker(text) is None
+
+
 def test_location_terms_expand_aliases():
     terms = location_terms(["Munich, Germany"])
     assert "münchen" in terms
