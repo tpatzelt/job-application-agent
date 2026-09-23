@@ -30,6 +30,7 @@ COUNTER_LABELS = {
     "rejected_location": "rejected: location mismatch",
     "rejected_domain": "rejected: industry mismatch",
     "rejected_low_score": "rejected: score below threshold",
+    "notify_failed": "accepted jobs whose Telegram notification failed",
 }
 
 
