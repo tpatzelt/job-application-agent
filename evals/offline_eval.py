@@ -7,8 +7,20 @@ URL, drop non-job URLs, aggregator index pages, redirected/dead/stale
 pages, and pages with no preferred location) by calling the real
 `src.url_heuristics` / `src.page_signals` functions rather than copying
 their rules. No network or LLM call happens here; what survives replay
-is what would reach LLM scoring in production, and the five G1 metrics
-(`evals.metrics`) are scored over that set.
+is what would be *reported as a result* in production, and the five G1
+metrics (`evals.metrics`) are scored over that set.
+
+Only POSTING-classified URLs survive. `Orchestrator._process_url`
+harvests posting links out of a careers/board page and returns without
+scoring the hub page itself, so a LISTING or INDEX page never becomes a
+`JobResult` on the common path. Assumption, recorded because nobody can
+be asked: a LISTING page from which *no* posting links can be harvested
+is scored directly in production, and this harness counts it as dropped
+anyway — corpus records carry no links field, so the harvest branch
+cannot be replayed, and "hub pages are never reported" is the
+conservative reading. The posting gate runs last, after every other
+drop, so each dropped record stays attributable to a named rule and the
+other four metrics keep measuring exactly what they measured before.
 
 Usage:
     uv run python -m evals.offline_eval
@@ -24,7 +36,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from src.page_signals import find_stale_marker, mentions_location, redirected_off_posting
-from src.url_heuristics import INDEX, OTHER, canonical_url, classify_url, is_aggregator_url
+from src.url_heuristics import INDEX, OTHER, POSTING, canonical_url, classify_url, is_aggregator_url
 
 from .corpus import CorpusRecord, load_all
 from .metrics import (
@@ -58,8 +70,9 @@ def locations_for(profile_name: str) -> list[str]:
 
 
 def replay_keep(records: list[CorpusRecord], locations: list[str]) -> list[CorpusRecord]:
-    """Replay dedup + triage + page gates; return what survives to the
-    (offline, unavailable) LLM scoring step."""
+    """Replay dedup + triage + page gates; return the records that would
+    be reported as results (POSTING-shaped pages only — see the module
+    docstring)."""
     kept: list[CorpusRecord] = []
     seen: set[str] = set()
     for record in records:
@@ -81,6 +94,10 @@ def replay_keep(records: list[CorpusRecord], locations: list[str]) -> list[Corpu
         if find_stale_marker(record.text):
             continue
         if locations and not mentions_location(record.text, locations):
+            continue
+        if kind != POSTING:
+            # A careers/board hub is harvested for posting links, never
+            # scored itself, so it never becomes a reported result.
             continue
         kept.append(record)
     return kept
