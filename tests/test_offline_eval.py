@@ -2,8 +2,8 @@
 
 `replay_keep` reimplements only the *ordering* of
 `Orchestrator._triage_urls` / `_process_url` (dedup, non-job drop,
-aggregator-index drop, redirected/dead/stale/no-location drop, and
-finally the posting-only gate); each drop reason gets its own case so a
+aggregator-index drop, redirected/dead/stale/landing/no-location drop,
+and finally the posting-only gate); each drop reason gets its own case so a
 broken gate fails on its own instead of only showing up as a shifted
 rate downstream.
 """
@@ -93,6 +93,23 @@ def test_replay_drops_duplicate_by_canonical_url() -> None:
     original = _record("https://boards.greenhouse.io/acme/jobs/111")
     duplicate = _record("https://boards.greenhouse.io/acme/jobs/111?utm_source=linkedin")
     assert replay_keep([original, duplicate], BERLIN) == [original]
+
+
+LANDING_TEXT = (
+    "Search by job title or keyword to find your next role. "
+    "Browse jobs by category across Berlin, Germany and beyond."
+)
+
+
+def test_replay_drops_landing_page_but_keeps_ordinary_posting_at_same_url() -> None:
+    # Same POSTING-shaped URL, only the text differs, so this pins the
+    # landing gate itself rather than the URL classifier.
+    url = "https://de.whatjobs.com/jobs?id=261276305"
+    landing = _record(url, LANDING_TEXT)
+    posting = _record(url, POSTING_TEXT)
+
+    assert replay_keep([landing], BERLIN) == []
+    assert replay_keep([posting], BERLIN) == [posting]
 
 
 def test_replay_location_gate_skipped_when_no_locations_given() -> None:

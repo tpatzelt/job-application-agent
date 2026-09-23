@@ -24,6 +24,7 @@ COUNTER_LABELS = {
     "skipped_empty": "no text extracted",
     "skipped_too_short": "too little text",
     "skipped_stale": "closed/filled marker",
+    "skipped_landing": "search/landing page, not a posting",
     "skipped_no_location": "no preferred location on page",
     "evaluated": "pages scored by the LLM",
     "rejected_location": "rejected: location mismatch",

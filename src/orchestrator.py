@@ -12,7 +12,12 @@ from .config_manager import Config, EffortBudget
 from .job_meta import extract_job_meta
 from .language import detect_language, language_code_for, normalize_language
 from .models import JobResult, Reflection, SearchPlan
-from .page_signals import country_code_for, find_stale_marker, mentions_location
+from .page_signals import (
+    country_code_for,
+    find_landing_marker,
+    find_stale_marker,
+    mentions_location,
+)
 from .run_report import RunReport, runs_path_for
 from .tools import ToolRegistry
 from .url_heuristics import (
@@ -440,6 +445,14 @@ class Orchestrator:
                 "Skipping stale posting %s (marker: %r)", url, stale_marker
             )
             self._report.count("skipped_stale")
+            seen_urls.add(url)
+            return False
+        landing_marker = find_landing_marker(job_text)
+        if landing_marker:
+            self._logger.info(
+                "Skipping landing page %s (marker: %r)", url, landing_marker
+            )
+            self._report.count("skipped_landing")
             seen_urls.add(url)
             return False
         # Deterministic location gate: small models sometimes ignore the

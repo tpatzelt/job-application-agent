@@ -3,8 +3,8 @@
 Replays each profile's hand-labelled corpus (`evals/fixtures/*.jsonl`,
 via `evals.corpus`) through the same accept/drop *ordering*
 `Orchestrator._triage_urls` / `_process_url` apply (dedup by canonical
-URL, drop non-job URLs, aggregator index pages, redirected/dead/stale
-pages, and pages with no preferred location) by calling the real
+URL, drop non-job URLs, aggregator index pages, redirected/dead/stale/
+landing pages, and pages with no preferred location) by calling the real
 `src.url_heuristics` / `src.page_signals` functions rather than copying
 their rules. No network or LLM call happens here; what survives replay
 is what would be *reported as a result* in production, and the five G1
@@ -37,6 +37,12 @@ from typing import Any, Callable
 
 from src.page_signals import find_stale_marker, mentions_location, redirected_off_posting
 from src.url_heuristics import INDEX, OTHER, POSTING, canonical_url, classify_url, is_aggregator_url
+
+try:
+    from src.page_signals import find_landing_marker
+except ImportError:  # older exported `src` (see evals/rebaseline.py) without the gate
+    def find_landing_marker(text: str) -> str | None:
+        return None
 
 from .corpus import CorpusRecord, load_all
 from .metrics import (
@@ -92,6 +98,8 @@ def replay_keep(records: list[CorpusRecord], locations: list[str]) -> list[Corpu
         if not record.text:
             continue
         if find_stale_marker(record.text):
+            continue
+        if find_landing_marker(record.text):
             continue
         if locations and not mentions_location(record.text, locations):
             continue

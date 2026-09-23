@@ -93,6 +93,35 @@ def test_stale_posting_skipped_without_scoring(tmp_path: Path):
     assert orchestrator._tools.get("evaluate_job").calls == 0
 
 
+def test_landing_page_skipped_without_scoring(tmp_path: Path):
+    landing_text = (
+        "Search by job title or keyword to find your next role. "
+        "Browse jobs by category across Berlin, Germany and beyond. "
+        + ("Thousands of employers are hiring right now. " * 20)
+    )
+
+    class LandingCrawler(ScriptedCrawler):
+        def fetch_page(
+            self, url: str, use_browser_fallback: bool = False
+        ) -> tuple[str, list[str]]:
+            self.fetch_calls.append(url)
+            return landing_text, []
+
+    config = _make_config(max_results=1)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = LandingCrawler(
+        config.budget, {"python jobs berlin": [POSTING_URL]}
+    )
+    orchestrator = Orchestrator(config, config.budget, llm, crawler)
+    results = _run(orchestrator, tmp_path)
+
+    assert results == []
+    assert crawler.fetch_calls == [POSTING_URL]
+    # The landing page must never reach the (budget-consuming) evaluator.
+    assert orchestrator._tools.get("evaluate_job").calls == 0
+    assert orchestrator._report.counters.get("skipped_landing") == 1
+
+
 def test_country_derived_from_preferences_and_passed_to_search(tmp_path: Path):
     config = _make_config(max_results=1)
     llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
