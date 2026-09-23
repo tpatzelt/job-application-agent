@@ -185,6 +185,13 @@ Each metric is a rate in `[0, 1]` (`n/a` when its denominator is empty):
 - **staleness_detection_rate** — of the labelled-stale records, the fraction triage correctly dropped.
 - **dedup_rate** — of the labelled duplicate records, the fraction that collapse onto their original URL under canonicalization.
 
+`evals/baseline.json` is committed against the *arming* revision's `src/`, not the working
+tree, so G2's "improves over baseline" comparison stays honest as the codebase and corpus both
+move; `uv run python -m evals.rebaseline --corpus evals/fixtures` recomputes it by exporting
+`src/` at a chosen revision (`--rev`, default the arming revision) via `git archive` into an
+isolated tmpdir and replaying there — pass `--out <file>` to write a new baseline JSON, or
+omit it to print only (it never writes `evals/baseline.json` itself).
+
 ## Outputs
 
 - Results JSON: `data/results.json` (accumulates across runs; earlier jobs are kept and marked `seen`)
