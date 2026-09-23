@@ -502,3 +502,90 @@ def test_run_scan_sends_no_new_jobs_message_at_send_boundary(
         "\U0001f50d Scan finished - no new matching jobs this time."
     )
     assert text.endswith(_empty_scan_explanation(report))
+
+
+def test_run_scan_sends_notify_failed_message_at_send_boundary(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    import src.bot_service as bot_service_module
+
+    sent = _capture_telegram_sends(monkeypatch)
+    svc = _service(tmp_path)
+    record = svc._store.load("1")
+    record.state = STATE_ACTIVE
+    record.preferences = {"job_titles": ["Engineer"], "locations": ["Berlin"]}
+    svc._store.save(record)
+    svc._store.save_document("1", "cv", "x" * 200)
+
+    report = RunReport.start()
+    report.count("notify_failed", 1)
+
+    class FakeLLMService:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    class FakeCrawlerEngine:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    class FakeOrchestrator:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            self.last_report = report
+
+        def run(self, **kwargs: Any) -> list[Any]:
+            return ["job1", "job2"]
+
+    monkeypatch.setattr(bot_service_module, "LLMService", FakeLLMService)
+    monkeypatch.setattr(bot_service_module, "CrawlerEngine", FakeCrawlerEngine)
+    monkeypatch.setattr(bot_service_module, "Orchestrator", FakeOrchestrator)
+
+    svc._run_scan("1")
+
+    assert len(sent) == 1
+    text = sent[0]["text"]
+    assert text == (
+        "⚠️ Scan finished - found 2 matching job(s), but Telegram delivery "
+        "failed for some or all of them. They are now marked as seen, so "
+        "they will not be resent automatically. If this keeps happening, "
+        "contact the operator; otherwise future scans should deliver "
+        "normally."
+    )
+
+
+def test_run_scan_sends_no_notify_failed_message_when_notify_succeeds(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    import src.bot_service as bot_service_module
+
+    sent = _capture_telegram_sends(monkeypatch)
+    svc = _service(tmp_path)
+    record = svc._store.load("1")
+    record.state = STATE_ACTIVE
+    record.preferences = {"job_titles": ["Engineer"], "locations": ["Berlin"]}
+    svc._store.save(record)
+    svc._store.save_document("1", "cv", "x" * 200)
+
+    report = RunReport.start()
+
+    class FakeLLMService:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    class FakeCrawlerEngine:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    class FakeOrchestrator:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            self.last_report = report
+
+        def run(self, **kwargs: Any) -> list[Any]:
+            return ["job1", "job2"]
+
+    monkeypatch.setattr(bot_service_module, "LLMService", FakeLLMService)
+    monkeypatch.setattr(bot_service_module, "CrawlerEngine", FakeCrawlerEngine)
+    monkeypatch.setattr(bot_service_module, "Orchestrator", FakeOrchestrator)
+
+    svc._run_scan("1")
+
+    assert sent == []

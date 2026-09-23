@@ -320,6 +320,16 @@ class BotService:
                     orchestrator.last_report
                 ),
             )
+        elif orchestrator.last_report.counters.get("notify_failed"):
+            self._safe_send(
+                chat_id,
+                "⚠️ Scan finished - found "
+                f"{len(results)} matching job(s), but Telegram delivery failed "
+                "for some or all of them. They are now marked as seen, so they "
+                "will not be resent automatically. If this keeps happening, "
+                "contact the operator; otherwise future scans should deliver "
+                "normally.",
+            )
 
     def _extract_profile(
         self,
