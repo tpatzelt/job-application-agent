@@ -29,9 +29,60 @@ def test_ats_root_pages_are_listings_not_postings():
         "https://boards.greenhouse.io/acme",
         "https://jobs.lever.co/acme",
         "https://acme.recruitee.com/",
+        # Vendors whose board roots used to be judged on digit shape alone
+        # (shapes taken from live Brave Search results, see T-0028).
+        "https://euna.bamboohr.com/careers/list",
+        "https://everymatrix.teamtailor.com/jobs",
+        "https://kompan.teamtailor.com/en/jobs",
+        "https://schleswiger-werkstaetten.softgarden.io/de/vacancies",
+        "https://jobs.jobvite.com/lhhcareers/jobs",
+        "https://taskforcetalent.breezy.hr/",
+        "https://phoenix.applytojob.com/apply",
+        "https://nro.applytojob.com/apply/jobs/",
+        "https://careers-brookings.icims.com/jobs/intro",
+        "https://chicago.taleo.net/careersection/100/jobsearch.ftl?lang=en",
+        "https://oecd.taleo.net/careersection/ext/joblist.ftl",
+        "https://trilongroup.pinpointhq.com/",
+        "https://hire.withgoogle.com/public/jobs/touchlab",
     ]
     for url in urls:
         assert classify_url(url) == LISTING, url
+
+
+def test_ats_vendor_postings():
+    # One posting per vendor _ats_kind previously had no rule for; shapes
+    # taken from live Brave Search results (see T-0028).
+    urls = [
+        "https://northtide.bamboohr.com/careers/184",
+        "https://footasylum.teamtailor.com/jobs/8429917-seasonal-sales-assistant",
+        "https://koelnmesse.softgarden.io/job/3067410?l=de",
+        "https://jobs.jobvite.com/egnyte/job/oYKBAfwD",
+        "https://freeeup.breezy.hr/p/b8d4f5495eb6-remote-data-entry-specialist",
+        "https://partnersforpublicgood.applytojob.com/apply/R8EkJ3qeGX/Research-Fellowship",
+        "https://careers-dickblick.icims.com/jobs/5139/retail-human-resources-advisor/job",
+        "https://ey.taleo.net/careersection/2/jobdetail.ftl?job=1234567",
+        "https://northtide.pinpointhq.com/en/jobs/183726",
+        "https://hire.withgoogle.com/public/jobs/telenetworkcom/view/P_AAAAAAEAAHqG0TqHBEvx-U",
+    ]
+    for url in urls:
+        assert classify_url(url) == POSTING, url
+
+
+def test_ats_vendor_search_pages_are_index():
+    assert classify_url("https://careers-northtide.icims.com/jobs/search?ss=1") == INDEX
+
+
+def test_ats_vendor_own_site_is_not_a_job_board():
+    # The vendor's own marketing/help pages share the ATS domain but are not
+    # a customer's board, so they must not be promoted to LISTING/POSTING.
+    urls = [
+        "https://www.jobvite.com/",
+        "https://breezy.hr/attract",
+        "https://help.breezy.hr/en/articles/5376777-embedding-jobs-on-your-website",
+        "https://allyouneedfresh.softgarden.io/de/data-security",
+    ]
+    for url in urls:
+        assert classify_url(url) == OTHER, url
 
 
 def test_aggregator_index_pages():
