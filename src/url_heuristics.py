@@ -305,8 +305,9 @@ def _aggregator_kind(host: str, parts: list[str], path: str, query: str = "") ->
             return POSTING
         return INDEX
     if "meinestadt.de" in host:
-        # Postings: /<location>/jk/<id> or /<location>/jkl/<id>.
-        if len(parts) >= 3 and parts[-2] in ("jk", "jkl") and _DIGIT_RUN_RE.search(parts[-1]):
+        # Postings: /<location>/jk/<id>. /<location>/jkl/<id> is a category
+        # listing page (e.g. "571 Stellenangebote"), not a single posting.
+        if len(parts) >= 3 and parts[-2] == "jk" and _DIGIT_RUN_RE.search(parts[-1]):
             return POSTING
         return INDEX
     if "jobware.de" in host:
