@@ -12,7 +12,7 @@ from src.intake import (
     IntakeManager,
 )
 from src.models import IntakeExtraction
-from src.telegram_api import IncomingDocument, IncomingMessage
+from src.telegram_api import IncomingDocument, IncomingMessage, TelegramError
 from src.user_store import (
     STATE_ACTIVE,
     STATE_AWAITING_ANSWER,
@@ -24,6 +24,18 @@ from src.user_store import (
 
 CV_TEXT = "Experienced project manager. " * 20
 
+# The exact replies _document_or_text produces (src/intake.py:312-329) for a
+# too-short pasted answer and for a document that fails extraction.
+SHORT_TEXT_REPLY = (
+    "Please upload a document (PDF, DOCX, or text file) or paste "
+    "the content as a message."
+)
+UNREADABLE_DOC_REPLY = (
+    "⚠️ Could not extract readable text from the document. If it is a "
+    "scanned PDF, please send a text-based PDF, DOCX, or plain text.\n\n"
+    "Please try another file."
+)
+
 
 class FakeDownloader:
     def __init__(self, payload: bytes = CV_TEXT.encode()) -> None:
@@ -31,6 +43,13 @@ class FakeDownloader:
 
     def download_document(self, document: IncomingDocument) -> bytes:
         return self.payload
+
+
+class FailingDownloader:
+    """download_document always raises, simulating a failed Telegram fetch."""
+
+    def download_document(self, document: IncomingDocument) -> bytes:
+        raise TelegramError("download failed")
 
 
 class ScriptedExtractor:
@@ -209,6 +228,98 @@ def test_bad_document_reports_error_and_keeps_state(tmp_path: Path) -> None:
     reply = manager.handle_message(_msg(document=_doc()))
     assert "⚠" in reply
     assert store.load("42").state == STATE_AWAITING_CV
+
+
+def test_cv_state_short_text_and_bad_document_exact_replies(tmp_path: Path) -> None:
+    store = UserStore(tmp_path)
+    manager = IntakeManager(
+        store, FakeDownloader(payload=b"x"), ScriptedExtractor([COMPLETE])
+    )
+    manager.handle_message(_msg("/start"))
+
+    reply = manager.handle_message(_msg("hello"))
+    assert reply == SHORT_TEXT_REPLY
+    assert store.load("42").state == STATE_AWAITING_CV
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == UNREADABLE_DOC_REPLY
+    assert store.load("42").state == STATE_AWAITING_CV
+
+
+def test_cv_state_failed_download_exact_reply(tmp_path: Path) -> None:
+    store = UserStore(tmp_path)
+    manager = IntakeManager(store, FailingDownloader(), ScriptedExtractor([COMPLETE]))
+    manager.handle_message(_msg("/start"))
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == "⚠️ download failed\n\nPlease try another file."
+    assert store.load("42").state == STATE_AWAITING_CV
+
+
+def test_motivation_state_short_text_and_bad_document_exact_replies(
+    tmp_path: Path,
+) -> None:
+    store = UserStore(tmp_path)
+    manager = IntakeManager(
+        store, FakeDownloader(payload=b"x"), ScriptedExtractor([COMPLETE])
+    )
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(CV_TEXT))  # pasted CV, avoids the bad downloader
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+    reply = manager.handle_message(_msg("hi"))
+    assert reply == SHORT_TEXT_REPLY
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == UNREADABLE_DOC_REPLY
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+
+def test_motivation_state_failed_download_exact_reply(tmp_path: Path) -> None:
+    store = UserStore(tmp_path)
+    manager = IntakeManager(store, FailingDownloader(), ScriptedExtractor([COMPLETE]))
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(CV_TEXT))
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == "⚠️ download failed\n\nPlease try another file."
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+
+def test_job_prefs_state_short_text_and_bad_document_exact_replies(
+    tmp_path: Path,
+) -> None:
+    store = UserStore(tmp_path)
+    manager = IntakeManager(
+        store, FakeDownloader(payload=b"x"), ScriptedExtractor([COMPLETE])
+    )
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(CV_TEXT))
+    manager.handle_message(_msg("/skip"))
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
+
+    reply = manager.handle_message(_msg("hi"))
+    assert reply == SHORT_TEXT_REPLY
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == UNREADABLE_DOC_REPLY
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
+
+
+def test_job_prefs_state_failed_download_exact_reply(tmp_path: Path) -> None:
+    store = UserStore(tmp_path)
+    manager = IntakeManager(store, FailingDownloader(), ScriptedExtractor([COMPLETE]))
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(CV_TEXT))
+    manager.handle_message(_msg("/skip"))
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == "⚠️ download failed\n\nPlease try another file."
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
 
 
 NO_LANGUAGE = IntakeExtraction(
