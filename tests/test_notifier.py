@@ -138,6 +138,45 @@ def test_notify_whitespace_reason_produces_fallback_why_line():
     assert all(line.strip() != "" for line in lines)
 
 
+def test_notify_message_exact_text_with_company_and_fallback_reason(monkeypatch):
+    sent = []
+
+    def fake_post(url, json, timeout):
+        sent.append(json)
+        return _Response()
+
+    monkeypatch.setattr(requests, "post", fake_post)
+    notifier = TelegramNotifier("token123", "chat456")
+    results = [
+        JobResult(
+            title="Software Engineer",
+            company="Acme",
+            url="https://x.io/1",
+            score=85,
+            reason="good match",
+            status="new",
+        ),
+        JobResult(
+            title="Data Engineer",
+            company="Unknown",
+            url="https://x.io/2",
+            score=70,
+            reason="",
+            status="new",
+        ),
+    ]
+
+    assert notifier.notify_results(results) is True
+
+    assert len(sent) == 1
+    assert sent[0]["text"] == (
+        "\U0001f4bc 2 new job(s) found:\n\n"
+        "1. Software Engineer @ Acme\nScore: 85\nWhy: good match\nhttps://x.io/1\n\n"
+        "2. Data Engineer\nScore: 70\n"
+        "Why: scored 70; the evaluator gave no explanation\nhttps://x.io/2"
+    )
+
+
 def test_notify_truncates_long_reason_and_chunks_stay_within_limit(monkeypatch):
     sent = []
 
