@@ -184,6 +184,11 @@ class Orchestrator:
                 urls = self._tools.invoke(
                     "search", query, country=country, search_lang=search_lang
                 )
+                search_error = getattr(self._crawler, "last_search_error", None)
+                if search_error:
+                    report.record_error(
+                        "search_failed", query, RuntimeError(search_error)
+                    )
                 report.count("urls_found", len(urls))
                 new_urls = self._new_urls(urls, seen_urls, report)
                 postings, listings, low_priority = self._triage_urls(
