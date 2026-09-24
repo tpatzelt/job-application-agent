@@ -37,6 +37,14 @@ UNREADABLE_DOC_REPLY = (
     "Please try another file."
 )
 
+# The exact job-prefs prompt (src/intake.py:336-342).
+JOB_PREFS_PROMPT = (
+    "Now describe the jobs you're looking for: roles, industries, "
+    "seniority, remote/on-site, and where you want to work "
+    "(country and cities). You can also upload a document. "
+    "Send /skip to let me infer everything from your CV."
+)
+
 
 class FakeDownloader:
     def __init__(self, payload: bytes = CV_TEXT.encode()) -> None:
@@ -249,7 +257,7 @@ def test_status_during_setup_and_when_active(tmp_path: Path) -> None:
     manager, store = _manager(tmp_path, extractor)
     manager.handle_message(_msg("/start"))
     reply = manager.handle_message(_msg("/status"))
-    assert "Setup in progress" in reply
+    assert reply == "Setup in progress (step: awaiting_cv).\nPlease upload your CV (PDF, DOCX, or text)."
 
     manager.handle_message(_msg(document=_doc()))
     manager.handle_message(_msg("/skip"))
@@ -427,9 +435,7 @@ def test_uploaded_motivation_letter_reply_and_job_prefs_prompt(tmp_path: Path) -
     manager.handle_message(_msg(document=_doc()))
 
     reply = manager.handle_message(_msg(document=_doc()))
-    assert "✅ Motivation letter received." in reply
-    assert "Now describe the jobs you're looking for" in reply
-    assert "Send /skip to let me infer everything from your CV." in reply
+    assert reply == "✅ Motivation letter received.\n\n" + JOB_PREFS_PROMPT
     assert store.load("42").state == STATE_AWAITING_JOB_PREFS
 
 
@@ -440,8 +446,7 @@ def test_job_prefs_prompt_after_motivation_skip(tmp_path: Path) -> None:
     manager.handle_message(_msg(document=_doc()))
 
     reply = manager.handle_message(_msg("/skip"))
-    assert "Now describe the jobs you're looking for" in reply
-    assert "Send /skip to let me infer everything from your CV." in reply
+    assert reply == JOB_PREFS_PROMPT
     assert "Motivation letter received" not in reply
     assert store.load("42").state == STATE_AWAITING_JOB_PREFS
 
@@ -550,8 +555,7 @@ def test_prompt_for_state_via_status_and_start_while_awaiting_motivation(
     assert store.load("42").state == STATE_AWAITING_MOTIVATION
 
     status_reply = manager.handle_message(_msg("/status"))
-    assert "Setup in progress (step: awaiting_motivation)." in status_reply
-    assert "Please upload your motivation letter, or send /skip." in status_reply
+    assert status_reply == "Setup in progress (step: awaiting_motivation).\nPlease upload your motivation letter, or send /skip."
 
     start_reply = manager.handle_message(_msg("/start"))
     assert start_reply == "Please upload your motivation letter, or send /skip."
@@ -567,8 +571,7 @@ def test_prompt_for_state_fallback_for_unknown_state(tmp_path: Path) -> None:
     store.save(record)
 
     status_reply = manager.handle_message(_msg("/status"))
-    assert "Setup in progress (step: some_unknown_state)." in status_reply
-    assert "Send /start to begin." in status_reply
+    assert status_reply == "Setup in progress (step: some_unknown_state).\nSend /start to begin."
 
     start_reply = manager.handle_message(_msg("/start"))
     assert start_reply == "Send /start to begin."
