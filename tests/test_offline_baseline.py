@@ -11,7 +11,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from evals.offline_eval import DEFAULT_CORPUS_DIR, check_baseline, compare_to_baseline, main, run
+import pytest
+
+from evals.offline_eval import DEFAULT_CORPUS_DIR, METRICS, check_baseline, compare_to_baseline, main, run
 
 
 def _write_baseline(path: Path, metrics: dict[str, float | None]) -> None:
@@ -91,6 +93,22 @@ def test_check_baseline_fails_and_names_regressed_metric(tmp_path: Path) -> None
 
     assert ok is False
     assert "posting_shape_rate" in message
+
+
+def test_committed_corpus_totals_are_pinned() -> None:
+    """Pins the scores G2 actually achieved on the committed corpus (see
+    evals/fixtures/**), which are well above the weak evals/baseline.json
+    numbers recorded at arming. --check-baseline only fails on a
+    regression below that weak floor, so a change that quietly drops a
+    metric back toward it would otherwise pass every gate. A change that
+    legitimately extends evals/fixtures/** must update the pinned numbers
+    below in the same diff.
+    """
+    totals = run(DEFAULT_CORPUS_DIR)["totals"]
+    assert totals["records"] == 58
+    assert totals["kept"] == 16
+    for name in METRICS:
+        assert totals["metrics"][name] == pytest.approx(1.0), f"{name} regressed"
 
 
 def test_main_check_baseline_exit_code_zero_on_committed_baseline() -> None:
