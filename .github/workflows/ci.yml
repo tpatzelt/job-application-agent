@@ -12,6 +12,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # tests/test_rebaseline.py replays the corpus against the arming
+          # revision pinned in evals/baseline.json, so the history that holds
+          # that commit has to be here. A shallow clone skips those tests.
+          fetch-depth: 0
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v5

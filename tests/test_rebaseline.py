@@ -4,9 +4,11 @@ export uses the given revision's src, not the working tree (pinned via
 T-0006's stellenanzeigen.de addition); (c) a missing exported src/ fails
 the replay loudly instead of falling back to the repo's src; (d) --out
 matches evals/baseline.json's schema plus the resolved revision, and a
-default run writes nothing; (e) revision candidates are tried in order,
-first verified wins, and an explicit --rev is used verbatim with no
-fallback; (f) an unavailable git/revision skips rather than fails.
+default run writes nothing; (e) the revision pinned in
+evals/baseline.json wins, an unresolvable pin refuses rather than
+falling back, candidates are only tried when no pin is recorded, and an
+explicit --rev is used verbatim; (f) an unavailable git/revision skips
+rather than fails.
 """
 
 from __future__ import annotations
@@ -84,6 +86,29 @@ def test_out_writes_baseline_schema_and_default_leaves_baseline_untouched(arming
     assert baseline_path.read_bytes() == before
 
 
+def test_resolve_revision_prefers_the_baseline_pin(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[str] = []
+
+    def fake_verify(rev: str) -> str | None:
+        calls.append(rev)
+        return "deadbeef" if rev == "pinnedsha" else None
+
+    monkeypatch.setattr(rebaseline, "_pinned_revision", lambda: "pinnedsha")
+    monkeypatch.setattr(rebaseline, "_verify", fake_verify)
+    assert rebaseline.resolve_revision(None) == "deadbeef"
+    # The pin wins outright; the moving refs are never consulted.
+    assert calls == ["pinnedsha"]
+
+
+def test_resolve_revision_refuses_an_unresolvable_pin(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Falling back to origin/main here would replay today's src against its own
+    # baseline and report a pass, which is the one outcome that must not happen.
+    monkeypatch.setattr(rebaseline, "_pinned_revision", lambda: "missingsha")
+    monkeypatch.setattr(rebaseline, "_verify", lambda rev: None)
+    with pytest.raises(rebaseline.RebaselineError, match="missingsha"):
+        rebaseline.resolve_revision(None)
+
+
 def test_resolve_revision_tries_candidates_in_order_and_verbatim_rev(monkeypatch: pytest.MonkeyPatch) -> None:
     calls: list[str] = []
 
@@ -91,6 +116,8 @@ def test_resolve_revision_tries_candidates_in_order_and_verbatim_rev(monkeypatch
         calls.append(rev)
         return "deadbeef" if rev == "main" else None
 
+    # No pin recorded: fall back to the moving refs, in order.
+    monkeypatch.setattr(rebaseline, "_pinned_revision", lambda: None)
     monkeypatch.setattr(rebaseline, "_verify", fake_verify)
     assert rebaseline.resolve_revision(None) == "deadbeef"
     assert calls == list(rebaseline.CANDIDATE_REVISIONS)
@@ -104,6 +131,12 @@ def test_resolve_revision_tries_candidates_in_order_and_verbatim_rev(monkeypatch
     with pytest.raises(rebaseline.RebaselineError):
         rebaseline.resolve_revision("nonexistent")
     assert calls == ["nonexistent"]  # explicit --rev does not fall back to the candidates
+
+
+def test_pinned_revision_reads_the_committed_baseline() -> None:
+    assert rebaseline._pinned_revision() == json.loads(
+        (ROOT / "evals" / "baseline.json").read_text(encoding="utf-8")
+    )["revision"]
 
 
 def test_skips_rather_than_fails_when_revision_unavailable(monkeypatch: pytest.MonkeyPatch) -> None:
