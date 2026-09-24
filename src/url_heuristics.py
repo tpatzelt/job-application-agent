@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, parse_qsl, urlencode, urlparse, urlunparse
 
 # URL kinds, from most to least valuable for the agent.
 POSTING = "posting"  # a single job posting (ATS page, job-ID URL)
@@ -33,6 +33,66 @@ AGGREGATOR_HOSTS = (
     "devjobs.de",
 )
 
+# Query parameters that only identify the traffic source, never the job.
+# Postings reached through different referrers (Base10/Accel job boards,
+# LinkedIn, a newsletter) are the same posting and must dedupe to one URL.
+TRACKING_PARAMS = {
+    "t",
+    "src",
+    "source",
+    "ref",
+    "referrer",
+    "trk",
+    "trackingid",
+    "gh_src",
+    "lever-origin",
+    "lever-source",
+    "lever-source[]",
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_term",
+    "utm_content",
+}
+# Path suffixes that address the application form of a posting, not a
+# different posting.
+_APPLY_SUFFIXES = ("apply", "application")
+
+
+def canonical_url(url: str) -> str:
+    """Collapse the variants of one posting URL into a single key.
+
+    Drops the fragment and tracking parameters, lowercases the host,
+    removes an /apply suffix and a trailing slash. Used for dedup (cache,
+    triage, harvesting, results) so the same job isn't fetched, scored,
+    and reported several times under different referral links.
+    """
+    if not url:
+        return url
+    try:
+        parsed = urlparse(url)
+    except ValueError:
+        return url
+    if not parsed.scheme:
+        return url
+    host = (parsed.hostname or "").lower()
+    if parsed.port:
+        host = f"{host}:{parsed.port}"
+    path = parsed.path or ""
+    parts = [part for part in path.split("/") if part]
+    if len(parts) > 1 and parts[-1].lower() in _APPLY_SUFFIXES:
+        parts = parts[:-1]
+    path = "/" + "/".join(parts) if parts else ""
+    kept = [
+        (key, value)
+        for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+        if key.lower() not in TRACKING_PARAMS
+        and not key.lower().startswith("utm_")
+    ]
+    query = urlencode(kept)
+    return urlunparse((parsed.scheme.lower(), host, path, "", query, ""))
+
+
 SEARCH_QUERY_PARAMS = {"q", "query", "search", "keywords", "keyword", "k", "what", "where"}
 
 
@@ -54,7 +114,7 @@ def classify_url(url: str) -> str:
     path = parsed.path or ""
     parts = [part for part in path.split("/") if part]
 
-    ats_kind = _ats_kind(host, parts, path)
+    ats_kind = _ats_kind(host, parts, path, parsed.query)
     if ats_kind is not None:
         return ats_kind
 
@@ -73,10 +133,13 @@ def classify_url(url: str) -> str:
     return LISTING
 
 
-def _ats_kind(host: str, parts: list[str], path: str) -> str | None:
+def _ats_kind(host: str, parts: list[str], path: str, query: str = "") -> str | None:
     if host.endswith("greenhouse.io"):
         # boards.greenhouse.io/<company>/jobs/<id>
         if "jobs" in parts and parts and parts[-1].isdigit():
+            return POSTING
+        # Embedded application form: boards.greenhouse.io/embed/job_app?token=<id>
+        if "embed" in parts and "token" in parse_qs(query):
             return POSTING
         return LISTING
     if host.endswith("lever.co"):

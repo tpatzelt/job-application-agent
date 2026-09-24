@@ -164,10 +164,11 @@ Mock mode wires `MockLLM`/`MockCrawler` fakes through the same `Orchestrator` us
 
 ## Outputs
 
-- Results JSON: `data/results.json`
+- Results JSON: `data/results.json` (accumulates across runs; earlier jobs are kept and marked `seen`)
 - Results CSV: `data/results.csv`
 - Results URLs: `data/results.txt`
-- Cache (seen URLs): `data/cache.json`
+- Run history (per-run counters, errors, queries): `data/runs.json`
+- Cache (seen URLs, canonicalized): `data/cache.json`
 - Agent memory (query/domain effectiveness): `data/memory.json`
 
 ## Notes

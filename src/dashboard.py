@@ -4,11 +4,13 @@ import json
 import logging
 import os
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Callable
 from urllib.parse import parse_qs, urlparse
 
+from .run_report import COUNTER_LABELS, load_runs, runs_path_for
 from .user_store import UserStore
 
 logger = logging.getLogger(__name__)
@@ -17,6 +19,13 @@ logger = logging.getLogger(__name__)
 _IGNORED_NAME_PARTS = ("mock", "backup")
 
 StatusProvider = Callable[[], dict[str, Any]]
+
+# A daily scan that hasn't happened in this long means the service is not
+# running (or is stuck), which is the failure the dashboard exists to catch.
+STALE_SCAN_SECONDS = 36 * 3600
+# How many consecutive empty runs before an empty result is a symptom
+# rather than a quiet day on the job market.
+EMPTY_RUN_STREAK = 3
 
 
 def _read_json(path: Path) -> Any:
@@ -72,10 +81,13 @@ def collect_results(data_dir: Path) -> list[dict[str, Any]]:
                     "score": entry.get("score"),
                     "reason": str(entry.get("reason", "")),
                     "status": str(entry.get("status", "")),
+                    # When this job was accepted; older records predate the
+                    # field, so fall back to the file's mtime.
+                    "found_at": entry.get("found_at") or updated_at,
                     "updated_at": updated_at,
                 }
             )
-    jobs.sort(key=lambda job: (job["updated_at"] or 0, job["score"] or 0), reverse=True)
+    jobs.sort(key=lambda job: (job["found_at"] or 0, job["score"] or 0), reverse=True)
     return jobs
 
 
@@ -100,6 +112,42 @@ def collect_users(data_dir: Path) -> list[dict[str, Any]]:
             }
         )
     return users
+
+
+def collect_runs(data_dir: Path, limit: int = 10) -> list[dict[str, Any]]:
+    """Recent crawl runs per source, newest first.
+
+    This is the "why did the last scan find nothing" view: every counter
+    is a place a URL dropped out between search and an accepted job.
+    """
+    runs: list[dict[str, Any]] = []
+    for source_id, source_name, results_path in _result_sources(data_dir):
+        for run in load_runs(runs_path_for(results_path))[-limit:]:
+            counters = run.get("counters") or {}
+            runs.append(
+                {
+                    "source": source_id,
+                    "source_name": source_name,
+                    "started_at": run.get("started_at"),
+                    "finished_at": run.get("finished_at"),
+                    "duration_seconds": run.get("duration_seconds"),
+                    "accepted": run.get("accepted", 0),
+                    "queries": run.get("queries") or [],
+                    "counters": [
+                        {
+                            "name": name,
+                            "label": COUNTER_LABELS.get(name, name),
+                            "value": value,
+                        }
+                        for name, value in counters.items()
+                        if value
+                    ],
+                    "errors": run.get("errors") or [],
+                    "tool_stats": run.get("tool_stats") or {},
+                }
+            )
+    runs.sort(key=lambda run: run.get("started_at") or 0, reverse=True)
+    return runs
 
 
 def collect_memory(data_dir: Path) -> list[dict[str, Any]]:
@@ -191,17 +239,103 @@ def tail_log(data_dir: Path, name: str, lines: int = 200) -> list[str]:
     return text.splitlines()[-lines:]
 
 
+def _ago(seconds: float) -> str:
+    hours = seconds / 3600
+    if hours < 48:
+        return f"{int(hours)} hours"
+    return f"{int(hours / 24)} days"
+
+
+def collect_health(
+    data_dir: Path,
+    status_provider: StatusProvider | None = None,
+    now: float | None = None,
+) -> dict[str, Any]:
+    """Problems worth acting on, worst first.
+
+    Answers the question a monitoring page is for: is the service doing
+    its job right now, and if not, what stopped it.
+    """
+    now = now if now is not None else time.time()
+    issues: list[dict[str, str]] = []
+    if status_provider is None:
+        issues.append(
+            {
+                "level": "warning",
+                "message": (
+                    "Dashboard is running standalone — it can't confirm the bot "
+                    "service is up; scan times below are the only evidence."
+                ),
+            }
+        )
+    for user in collect_users(data_dir):
+        name = user["name"] or user["chat_id"]
+        if user["state"] != "active":
+            continue
+        last = user["last_scan_at"]
+        if not last:
+            issues.append(
+                {"level": "error", "message": f"{name} has never been scanned."}
+            )
+        elif now - last > STALE_SCAN_SECONDS:
+            issues.append(
+                {
+                    "level": "error",
+                    "message": (
+                        f"{name} has not been scanned in {_ago(now - last)} — "
+                        "the bot service is probably not running."
+                    ),
+                }
+            )
+    runs = collect_runs(data_dir)
+    by_source: dict[str, list[dict[str, Any]]] = {}
+    for run in runs:
+        by_source.setdefault(run["source_name"], []).append(run)
+    for name, source_runs in by_source.items():
+        errors = sum(len(run["errors"]) for run in source_runs[:1])
+        if errors:
+            issues.append(
+                {
+                    "level": "warning",
+                    "message": f"{name}'s last run hit {errors} error(s) — see Runs.",
+                }
+            )
+        recent = source_runs[:EMPTY_RUN_STREAK]
+        if len(recent) == EMPTY_RUN_STREAK and all(
+            run["accepted"] == 0 for run in recent
+        ):
+            issues.append(
+                {
+                    "level": "warning",
+                    "message": (
+                        f"{name}'s last {EMPTY_RUN_STREAK} runs accepted no jobs — "
+                        "check the drop-off counters in Runs."
+                    ),
+                }
+            )
+    level = "ok"
+    if any(issue["level"] == "warning" for issue in issues):
+        level = "warning"
+    if any(issue["level"] == "error" for issue in issues):
+        level = "error"
+    return {"level": level, "issues": issues}
+
+
 def collect_overview(
     data_dir: Path, status_provider: StatusProvider | None = None
 ) -> dict[str, Any]:
     users = collect_users(data_dir)
     jobs = collect_results(data_dir)
+    runs = collect_runs(data_dir)
     last_scans = [user["last_scan_at"] for user in users if user["last_scan_at"]]
     overview: dict[str, Any] = {
         "users_total": len(users),
         "users_active": sum(1 for user in users if user["state"] == "active"),
         "jobs_total": len(jobs),
         "last_scan_at": max(last_scans) if last_scans else None,
+        "last_run": runs[0] if runs else None,
+        "health": collect_health(data_dir, status_provider),
+        "errors_recent": sum(len(run["errors"]) for run in runs[:5]),
         "log_files": list_log_files(data_dir),
         "users": users,
         "status": None,
@@ -230,6 +364,8 @@ class _Handler(BaseHTTPRequestHandler):
                 self._send_json(collect_overview(self.data_dir, self.status_provider))
             elif parsed.path == "/api/results":
                 self._send_json(collect_results(self.data_dir))
+            elif parsed.path == "/api/runs":
+                self._send_json(collect_runs(self.data_dir))
             elif parsed.path == "/api/memory":
                 self._send_json(collect_memory(self.data_dir))
             elif parsed.path == "/api/logs":
@@ -400,6 +536,13 @@ pre#log-view {
 .log-WARNING { color: var(--serious); }
 .log-DEBUG { color: var(--muted); }
 .empty { color: var(--muted); padding: 24px; text-align: center; }
+#health { margin: 12px 0 0; display: none; }
+#health.show { display: block; }
+#health ul { margin: 0; padding: 8px 12px 8px 30px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface); }
+#health li { margin: 2px 0; }
+#health li.error { color: var(--critical); }
+#health li.warning { color: var(--serious); }
 h3 { margin: 20px 0 8px; font-size: 14px; }
 .wrap { overflow-x: auto; }
 </style>
@@ -410,14 +553,17 @@ h3 { margin: 20px 0 8px; font-size: 14px; }
   <span id="service-status">loading…</span>
 </header>
 <main>
+  <div id="health"></div>
   <div class="tiles">
     <div class="tile"><div class="label">Jobs found</div><div class="value" id="tile-jobs">–</div></div>
     <div class="tile"><div class="label">Active users</div><div class="value" id="tile-users">–</div><div class="sub" id="tile-users-sub"></div></div>
     <div class="tile"><div class="label">Last scan</div><div class="value" id="tile-scan">–</div><div class="sub" id="tile-scan-sub"></div></div>
     <div class="tile"><div class="label">Scans queued / running</div><div class="value" id="tile-queue">–</div><div class="sub" id="tile-queue-sub"></div></div>
+    <div class="tile"><div class="label">Last run</div><div class="value" id="tile-run">–</div><div class="sub" id="tile-run-sub"></div></div>
   </div>
   <nav>
     <button data-tab="jobs" class="active">Jobs</button>
+    <button data-tab="runs">Runs</button>
     <button data-tab="users">Users</button>
     <button data-tab="logs">Logs</button>
     <button data-tab="memory">Memory</button>
@@ -427,10 +573,11 @@ h3 { margin: 20px 0 8px; font-size: 14px; }
       <label>User <select id="jobs-source"><option value="">all</option></select></label>
     </div>
     <div class="wrap"><table id="jobs-table">
-      <thead><tr><th>Score</th><th>Job</th><th>User</th><th>Status</th><th>Why</th></tr></thead>
+      <thead><tr><th>Score</th><th>Job</th><th>User</th><th>Found</th><th>Status</th><th>Why</th></tr></thead>
       <tbody></tbody>
     </table></div>
   </section>
+  <section id="tab-runs"><div id="runs-view"></div></section>
   <section id="tab-users">
     <div class="wrap"><table id="users-table">
       <thead><tr><th>User</th><th>State</th><th>Locations</th><th>Roles</th><th class="num">Jobs</th><th>Last scan</th></tr></thead>
@@ -487,6 +634,24 @@ function renderOverview(data) {
     $("#tile-queue-sub").textContent = "standalone mode";
     $("#service-status").textContent = "standalone (reading data/ only)";
   }
+  const health = data.health || {issues: []};
+  const banner = $("#health");
+  banner.className = health.issues.length ? "show" : "";
+  banner.innerHTML = health.issues.length
+    ? "<ul>" + health.issues.map((i) =>
+        `<li class="${esc(i.level)}">${esc(i.message)}</li>`).join("") + "</ul>"
+    : "";
+  const run = data.last_run;
+  if (run) {
+    $("#tile-run").textContent = run.accepted + " job" + (run.accepted === 1 ? "" : "s");
+    const dropped = (run.counters || []).filter((c) => c.name.startsWith("skipped_") ||
+      c.name.startsWith("rejected_") || c.name.startsWith("error_"));
+    $("#tile-run-sub").textContent = fmtAgo(run.started_at) +
+      (dropped.length ? " · " + dropped.reduce((n, c) => n + c.value, 0) + " dropped" : "");
+  } else {
+    $("#tile-run").textContent = "–";
+    $("#tile-run-sub").textContent = "no run recorded";
+  }
   const users = data.users || [];
   $("#users-table tbody").innerHTML = users.map((u) => `<tr>
     <td>${esc(u.name || u.chat_id)}</td>
@@ -506,9 +671,10 @@ function renderJobs() {
     <td><a href="${esc(j.url)}" target="_blank" rel="noopener">${esc(j.title || j.url)}</a>
       ${j.company && j.company !== "Unknown" ? "<br><span class='reason'>" + esc(j.company) + "</span>" : ""}</td>
     <td>${esc(j.source_name)}</td>
+    <td>${fmtAgo(j.found_at)}</td>
     <td>${esc(j.status)}</td>
     <td class="reason">${esc(j.reason)}</td>
-  </tr>`).join("") || `<tr><td colspan="5" class="empty">no jobs found yet</td></tr>`;
+  </tr>`).join("") || `<tr><td colspan="6" class="empty">no jobs found yet</td></tr>`;
 }
 
 function loadJobs() {
@@ -545,6 +711,30 @@ function loadLogs() {
       return `<span class="log-${m ? m[1] : "INFO"}">${esc(line)}</span>`;
     }).join("\\n") || '<span class="empty">log is empty</span>';
     if (follow) view.scrollTop = view.scrollHeight;
+  }).catch(() => {});
+}
+
+function loadRuns() {
+  getJSON("/api/runs").then((runs) => {
+    $("#runs-view").innerHTML = runs.map((r) => `
+      <h3>${esc(r.source_name)} — ${fmtAgo(r.started_at)}
+        <span class="badge ${r.accepted ? "good" : "muted"}">${r.accepted} accepted</span>
+        <span class="reason">${esc(r.duration_seconds ?? 0)}s, ${r.queries.length} queries</span></h3>
+      <div class="wrap"><table>
+        <thead><tr><th>Stage</th><th class="num">URLs</th></tr></thead>
+        <tbody>${r.counters.map((c) => `<tr>
+          <td>${esc(c.label)}</td><td class="num">${c.value}</td>
+        </tr>`).join("") || '<tr><td colspan="2" class="empty">nothing recorded</td></tr>'}</tbody>
+      </table></div>
+      ${r.errors.length ? `<div class="wrap" style="margin-top:8px"><table>
+        <thead><tr><th>Error</th><th>URL</th></tr></thead>
+        <tbody>${r.errors.map((e) => `<tr>
+          <td class="log-ERROR">${esc(e.kind)}</td>
+          <td class="reason">${esc(e.url)}<br>${esc(e.error)}</td>
+        </tr>`).join("")}</tbody></table></div>` : ""}
+      ${r.queries.length ? `<div class="reason" style="margin-top:8px">
+        Queries: ${esc(r.queries.join(" · "))}</div>` : ""}
+    `).join("") || '<div class="empty">no runs recorded yet — they appear after the next scan</div>';
   }).catch(() => {});
 }
 
@@ -593,6 +783,7 @@ function refresh() {
   });
   const tab = document.querySelector("nav button.active").dataset.tab;
   if (tab === "jobs") loadJobs();
+  if (tab === "runs") loadRuns();
   if (tab === "logs") loadLogs();
   if (tab === "memory") loadMemory();
 }

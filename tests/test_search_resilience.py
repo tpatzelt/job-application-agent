@@ -67,5 +67,8 @@ def test_legitimately_empty_results_are_not_retried(monkeypatch):
     engine, budget, calls = _make_engine(monkeypatch, [{"web": {"results": []}}])
     urls = engine.search("obscure query with no hits")
     assert urls == []
-    assert calls["count"] == 1
+    # Two Brave calls: the freshness-filtered one and the single unfiltered
+    # retry. An empty answer to both is taken at face value, not retried
+    # as if it were a transport failure.
+    assert calls["count"] == 2
     assert budget.search_iterations_used == 1

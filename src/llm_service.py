@@ -18,6 +18,20 @@ from .models import (
 from pydantic import ValidationError
 
 
+def _response_content(response: Any) -> str | None:
+    """The assistant message text, or None when the model returned nothing.
+
+    litellm mirrors the provider payload, and providers do answer with
+    `content: null` (empty completion, reasoning-only output, truncated
+    stream), so this can never be assumed to be a string.
+    """
+    try:
+        content = response["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        return None
+    return content if isinstance(content, str) else None
+
+
 class LLMService:
     def __init__(self, config: Config, budget: EffortBudget, api_key: str | None):
         self._config = config
@@ -145,7 +159,20 @@ class LLMService:
                     temperature=self._config.llm_temperature,
                     api_key=self._api_key,
                 )
-                return response["choices"][0]["message"]["content"]
+                content = _response_content(response)
+                if content:
+                    return content
+                # Free/small models sometimes answer with null content.
+                # Returning it would blow up in json.loads far from here.
+                last_error = RuntimeError("LLM returned an empty response")
+                self._logger.warning(
+                    "LLM returned empty content on attempt %s/%s",
+                    attempt,
+                    self._config.llm_max_retries,
+                )
+                if attempt < self._config.llm_max_retries:
+                    time.sleep(self._config.llm_min_delay_seconds)
+                continue
             except Exception as exc:
                 last_error = exc
                 self._logger.warning(
@@ -158,7 +185,11 @@ class LLMService:
                     time.sleep(self._config.llm_min_delay_seconds)
         raise RuntimeError(f"LLM request failed: {last_error}")
 
-    def _parse_json_payload(self, response_text: str, prompt: str) -> dict[str, Any]:
+    def _parse_json_payload(
+        self, response_text: str | None, prompt: str
+    ) -> dict[str, Any]:
+        if not response_text:
+            return self._retry_json_response(prompt, response_text or "")
         try:
             payload = json.loads(response_text)
             payload = self._normalize_payload(payload)
@@ -213,7 +244,9 @@ class LLMService:
             temperature=0.0,
             api_key=self._api_key,
         )
-        fixed = response["choices"][0]["message"]["content"]
+        fixed = _response_content(response)
+        if not fixed:
+            raise RuntimeError("LLM repair call returned an empty response")
         try:
             payload = json.loads(fixed)
             return self._normalize_payload(payload)
