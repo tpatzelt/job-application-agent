@@ -463,6 +463,28 @@ def test_empty_scan_explanation_when_fetched_with_one_drop_reason() -> None:
     )
 
 
+def test_empty_scan_explanation_names_query_generation_failure_when_nothing_fetched() -> (
+    None
+):
+    report = RunReport.start()
+    report.count("error_query_generation_failed", 1)
+
+    assert _empty_scan_explanation(report) == (
+        "I could not fetch any job pages this run. Errors: "
+        f"1 {COUNTER_LABELS['error_query_generation_failed']}."
+    )
+
+
+def test_empty_scan_explanation_names_fetch_failures_alongside_pages_fetched() -> None:
+    report = RunReport.start()
+    report.count("pages_fetched", 3)
+    report.count("error_fetch_failed", 2)
+
+    assert _empty_scan_explanation(report) == (
+        f"Checked 3 job page(s). Errors: 2 {COUNTER_LABELS['error_fetch_failed']}."
+    )
+
+
 def test_run_scan_sends_no_new_jobs_message_at_send_boundary(
     tmp_path: Path, monkeypatch: Any
 ) -> None:
@@ -507,6 +529,54 @@ def test_run_scan_sends_no_new_jobs_message_at_send_boundary(
         "\U0001f50d Scan finished - no new matching jobs this time."
     )
     assert text.endswith(_empty_scan_explanation(report))
+
+
+def test_run_scan_names_query_generation_failure_at_send_boundary(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    import src.bot_service as bot_service_module
+
+    sent = _capture_telegram_sends(monkeypatch)
+    svc = _service(tmp_path)
+    record = svc._store.load("1")
+    record.state = STATE_ACTIVE
+    record.preferences = {"job_titles": ["Engineer"], "locations": ["Berlin"]}
+    svc._store.save(record)
+    svc._store.save_document("1", "cv", "x" * 200)
+
+    report = RunReport.start()
+    report.count("error_query_generation_failed", 1)
+
+    class FakeLLMService:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    class FakeCrawlerEngine:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            pass
+
+    class FakeOrchestrator:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            self.last_report = report
+
+        def run(self, **kwargs: Any) -> list[Any]:
+            return []
+
+    monkeypatch.setattr(bot_service_module, "LLMService", FakeLLMService)
+    monkeypatch.setattr(bot_service_module, "CrawlerEngine", FakeCrawlerEngine)
+    monkeypatch.setattr(bot_service_module, "Orchestrator", FakeOrchestrator)
+
+    svc._run_scan("1")
+
+    assert len(sent) == 1
+    text = sent[0]["text"]
+    assert text.startswith(
+        "\U0001f50d Scan finished - no new matching jobs this time."
+    )
+    assert text.endswith(
+        "I could not fetch any job pages this run. Errors: "
+        f"1 {COUNTER_LABELS['error_query_generation_failed']}."
+    )
 
 
 def test_run_scan_sends_notify_failed_message_at_send_boundary(
