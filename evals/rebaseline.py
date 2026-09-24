@@ -24,6 +24,11 @@ from .offline_eval import format_table
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CORPUS_DIR = ROOT / "evals" / "fixtures"
+BASELINE_FILE = ROOT / "evals" / "baseline.json"
+# Only consulted when the baseline records no revision of its own. These are
+# moving refs: they resolved to the arming commit while this work sat unmerged
+# in a sandbox whose origin/main *was* that commit, and stopped the moment it
+# merged. The pin in baseline.json is what makes the comparison durable.
 CANDIDATE_REVISIONS = ("origin/main", "refs/remotes/origin/main", "main")
 
 class RebaselineError(RuntimeError):
@@ -44,13 +49,38 @@ def _verify(rev: str) -> str | None:
     except RebaselineError:
         return None
 
+def _pinned_revision() -> str | None:
+    """The arming revision recorded in `evals/baseline.json`, if any.
+
+    The baseline numbers mean nothing apart from the commit they were derived
+    from, so the pin lives in the same file as the numbers.
+    """
+    try:
+        recorded = json.loads(BASELINE_FILE.read_text(encoding="utf-8")).get("revision")
+    except (OSError, ValueError):
+        return None
+    return recorded if isinstance(recorded, str) and recorded.strip() else None
+
 def resolve_revision(rev: str | None = None) -> str:
     """Full commit hash to replay against: `rev` verbatim if given (no
-    fallback), else the first of `CANDIDATE_REVISIONS` that verifies."""
+    fallback), else the revision pinned in `evals/baseline.json`, else the
+    first of `CANDIDATE_REVISIONS` that verifies."""
     if rev is not None:
         resolved = _verify(rev)
         if resolved is None:
             raise RebaselineError(f"revision {rev!r} does not resolve to a commit")
+        return resolved
+    pinned = _pinned_revision()
+    if pinned is not None:
+        resolved = _verify(pinned)
+        if resolved is None:
+            # Deliberately not falling through to the moving refs: replaying
+            # today's src against its own baseline silently "passes" the
+            # comparison it exists to make. A shallow clone lands here.
+            raise RebaselineError(
+                f"the baseline's revision {pinned[:12]} is not in this checkout "
+                "(a shallow clone?); fetch it, or pass --rev explicitly"
+            )
         return resolved
     for candidate in CANDIDATE_REVISIONS:
         resolved = _verify(candidate)
@@ -104,7 +134,7 @@ def build_baseline(report: dict[str, Any], rev: str) -> dict[str, Any]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Recompute the G1 baseline against a past revision's src/")
     parser.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS_DIR)
-    parser.add_argument("--rev", default=None, help="default: origin/main, refs/remotes/origin/main, main")
+    parser.add_argument("--rev", default=None, help="default: the revision pinned in evals/baseline.json")
     parser.add_argument("--out", type=Path, default=None, help="write a baseline JSON (default: print only)")
     args = parser.parse_args(argv)
 
