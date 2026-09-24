@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from src.intake import (
+    HELP_TEXT,
     MIN_PASTED_DOC_CHARS,
     QUESTION_LANGUAGE,
     QUESTION_LOCATIONS,
@@ -472,8 +473,7 @@ def test_active_state_chat_reply(tmp_path: Path) -> None:
     assert store.load("42").state == STATE_ACTIVE
 
     reply = manager.handle_message(_msg("what's up"))
-    assert "You're all set up - I'm scanning for jobs regularly." in reply
-    assert "/status - your profile and search parameters" in reply
+    assert reply == "You're all set up - I'm scanning for jobs regularly.\n" + HELP_TEXT
     assert store.load("42").state == STATE_ACTIVE
 
 
@@ -487,9 +487,15 @@ def test_start_reply_when_already_active(tmp_path: Path) -> None:
     assert store.load("42").state == STATE_ACTIVE
 
     reply = manager.handle_message(_msg("/start"))
-    assert "You're already set up." in reply
-    assert "Your search parameters:" in reply
-    assert "Use /run to scan now or /reset to start over." in reply
+    assert reply == (
+        "You're already set up. Your search parameters:\n"
+        "\U0001f3af Roles: Project Manager\n"
+        "\U0001f4cd Locations: Berlin, Germany\n"
+        "\U0001f511 Keywords: digital transformation\n"
+        "\U0001f3ed Industries: public sector\n"
+        "\U0001f310 Language: English\n\n"
+        "Use /run to scan now or /reset to start over."
+    )
     assert store.load("42").state == STATE_ACTIVE
 
 
