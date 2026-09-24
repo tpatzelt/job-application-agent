@@ -40,6 +40,12 @@ def _empty_scan_explanation(report: RunReport) -> str:
         for name, value in report.counters.items()
         if value and (name.startswith("skipped_") or name.startswith("rejected_"))
     ]
+    errors = [
+        f"{value} {COUNTER_LABELS.get(name, name)}"
+        for name, value in report.counters.items()
+        if value and name.startswith("error_")
+    ]
+    error_suffix = f" Errors: {', '.join(errors)}." if errors else ""
     checked = report.counters.get("pages_fetched", 0)
     if not checked:
         seen_before = report.counters.get("already_seen", 0)
@@ -47,11 +53,11 @@ def _empty_scan_explanation(report: RunReport) -> str:
             return (
                 f"Every posting today's searches returned ({seen_before}) was one "
                 "I had already checked for you."
-            )
-        return "I could not fetch any job pages this run."
+            ) + error_suffix
+        return "I could not fetch any job pages this run." + error_suffix
     if not reasons:
-        return f"Checked {checked} job page(s)."
-    return f"Checked {checked} job page(s): " + ", ".join(reasons) + "."
+        return f"Checked {checked} job page(s)." + error_suffix
+    return f"Checked {checked} job page(s): " + ", ".join(reasons) + "." + error_suffix
 
 
 def _format_missing_profile_message(cv_missing: bool, prefs_missing: bool) -> str:
