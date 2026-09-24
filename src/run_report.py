@@ -31,6 +31,9 @@ COUNTER_LABELS = {
     "rejected_domain": "rejected: industry mismatch",
     "rejected_low_score": "rejected: score below threshold",
     "notify_failed": "accepted jobs whose Telegram notification failed",
+    "error_query_generation_failed": "search-query generation failed (LLM error)",
+    "error_fetch_failed": "page fetches failed",
+    "error_evaluate_failed": "LLM scoring failed",
 }
 
 
