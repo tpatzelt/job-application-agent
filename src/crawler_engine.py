@@ -215,6 +215,11 @@ class CrawlerEngine:
         # Rate limiting for Brave Search: ensure at most 1 request per 1.5s
         self._brave_lock = threading.Lock()
         self._last_brave_search = 0.0
+        # Set by search() on a transport-level Brave failure; None on a
+        # legitimately empty result or when the budget is exhausted before
+        # a call is even attempted. Read by the orchestrator after each
+        # search() call to record the failure in the RunReport.
+        self.last_search_error: str | None = None
 
     def search(
         self,
@@ -222,6 +227,7 @@ class CrawlerEngine:
         country: str | None = None,
         search_lang: str | None = None,
     ) -> list[str]:
+        self.last_search_error = None
         if not self._budget.can_search():
             # Don't raise here; let the orchestrator stop iterating gracefully.
             self._logger.warning(
@@ -267,11 +273,11 @@ class CrawlerEngine:
         payload = self._run_brave_search_with_backoff(request_payload)
         if not payload or "error" in payload:
             # Transport-level failure: don't consume search budget for it.
+            error = (payload or {}).get("error", "empty payload")
             self._logger.warning(
-                "Brave search failed for query %r: %s",
-                query,
-                (payload or {}).get("error", "empty payload"),
+                "Brave search failed for query %r: %s", query, error
             )
+            self.last_search_error = str(error)
             return []
         self._budget.record_search_iteration()
         web_results = payload.get("web", {}).get("results", [])
