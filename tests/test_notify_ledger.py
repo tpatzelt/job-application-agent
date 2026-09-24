@@ -130,6 +130,32 @@ def test_ledger_path_none_preserves_prior_behaviour(monkeypatch):
     assert len(sent) == 2
 
 
+def test_unwritable_ledger_still_delivers_and_does_not_resend_in_same_notifier(
+    tmp_path, monkeypatch, caplog
+):
+    sent = []
+
+    def fake_post(url, json, timeout):
+        sent.append(json["text"])
+        return _Response()
+
+    monkeypatch.setattr(requests, "post", fake_post)
+    blocker = tmp_path / "blocker"
+    blocker.write_text("not a directory")
+    ledger_path = blocker / "notified.json"
+
+    notifier = TelegramNotifier("token", "chat", ledger_path=ledger_path)
+
+    with caplog.at_level("WARNING"):
+        assert notifier.notify_results([_result()]) is True
+    assert len(sent) == 1
+    assert "Why: matches your Python skills" in sent[0]
+    assert "Could not write notification ledger" in caplog.text
+
+    assert notifier.notify_results([_result()]) is True
+    assert len(sent) == 1
+
+
 def test_ledger_records_canonical_url_not_raw_url(tmp_path, monkeypatch):
     sent = []
 
