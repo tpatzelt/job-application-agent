@@ -116,7 +116,11 @@ after its message actually sends, and checked across restarts and within a
 single run's results. In the bot service, if a scan fails you get a warning
 naming the exception; if Telegram delivery of a scan's jobs fails, you're
 told how many jobs were accepted and that they won't be resent
-automatically. If a scan is due for an active user who never finished
+automatically. A "no new matching jobs" message is not always a clean empty
+result: it also explains where pages were dropped (already seen, stale,
+wrong location, ...), and if the run hit search, query-generation, fetch, or
+scoring failures, it appends an `Errors:` line naming them (e.g. "web
+searches failed (Brave API error)"). If a scan is due for an active user who never finished
 setup, they get a "Scan did not run" message naming what is missing (your
 CV and/or your job preferences) and telling them to send /start or /reset;
 the scan attempt is timestamped either way, so the scheduler does not
