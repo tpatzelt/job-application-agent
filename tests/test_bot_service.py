@@ -485,6 +485,16 @@ def test_empty_scan_explanation_names_fetch_failures_alongside_pages_fetched() -
     )
 
 
+def test_empty_scan_explanation_names_search_failure_when_nothing_fetched() -> None:
+    report = RunReport.start()
+    report.count("error_search_failed", 1)
+
+    assert _empty_scan_explanation(report) == (
+        "I could not fetch any job pages this run. Errors: "
+        f"1 {COUNTER_LABELS['error_search_failed']}."
+    )
+
+
 def test_run_scan_sends_no_new_jobs_message_at_send_boundary(
     tmp_path: Path, monkeypatch: Any
 ) -> None:
