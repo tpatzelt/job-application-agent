@@ -5,7 +5,12 @@ from zoneinfo import ZoneInfo
 
 import requests
 
-from src.bot_service import BotService, _empty_scan_explanation, _format_scan_error
+from src.bot_service import (
+    BotService,
+    _empty_scan_explanation,
+    _format_missing_profile_message,
+    _format_scan_error,
+)
 from src.config_manager import Config, EffortBudget
 from src.intake import HELP_TEXT, MIN_PASTED_DOC_CHARS, WELCOME
 from src.run_report import COUNTER_LABELS, RunReport
@@ -589,3 +594,137 @@ def test_run_scan_sends_no_notify_failed_message_when_notify_succeeds(
     svc._run_scan("1")
 
     assert sent == []
+
+
+# ---------------------------------------------------------------------------
+# T-0052: an active user whose CV or preferences are missing gets told why
+# their scan did not run, and is not re-queued every minute for it.
+
+
+def _fail_if_constructed(name: str) -> type:
+    class _Fails:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            raise AssertionError(
+                f"{name} must not be constructed for a missing-profile scan"
+            )
+
+    return _Fails
+
+
+def _patch_llm_crawler_orchestrator_to_fail(monkeypatch: Any) -> None:
+    import src.bot_service as bot_service_module
+
+    monkeypatch.setattr(
+        bot_service_module, "LLMService", _fail_if_constructed("LLMService")
+    )
+    monkeypatch.setattr(
+        bot_service_module, "CrawlerEngine", _fail_if_constructed("CrawlerEngine")
+    )
+    monkeypatch.setattr(
+        bot_service_module, "Orchestrator", _fail_if_constructed("Orchestrator")
+    )
+
+
+def test_run_scan_missing_profile_cv_missing_sends_single_message(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    sent = _capture_telegram_sends(monkeypatch)
+    _patch_llm_crawler_orchestrator_to_fail(monkeypatch)
+    svc = _service(tmp_path)
+    record = svc._store.load("1")
+    record.state = STATE_ACTIVE
+    record.preferences = {"job_titles": ["Engineer"], "locations": ["Berlin"]}
+    svc._store.save(record)
+    # No CV document saved.
+
+    svc._run_scan("1")
+
+    assert len(sent) == 1
+    text = sent[0]["text"]
+    assert "CV" in text
+    assert "preferences" not in text
+    assert "/start" in text
+
+
+def test_run_scan_missing_profile_preferences_missing_sends_single_message(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    sent = _capture_telegram_sends(monkeypatch)
+    _patch_llm_crawler_orchestrator_to_fail(monkeypatch)
+    svc = _service(tmp_path)
+    record = svc._store.load("1")
+    record.state = STATE_ACTIVE
+    record.preferences = {}
+    svc._store.save(record)
+    svc._store.save_document("1", "cv", "x" * 200)
+
+    svc._run_scan("1")
+
+    assert len(sent) == 1
+    text = sent[0]["text"]
+    assert "CV" not in text
+    assert "preferences" in text
+    assert "/start" in text
+
+
+def test_run_scan_missing_profile_both_missing_sends_single_message(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    sent = _capture_telegram_sends(monkeypatch)
+    _patch_llm_crawler_orchestrator_to_fail(monkeypatch)
+    svc = _service(tmp_path)
+    record = svc._store.load("1")
+    record.state = STATE_ACTIVE
+    record.preferences = {}
+    svc._store.save(record)
+    # No CV document saved.
+
+    svc._run_scan("1")
+
+    assert len(sent) == 1
+    text = sent[0]["text"]
+    assert "CV" in text
+    assert "preferences" in text
+    assert "/start" in text
+
+
+def test_run_scan_missing_profile_sets_last_scan_at_so_scheduler_stops_requeuing(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    _capture_telegram_sends(monkeypatch)
+    _patch_llm_crawler_orchestrator_to_fail(monkeypatch)
+    svc = _service(tmp_path, bot_scan_hour=7, bot_scan_timezone="UTC")
+    record = svc._store.load("1")
+    record.state = STATE_ACTIVE
+    record.preferences = {}
+    svc._store.save(record)
+    # No CV document saved.
+
+    now = _epoch("UTC", 2026, 1, 15, 8)  # past 07:00
+    monkeypatch.setattr("src.bot_service.time.time", lambda: now)
+
+    svc._run_scan("1")
+
+    saved = svc._store.load("1")
+    assert saved.last_scan_at != 0
+    assert svc._is_due(saved.last_scan_at, now) is False
+
+
+def test_format_missing_profile_message_names_cv_only() -> None:
+    text = _format_missing_profile_message(cv_missing=True, prefs_missing=False)
+    assert "your CV" in text
+    assert "preferences" not in text
+    assert "/start" in text
+    assert "/reset" in text
+
+
+def test_format_missing_profile_message_names_preferences_only() -> None:
+    text = _format_missing_profile_message(cv_missing=False, prefs_missing=True)
+    assert "CV" not in text
+    assert "your job preferences" in text
+
+
+def test_format_missing_profile_message_names_both() -> None:
+    text = _format_missing_profile_message(cv_missing=True, prefs_missing=True)
+    assert "your CV" in text
+    assert "your job preferences" in text
