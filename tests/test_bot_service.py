@@ -90,6 +90,24 @@ def test_format_scan_error_names_exception_and_cause() -> None:
     assert "/run" in message
 
 
+def test_format_scan_error_exact_text() -> None:
+    exc = ValueError("Brave API returned 503")
+    message = _format_scan_error(exc)
+    assert message == (
+        "⚠️ The job scan hit an error (ValueError: Brave API returned 503). "
+        "I'll try again at the next scheduled run - you can also send /run to retry sooner."
+    )
+
+
+def test_format_scan_error_exception_without_message_names_type_only() -> None:
+    exc = TimeoutError()
+    message = _format_scan_error(exc)
+    assert message == (
+        "⚠️ The job scan hit an error (TimeoutError). "
+        "I'll try again at the next scheduled run - you can also send /run to retry sooner."
+    )
+
+
 def test_format_scan_error_scrubs_bot_token_and_query_string() -> None:
     exc = requests.exceptions.RequestException(
         "HTTPSConnectionPool: Max retries exceeded with url: "
@@ -117,6 +135,10 @@ def test_format_scan_error_truncates_long_cause_within_telegram_limit() -> None:
     message = _format_scan_error(exc)
     assert len(message) < MAX_MESSAGE_CHARS
     assert "RuntimeError" in message
+    assert message == (
+        "⚠️ The job scan hit an error (RuntimeError: " + "x" * 300 + "…). "
+        "I'll try again at the next scheduled run - you can also send /run to retry sooner."
+    )
 
 
 def test_scan_worker_sends_error_naming_failure(tmp_path: Path) -> None:
