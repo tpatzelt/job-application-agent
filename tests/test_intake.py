@@ -92,6 +92,29 @@ COMPLETE = IntakeExtraction(
     language="English",
 )
 
+# The exact finalize reply _finalize produces (src/intake.py) for the COMPLETE
+# extraction with the default scan_hour=7 and scan_timezone="UTC".
+FULL_INTAKE_REPLY = (
+    "🎉 You're all set!\n\n"
+    "🎯 Roles: Project Manager\n"
+    "📍 Locations: Berlin, Germany\n"
+    "🔑 Keywords: digital transformation\n"
+    "🏭 Industries: public sector\n"
+    "🌐 Language: English\n\n"
+    "I'll scan for matching jobs every morning around 07:00 (UTC) and message you when I find new ones. Use /run to start a scan right now, /status to check your setup, or /reset to change your documents."
+)
+
+# The exact finalize reply when LLM extraction fails entirely and preferences
+# come from _fallback_extraction over the raw answers (no industries).
+FALLBACK_FINALIZE_REPLY = (
+    "🎉 You're all set!\n\n"
+    "🎯 Roles: Data Scientist, ML Engineer\n"
+    "📍 Locations: Munich, Germany\n"
+    "🔑 Keywords: data, science, jobs, please\n"
+    "🌐 Language: German\n\n"
+    "I'll scan for matching jobs every morning around 07:00 (UTC) and message you when I find new ones. Use /run to start a scan right now, /status to check your setup, or /reset to change your documents."
+)
+
 
 def test_full_intake_happy_path(tmp_path: Path) -> None:
     extractor = ScriptedExtractor([COMPLETE])
@@ -112,13 +135,28 @@ def test_full_intake_happy_path(tmp_path: Path) -> None:
     reply = manager.handle_message(_msg("PM roles in Berlin, public sector"))
     record = store.load("42")
     assert record.state == STATE_ACTIVE
-    assert "all set" in reply
+    assert reply == FULL_INTAKE_REPLY
     assert record.preferences["job_titles"] == ["Project Manager"]
     assert record.preferences["location"] == "Berlin, Germany"
     assert record.preferences["locations"] == ["Berlin, Germany"]
     assert record.preferences["industries"] == ["public sector"]
     assert record.preferences["language"] == "english"
     assert extractor.calls[0]["prefs"] == "PM roles in Berlin, public sector"
+
+
+def test_finalize_reply_uses_configured_schedule(tmp_path: Path) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    store = UserStore(tmp_path)
+    manager = IntakeManager(
+        store, FakeDownloader(), extractor, scan_hour=9, scan_timezone="Europe/Berlin"
+    )
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    manager.handle_message(_msg("/skip"))
+    reply = manager.handle_message(_msg("PM roles in Berlin, public sector"))
+
+    assert store.load("42").state == STATE_ACTIVE
+    assert "every morning around 09:00 (Europe/Berlin)" in reply
 
 
 def test_missing_location_triggers_question_then_finalizes(tmp_path: Path) -> None:
@@ -166,7 +204,7 @@ def test_extraction_failure_falls_back_to_answers(tmp_path: Path) -> None:
     assert record.preferences["location"] == "Munich, Germany"
     assert record.preferences["job_titles"] == ["Data Scientist", "ML Engineer"]
     assert record.preferences["language"] == "german"
-    assert "all set" in reply
+    assert reply == FALLBACK_FINALIZE_REPLY
 
 
 def test_pasted_cv_text_accepted(tmp_path: Path) -> None:
