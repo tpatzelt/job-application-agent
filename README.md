@@ -104,8 +104,27 @@ TELEGRAM_CHAT_ID=your_chat_id
 
 When `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are set, every run ends by
 sending the newly accepted jobs (title, score, URL) to your Telegram chat.
+Each entry also has a `Why:` line explaining the match (falling back to
+"the evaluator gave no explanation" when the LLM left the reason blank).
 Runs that find nothing send nothing. Disable via `telegram = false` in
 `[tool.job_crawler.notify]`.
+
+A posting is never notified twice: `notified.json`, stored next to the
+seen-URL cache (for the bot, under each user's `data/users/<chat_id>/`), is a
+durable ledger of every already-sent job, recorded by canonical URL only
+after its message actually sends, and checked across restarts and within a
+single run's results. In the bot service, if a scan fails you get a warning
+naming the exception; if Telegram delivery of a scan's jobs fails, you're
+told how many jobs were accepted and that they won't be resent
+automatically. A "no new matching jobs" message is not always a clean empty
+result: it also explains where pages were dropped (already seen, stale,
+wrong location, ...), and if the run hit search, query-generation, fetch, or
+scoring failures, it appends an `Errors:` line naming them (e.g. "web
+searches failed (Brave API error)"). If a scan is due for an active user who never finished
+setup, they get a "Scan did not run" message naming what is missing (your
+CV and/or your job preferences) and telling them to send /start or /reset;
+the scan attempt is timestamped either way, so the scheduler does not
+re-prompt them on every tick.
 
 One-time setup:
 
@@ -161,6 +180,86 @@ uv run python run_mock_test.py # mock end-to-end run of the real orchestrator, n
 ```
 
 Mock mode wires `MockLLM`/`MockCrawler` fakes through the same `Orchestrator` used in production and asserts exact call counts for planning, query generation, evaluation, and reflection. CI runs both on every push/PR to `main`.
+
+## Offline result-quality harness (G1)
+
+The harness is fully offline: it needs no `BRAVE_API_KEY` or `OPENROUTER_API_KEY`, replaying a
+hand-labelled, committed corpus (`evals/fixtures/`, since `evals/runs/` is gitignored) through
+the real triage/dedup logic instead of calling Brave or an LLM.
+
+```bash
+uv run python -m evals.offline_eval                 # print the metric table, write a report
+uv run python -m evals.offline_eval --check-baseline # compare against evals/baseline.json, exit 1 on regression
+```
+
+The report lands in `evals/runs/offline/report.json` (gitignored). `--corpus` can point at a
+different corpus directory, e.g. one built from a real recorded run, instead of the default
+fixtures.
+
+"Kept" means *would be reported as a result*, not merely "would be fetched". The replay applies
+every drop rule in production order (dedup by canonical URL, non-job URL, aggregator index page,
+redirected/dead/empty/stale page, search/landing page served in place of a posting, no preferred
+location) and then keeps only URLs that classify
+as `POSTING`: `Orchestrator._process_url` harvests posting links out of a careers or board page
+and returns without scoring the hub itself, so a LISTING or INDEX page never becomes a
+`JobResult`. One case is deliberately approximated — a LISTING page from which no posting links
+can be harvested *is* scored directly in production, but corpus records carry no links field, so
+the harness cannot replay that branch and counts such hubs as dropped.
+
+Each metric is a rate in `[0, 1]` (`n/a` when its denominator is empty):
+
+- **posting_shape_rate** — of the records kept by triage, the fraction that are actually job postings.
+- **aggregator_drop_rate** — of the labelled aggregator index pages, the fraction triage correctly dropped.
+- **location_match_rate** — of the records kept by triage, the fraction that mention one of the profile's preferred locations.
+- **staleness_detection_rate** — of the labelled-stale records, the fraction triage correctly dropped.
+- **dedup_rate** — of the labelled duplicate records, the fraction that collapse onto their original URL under canonicalization.
+
+### The corpus
+
+One JSONL file per search profile under `evals/fixtures/`; the file stem must name an entry in
+`evals/profiles.py`, because that is where the profile's preferred locations come from (an
+unknown stem yields no locations and `location_match_rate` stops meaning anything). Each line is
+one recorded page — `url`, `title`, `final_url`, `http_status`, `text` — plus a `label` holding
+the ground truth: `kind` (`posting`/`listing`/`index`/`other`), `aggregator`, `stale`,
+`location_ok`, and `duplicate_of` (the URL this record is a duplicate of, or `null`).
+
+Labels are read off the page by a human. They are never computed from `classify_url`,
+`is_aggregator_url` or `find_stale_marker` — deriving them from the code under test would make
+every metric tautological.
+
+The corpus deliberately carries the URL shapes the deterministic logic gets *wrong*, since a
+corpus it already handles cannot show a change in quality:
+
+- postings and board roots on ATS vendors `url_heuristics._ats_kind` has no rule for
+  (BambooHR, Teamtailor, iCIMS, Jobvite, softgarden, Pinpoint);
+- non-postings whose path looks like a job id — aggregator category, employer and skill pages
+  such as `jobs.meinestadt.de/<city>/skills/<id>`, and `/careers/<year>/<slug>` blog posts;
+- index pages on each of the twelve aggregator hosts added to `AGGREGATOR_HOSTS` after arming;
+- near-duplicate pairs that differ only by scheme, a leading `www.`, a tracking parameter,
+  an `/apply` suffix, or query-parameter order;
+- postings closed with the English and German wordings `page_signals.STALE_PHRASES` grew later.
+
+URL shapes and page wording were sourced from live Brave searches against the real boards, so
+the corpus reflects what the agent actually meets rather than what the heuristics expect.
+
+### Baseline
+
+`evals/baseline.json` is committed against the *arming* revision's `src/`, not the working
+tree, so G2's "improves over baseline" comparison stays honest as the codebase and corpus both
+move; `uv run python -m evals.rebaseline --corpus evals/fixtures` recomputes it by exporting
+`src/` at a chosen revision (`--rev`, default the arming revision) via `git archive` into an
+isolated tmpdir and replaying there — pass `--out <file>` to write a new baseline JSON, or
+omit it to print only (it never writes `evals/baseline.json` itself).
+
+Re-freeze the baseline whenever the corpus changes — the numbers only compare if both sides ran
+over the same records:
+
+```bash
+uv run python -m evals.rebaseline --corpus evals/fixtures --out evals/baseline.json
+```
+
+The tool writes the resolved absolute corpus path into `corpus_dir`; nothing reads that field
+(only `totals.metrics` is compared), so set it back to `evals/fixtures` before committing.
 
 ## Outputs
 

@@ -12,7 +12,12 @@ from .config_manager import Config, EffortBudget
 from .job_meta import extract_job_meta
 from .language import detect_language, language_code_for, normalize_language
 from .models import JobResult, Reflection, SearchPlan
-from .page_signals import country_code_for, find_stale_marker, mentions_location
+from .page_signals import (
+    country_code_for,
+    find_landing_marker,
+    find_stale_marker,
+    mentions_location,
+)
 from .run_report import RunReport, runs_path_for
 from .tools import ToolRegistry
 from .url_heuristics import (
@@ -179,6 +184,11 @@ class Orchestrator:
                 urls = self._tools.invoke(
                     "search", query, country=country, search_lang=search_lang
                 )
+                search_error = getattr(self._crawler, "last_search_error", None)
+                if search_error:
+                    report.record_error(
+                        "search_failed", query, RuntimeError(search_error)
+                    )
                 report.count("urls_found", len(urls))
                 new_urls = self._new_urls(urls, seen_urls, report)
                 postings, listings, low_priority = self._triage_urls(
@@ -273,9 +283,13 @@ class Orchestrator:
         if self._notifier is None:
             return
         try:
-            self._notifier.notify_results(results)
+            sent_all = self._notifier.notify_results(results)
         except Exception as exc:
             self._logger.warning("Notification failed: %s", exc)
+            self._report.count("notify_failed")
+            return
+        if not sent_all:
+            self._report.count("notify_failed")
 
     def _ats_queries(
         self,
@@ -440,6 +454,14 @@ class Orchestrator:
                 "Skipping stale posting %s (marker: %r)", url, stale_marker
             )
             self._report.count("skipped_stale")
+            seen_urls.add(url)
+            return False
+        landing_marker = find_landing_marker(job_text)
+        if landing_marker:
+            self._logger.info(
+                "Skipping landing page %s (marker: %r)", url, landing_marker
+            )
+            self._report.count("skipped_landing")
             seen_urls.add(url)
             return False
         # Deterministic location gate: small models sometimes ignore the

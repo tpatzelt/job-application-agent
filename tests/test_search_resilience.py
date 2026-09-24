@@ -53,6 +53,9 @@ def test_transient_error_is_retried(monkeypatch):
     assert urls == ["https://example.com/jobs/1"]
     assert calls["count"] == 2
     assert budget.search_iterations_used == 1
+    # The retry inside _run_brave_search_with_backoff succeeded, so the
+    # failure never reaches search()'s own error branch.
+    assert engine.last_search_error is None
 
 
 def test_persistent_error_returns_empty_without_consuming_budget(monkeypatch):
@@ -61,6 +64,7 @@ def test_persistent_error_returns_empty_without_consuming_budget(monkeypatch):
     assert urls == []
     assert calls["count"] == 3
     assert budget.search_iterations_used == 0
+    assert engine.last_search_error == "Request failed"
 
 
 def test_legitimately_empty_results_are_not_retried(monkeypatch):
@@ -72,3 +76,24 @@ def test_legitimately_empty_results_are_not_retried(monkeypatch):
     # as if it were a transport failure.
     assert calls["count"] == 2
     assert budget.search_iterations_used == 1
+    assert engine.last_search_error is None
+
+
+def test_exhausted_budget_is_not_recorded_as_a_search_error(monkeypatch):
+    engine, budget, calls = _make_engine(monkeypatch, [GOOD_PAYLOAD])
+    budget.search_iterations_used = budget.max_search_iterations
+    urls = engine.search("python jobs")
+    assert urls == []
+    assert calls["count"] == 0
+    assert engine.last_search_error is None
+
+
+def test_last_search_error_resets_on_next_good_search(monkeypatch):
+    engine, _, _ = _make_engine(monkeypatch, [{"error": "Request failed"}])
+    engine.search("python jobs")
+    assert engine.last_search_error == "Request failed"
+
+    monkeypatch.setattr(crawler_engine, "BRAVE_SEARCH", lambda payload: GOOD_PAYLOAD)
+    urls = engine.search("python jobs")
+    assert urls == ["https://example.com/jobs/1"]
+    assert engine.last_search_error is None

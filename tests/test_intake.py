@@ -5,13 +5,15 @@ from pathlib import Path
 import pytest
 
 from src.intake import (
+    HELP_TEXT,
     MIN_PASTED_DOC_CHARS,
     QUESTION_LANGUAGE,
     QUESTION_LOCATIONS,
+    QUESTION_ROLES,
     IntakeManager,
 )
 from src.models import IntakeExtraction
-from src.telegram_api import IncomingDocument, IncomingMessage
+from src.telegram_api import IncomingDocument, IncomingMessage, TelegramError
 from src.user_store import (
     STATE_ACTIVE,
     STATE_AWAITING_ANSWER,
@@ -23,6 +25,26 @@ from src.user_store import (
 
 CV_TEXT = "Experienced project manager. " * 20
 
+# The exact replies _document_or_text produces (src/intake.py:312-329) for a
+# too-short pasted answer and for a document that fails extraction.
+SHORT_TEXT_REPLY = (
+    "Please upload a document (PDF, DOCX, or text file) or paste "
+    "the content as a message."
+)
+UNREADABLE_DOC_REPLY = (
+    "⚠️ Could not extract readable text from the document. If it is a "
+    "scanned PDF, please send a text-based PDF, DOCX, or plain text.\n\n"
+    "Please try another file."
+)
+
+# The exact job-prefs prompt (src/intake.py:336-342).
+JOB_PREFS_PROMPT = (
+    "Now describe the jobs you're looking for: roles, industries, "
+    "seniority, remote/on-site, and where you want to work "
+    "(country and cities). You can also upload a document. "
+    "Send /skip to let me infer everything from your CV."
+)
+
 
 class FakeDownloader:
     def __init__(self, payload: bytes = CV_TEXT.encode()) -> None:
@@ -30,6 +52,13 @@ class FakeDownloader:
 
     def download_document(self, document: IncomingDocument) -> bytes:
         return self.payload
+
+
+class FailingDownloader:
+    """download_document always raises, simulating a failed Telegram fetch."""
+
+    def download_document(self, document: IncomingDocument) -> bytes:
+        raise TelegramError("download failed")
 
 
 class ScriptedExtractor:
@@ -72,6 +101,29 @@ COMPLETE = IntakeExtraction(
     language="English",
 )
 
+# The exact finalize reply _finalize produces (src/intake.py) for the COMPLETE
+# extraction with the default scan_hour=7 and scan_timezone="UTC".
+FULL_INTAKE_REPLY = (
+    "🎉 You're all set!\n\n"
+    "🎯 Roles: Project Manager\n"
+    "📍 Locations: Berlin, Germany\n"
+    "🔑 Keywords: digital transformation\n"
+    "🏭 Industries: public sector\n"
+    "🌐 Language: English\n\n"
+    "I'll scan for matching jobs every morning around 07:00 (UTC) and message you when I find new ones. Use /run to start a scan right now, /status to check your setup, or /reset to change your documents."
+)
+
+# The exact finalize reply when LLM extraction fails entirely and preferences
+# come from _fallback_extraction over the raw answers (no industries).
+FALLBACK_FINALIZE_REPLY = (
+    "🎉 You're all set!\n\n"
+    "🎯 Roles: Data Scientist, ML Engineer\n"
+    "📍 Locations: Munich, Germany\n"
+    "🔑 Keywords: data, science, jobs, please\n"
+    "🌐 Language: German\n\n"
+    "I'll scan for matching jobs every morning around 07:00 (UTC) and message you when I find new ones. Use /run to start a scan right now, /status to check your setup, or /reset to change your documents."
+)
+
 
 def test_full_intake_happy_path(tmp_path: Path) -> None:
     extractor = ScriptedExtractor([COMPLETE])
@@ -92,13 +144,28 @@ def test_full_intake_happy_path(tmp_path: Path) -> None:
     reply = manager.handle_message(_msg("PM roles in Berlin, public sector"))
     record = store.load("42")
     assert record.state == STATE_ACTIVE
-    assert "all set" in reply
+    assert reply == FULL_INTAKE_REPLY
     assert record.preferences["job_titles"] == ["Project Manager"]
     assert record.preferences["location"] == "Berlin, Germany"
     assert record.preferences["locations"] == ["Berlin, Germany"]
     assert record.preferences["industries"] == ["public sector"]
     assert record.preferences["language"] == "english"
     assert extractor.calls[0]["prefs"] == "PM roles in Berlin, public sector"
+
+
+def test_finalize_reply_uses_configured_schedule(tmp_path: Path) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    store = UserStore(tmp_path)
+    manager = IntakeManager(
+        store, FakeDownloader(), extractor, scan_hour=9, scan_timezone="Europe/Berlin"
+    )
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    manager.handle_message(_msg("/skip"))
+    reply = manager.handle_message(_msg("PM roles in Berlin, public sector"))
+
+    assert store.load("42").state == STATE_ACTIVE
+    assert "every morning around 09:00 (Europe/Berlin)" in reply
 
 
 def test_missing_location_triggers_question_then_finalizes(tmp_path: Path) -> None:
@@ -146,7 +213,7 @@ def test_extraction_failure_falls_back_to_answers(tmp_path: Path) -> None:
     assert record.preferences["location"] == "Munich, Germany"
     assert record.preferences["job_titles"] == ["Data Scientist", "ML Engineer"]
     assert record.preferences["language"] == "german"
-    assert "all set" in reply
+    assert reply == FALLBACK_FINALIZE_REPLY
 
 
 def test_pasted_cv_text_accepted(tmp_path: Path) -> None:
@@ -190,7 +257,7 @@ def test_status_during_setup_and_when_active(tmp_path: Path) -> None:
     manager, store = _manager(tmp_path, extractor)
     manager.handle_message(_msg("/start"))
     reply = manager.handle_message(_msg("/status"))
-    assert "Setup in progress" in reply
+    assert reply == "Setup in progress (step: awaiting_cv).\nPlease upload your CV (PDF, DOCX, or text)."
 
     manager.handle_message(_msg(document=_doc()))
     manager.handle_message(_msg("/skip"))
@@ -208,6 +275,98 @@ def test_bad_document_reports_error_and_keeps_state(tmp_path: Path) -> None:
     reply = manager.handle_message(_msg(document=_doc()))
     assert "⚠" in reply
     assert store.load("42").state == STATE_AWAITING_CV
+
+
+def test_cv_state_short_text_and_bad_document_exact_replies(tmp_path: Path) -> None:
+    store = UserStore(tmp_path)
+    manager = IntakeManager(
+        store, FakeDownloader(payload=b"x"), ScriptedExtractor([COMPLETE])
+    )
+    manager.handle_message(_msg("/start"))
+
+    reply = manager.handle_message(_msg("hello"))
+    assert reply == SHORT_TEXT_REPLY
+    assert store.load("42").state == STATE_AWAITING_CV
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == UNREADABLE_DOC_REPLY
+    assert store.load("42").state == STATE_AWAITING_CV
+
+
+def test_cv_state_failed_download_exact_reply(tmp_path: Path) -> None:
+    store = UserStore(tmp_path)
+    manager = IntakeManager(store, FailingDownloader(), ScriptedExtractor([COMPLETE]))
+    manager.handle_message(_msg("/start"))
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == "⚠️ download failed\n\nPlease try another file."
+    assert store.load("42").state == STATE_AWAITING_CV
+
+
+def test_motivation_state_short_text_and_bad_document_exact_replies(
+    tmp_path: Path,
+) -> None:
+    store = UserStore(tmp_path)
+    manager = IntakeManager(
+        store, FakeDownloader(payload=b"x"), ScriptedExtractor([COMPLETE])
+    )
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(CV_TEXT))  # pasted CV, avoids the bad downloader
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+    reply = manager.handle_message(_msg("hi"))
+    assert reply == SHORT_TEXT_REPLY
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == UNREADABLE_DOC_REPLY
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+
+def test_motivation_state_failed_download_exact_reply(tmp_path: Path) -> None:
+    store = UserStore(tmp_path)
+    manager = IntakeManager(store, FailingDownloader(), ScriptedExtractor([COMPLETE]))
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(CV_TEXT))
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == "⚠️ download failed\n\nPlease try another file."
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+
+def test_job_prefs_state_short_text_and_bad_document_exact_replies(
+    tmp_path: Path,
+) -> None:
+    store = UserStore(tmp_path)
+    manager = IntakeManager(
+        store, FakeDownloader(payload=b"x"), ScriptedExtractor([COMPLETE])
+    )
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(CV_TEXT))
+    manager.handle_message(_msg("/skip"))
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
+
+    reply = manager.handle_message(_msg("hi"))
+    assert reply == SHORT_TEXT_REPLY
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == UNREADABLE_DOC_REPLY
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
+
+
+def test_job_prefs_state_failed_download_exact_reply(tmp_path: Path) -> None:
+    store = UserStore(tmp_path)
+    manager = IntakeManager(store, FailingDownloader(), ScriptedExtractor([COMPLETE]))
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(CV_TEXT))
+    manager.handle_message(_msg("/skip"))
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == "⚠️ download failed\n\nPlease try another file."
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
 
 
 NO_LANGUAGE = IntakeExtraction(
@@ -267,3 +426,153 @@ def test_language_skip_falls_back_to_input_language(tmp_path: Path) -> None:
 def test_commands_always_reply(tmp_path: Path, command: str) -> None:
     manager, _ = _manager(tmp_path, ScriptedExtractor([COMPLETE]))
     assert manager.handle_message(_msg(command))
+
+
+def test_uploaded_motivation_letter_reply_and_job_prefs_prompt(tmp_path: Path) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+
+    reply = manager.handle_message(_msg(document=_doc()))
+    assert reply == "✅ Motivation letter received.\n\n" + JOB_PREFS_PROMPT
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
+
+
+def test_job_prefs_prompt_after_motivation_skip(tmp_path: Path) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+
+    reply = manager.handle_message(_msg("/skip"))
+    assert reply == JOB_PREFS_PROMPT
+    assert "Motivation letter received" not in reply
+    assert store.load("42").state == STATE_AWAITING_JOB_PREFS
+
+
+def test_empty_answer_is_rejected(tmp_path: Path) -> None:
+    no_location = IntakeExtraction(
+        job_titles=["Engineer"], keywords=["python"], language="English"
+    )
+    extractor = ScriptedExtractor([no_location, COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    manager.handle_message(_msg("/skip"))
+    manager.handle_message(_msg("backend jobs"))
+    assert store.load("42").state == STATE_AWAITING_ANSWER
+
+    reply = manager.handle_message(_msg("   "))
+    assert reply == "Please answer in a short text message."
+    assert store.load("42").state == STATE_AWAITING_ANSWER
+
+
+def test_active_state_chat_reply(tmp_path: Path) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    manager.handle_message(_msg("/skip"))
+    manager.handle_message(_msg("jobs in Berlin"))
+    assert store.load("42").state == STATE_ACTIVE
+
+    reply = manager.handle_message(_msg("what's up"))
+    assert reply == "You're all set up - I'm scanning for jobs regularly.\n" + HELP_TEXT
+    assert store.load("42").state == STATE_ACTIVE
+
+
+def test_start_reply_when_already_active(tmp_path: Path) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    manager.handle_message(_msg("/skip"))
+    manager.handle_message(_msg("jobs in Berlin"))
+    assert store.load("42").state == STATE_ACTIVE
+
+    reply = manager.handle_message(_msg("/start"))
+    assert reply == (
+        "You're already set up. Your search parameters:\n"
+        "\U0001f3af Roles: Project Manager\n"
+        "\U0001f4cd Locations: Berlin, Germany\n"
+        "\U0001f511 Keywords: digital transformation\n"
+        "\U0001f3ed Industries: public sector\n"
+        "\U0001f310 Language: English\n\n"
+        "Use /run to scan now or /reset to start over."
+    )
+    assert store.load("42").state == STATE_ACTIVE
+
+
+def test_need_more_info_lead_in(tmp_path: Path) -> None:
+    no_location = IntakeExtraction(
+        job_titles=["Engineer"], keywords=["python"], language="English"
+    )
+    extractor = ScriptedExtractor([no_location, COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    manager.handle_message(_msg("/skip"))
+
+    reply = manager.handle_message(_msg("backend jobs"))
+    assert "I need a bit more information.\n\n" in reply
+    assert store.load("42").state == STATE_AWAITING_ANSWER
+
+
+def test_question_counter_plural_then_singular(tmp_path: Path) -> None:
+    missing_both = IntakeExtraction(keywords=["python"], language="English")
+    extractor = ScriptedExtractor([missing_both, COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    manager.handle_message(_msg("/skip"))
+
+    reply = manager.handle_message(_msg("open to anything"))
+    assert store.load("42").state == STATE_AWAITING_ANSWER
+    assert record_pending_count(store, "42") == 2
+    assert reply == (
+        "I need a bit more information.\n\n"
+        f"❓ (2 questions left) {QUESTION_LOCATIONS}"
+    )
+
+    reply = manager.handle_message(_msg("Berlin, Germany"))
+    assert store.load("42").state == STATE_AWAITING_ANSWER
+    assert record_pending_count(store, "42") == 1
+    assert f"❓ (1 question left) {QUESTION_ROLES}" == reply
+
+
+def record_pending_count(store: UserStore, chat_id: str) -> int:
+    return len(store.load(chat_id).pending_questions)
+
+
+def test_prompt_for_state_via_status_and_start_while_awaiting_motivation(
+    tmp_path: Path,
+) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    manager.handle_message(_msg(document=_doc()))
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+    status_reply = manager.handle_message(_msg("/status"))
+    assert status_reply == "Setup in progress (step: awaiting_motivation).\nPlease upload your motivation letter, or send /skip."
+
+    start_reply = manager.handle_message(_msg("/start"))
+    assert start_reply == "Please upload your motivation letter, or send /skip."
+    assert store.load("42").state == STATE_AWAITING_MOTIVATION
+
+
+def test_prompt_for_state_fallback_for_unknown_state(tmp_path: Path) -> None:
+    extractor = ScriptedExtractor([COMPLETE])
+    manager, store = _manager(tmp_path, extractor)
+    manager.handle_message(_msg("/start"))
+    record = store.load("42")
+    record.state = "some_unknown_state"
+    store.save(record)
+
+    status_reply = manager.handle_message(_msg("/status"))
+    assert status_reply == "Setup in progress (step: some_unknown_state).\nSend /start to begin."
+
+    start_reply = manager.handle_message(_msg("/start"))
+    assert start_reply == "Send /start to begin."
+    assert store.load("42").state == "some_unknown_state"

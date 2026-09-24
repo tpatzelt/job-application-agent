@@ -24,11 +24,17 @@ COUNTER_LABELS = {
     "skipped_empty": "no text extracted",
     "skipped_too_short": "too little text",
     "skipped_stale": "closed/filled marker",
+    "skipped_landing": "search/landing page, not a posting",
     "skipped_no_location": "no preferred location on page",
     "evaluated": "pages scored by the LLM",
     "rejected_location": "rejected: location mismatch",
     "rejected_domain": "rejected: industry mismatch",
     "rejected_low_score": "rejected: score below threshold",
+    "notify_failed": "accepted jobs whose Telegram notification failed",
+    "error_search_failed": "web searches failed (Brave API error)",
+    "error_query_generation_failed": "search-query generation failed (LLM error)",
+    "error_fetch_failed": "page fetches failed",
+    "error_evaluate_failed": "LLM scoring failed",
 }
 
 

@@ -124,6 +124,30 @@ def test_run_report_records_fetch_errors(tmp_path: Path):
     assert "connection reset" in error["error"]
 
 
+def test_run_report_records_search_failures(tmp_path: Path):
+    class FailingSearchCrawler(ScriptedCrawler):
+        def search(
+            self,
+            query: str,
+            country: str | None = None,
+            search_lang: str | None = None,
+        ) -> list[str]:
+            self.search_calls.append(query)
+            self.last_search_error = "Brave API error: 503 Service Unavailable"
+            return []
+
+    config = _make_config(max_results=1)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = FailingSearchCrawler(config.budget, {"python jobs berlin": [POSTING]})
+    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    runs = json.loads((tmp_path / "runs.json").read_text(encoding="utf-8"))
+    error = runs[-1]["errors"][0]
+    assert error["kind"] == "search_failed"
+    assert "503 Service Unavailable" in error["error"]
+    assert runs[-1]["counters"]["error_search_failed"] == 1
+
+
 def test_run_history_is_capped_and_appended(tmp_path: Path):
     path = tmp_path / "runs.json"
     for index in range(35):

@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import queue
+import re
 import threading
 import time
 from datetime import datetime
@@ -39,6 +40,12 @@ def _empty_scan_explanation(report: RunReport) -> str:
         for name, value in report.counters.items()
         if value and (name.startswith("skipped_") or name.startswith("rejected_"))
     ]
+    errors = [
+        f"{value} {COUNTER_LABELS.get(name, name)}"
+        for name, value in report.counters.items()
+        if value and name.startswith("error_")
+    ]
+    error_suffix = f" Errors: {', '.join(errors)}." if errors else ""
     checked = report.counters.get("pages_fetched", 0)
     if not checked:
         seen_before = report.counters.get("already_seen", 0)
@@ -46,11 +53,56 @@ def _empty_scan_explanation(report: RunReport) -> str:
             return (
                 f"Every posting today's searches returned ({seen_before}) was one "
                 "I had already checked for you."
-            )
-        return "I could not fetch any job pages this run."
+            ) + error_suffix
+        return "I could not fetch any job pages this run." + error_suffix
     if not reasons:
-        return f"Checked {checked} job page(s)."
-    return f"Checked {checked} job page(s): " + ", ".join(reasons) + "."
+        return f"Checked {checked} job page(s)." + error_suffix
+    return f"Checked {checked} job page(s): " + ", ".join(reasons) + "." + error_suffix
+
+
+def _format_missing_profile_message(cv_missing: bool, prefs_missing: bool) -> str:
+    """Name what is missing so an active-but-incomplete user hears why their
+    scan did not run, instead of just never getting a result message."""
+    missing = []
+    if cv_missing:
+        missing.append("your CV")
+    if prefs_missing:
+        missing.append("your job preferences")
+    return (
+        "⚠️ Scan did not run - I'm missing "
+        + " and ".join(missing)
+        + ". Send /start (or /reset) to finish setup."
+    )
+
+
+# Matches Telegram's `/bot<token>/` URL path segment, which embeds the bot
+# token verbatim; requests exceptions routinely quote the request URL.
+_BOT_TOKEN_PATH_RE = re.compile(r"/bot\d+:[^/\s]+")
+# Query strings can carry the Brave API key (`?key=...`) or other secrets.
+_URL_QUERY_RE = re.compile(r"\?\S*")
+_SCAN_ERROR_CAUSE_MAX_CHARS = 300
+
+
+def _scrub_secrets(text: str) -> str:
+    text = _BOT_TOKEN_PATH_RE.sub("/bot***", text)
+    text = _URL_QUERY_RE.sub("", text)
+    return text
+
+
+def _format_scan_error(exc: BaseException) -> str:
+    """Name the failing exception and its cause, with secrets scrubbed.
+
+    Without this, every scan failure produces the same unhelpful line and
+    the user can't tell a missing CV from a Brave outage.
+    """
+    cause = _scrub_secrets(" ".join(str(exc).split()))
+    if len(cause) > _SCAN_ERROR_CAUSE_MAX_CHARS:
+        cause = cause[:_SCAN_ERROR_CAUSE_MAX_CHARS].rstrip() + "…"
+    detail = f"{type(exc).__name__}: {cause}" if cause else type(exc).__name__
+    return (
+        f"⚠️ The job scan hit an error ({detail}). I'll try again "
+        "at the next scheduled run - you can also send /run to retry sooner."
+    )
 
 
 class BotService:
@@ -226,11 +278,7 @@ class BotService:
                 self._run_scan(chat_id)
             except Exception as exc:
                 self._logger.exception("Scan failed for %s: %s", chat_id, exc)
-                self._safe_send(
-                    chat_id,
-                    "⚠️ The job scan hit an error. I'll try again at the "
-                    "next scheduled run.",
-                )
+                self._safe_send(chat_id, _format_scan_error(exc))
             finally:
                 self._current_scan = None
                 with self._queue_lock:
@@ -252,6 +300,16 @@ class BotService:
         cv_text = self._store.load_document(chat_id, "cv")
         if not cv_text or not record.preferences:
             self._logger.info("User %s has no profile yet, skipping scan", chat_id)
+            # Mark the scan attempt up front so the scheduler does not
+            # re-enqueue this user every minute until they finish setup.
+            record.last_scan_at = time.time()
+            self._store.save(record)
+            self._safe_send(
+                chat_id,
+                _format_missing_profile_message(
+                    cv_missing=not cv_text, prefs_missing=not record.preferences
+                ),
+            )
             return
         self._logger.info("Starting scan for user %s", chat_id)
         # Mark the scan attempt up front so a crashing crawl doesn't make
@@ -266,11 +324,14 @@ class BotService:
         config = dataclasses.replace(self._config, budget=budget)
         llm = LLMService(config, budget, self._openrouter_key)
         crawler = CrawlerEngine(config, budget, self._brave_key)
+        paths = self._store.crawl_paths(chat_id)
         notifier = TelegramNotifier(
-            self._bot_token, chat_id, config.request_timeout_seconds
+            self._bot_token,
+            chat_id,
+            config.request_timeout_seconds,
+            ledger_path=paths["cache_path"].parent / "notified.json",
         )
         orchestrator = Orchestrator(config, budget, llm, crawler, notifier=notifier)
-        paths = self._store.crawl_paths(chat_id)
         results = orchestrator.run(
             cv_text=cv_text,
             preferences=record.preferences,
@@ -289,6 +350,16 @@ class BotService:
                 "I'll keep looking.\n" + _empty_scan_explanation(
                     orchestrator.last_report
                 ),
+            )
+        elif orchestrator.last_report.counters.get("notify_failed"):
+            self._safe_send(
+                chat_id,
+                "⚠️ Scan finished - found "
+                f"{len(results)} matching job(s), but Telegram delivery failed "
+                "for some or all of them. They are now marked as seen, so they "
+                "will not be resent automatically. If this keeps happening, "
+                "contact the operator; otherwise future scans should deliver "
+                "normally.",
             )
 
     def _extract_profile(
