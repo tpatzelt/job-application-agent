@@ -720,10 +720,10 @@ def test_run_scan_missing_profile_cv_missing_sends_single_message(
     svc._run_scan("1")
 
     assert len(sent) == 1
-    text = sent[0]["text"]
-    assert "CV" in text
-    assert "preferences" not in text
-    assert "/start" in text
+    assert sent[0]["text"] == (
+        "⚠️ Scan did not run - I'm missing your CV."
+        " Send /start (or /reset) to finish setup."
+    )
 
 
 def test_run_scan_missing_profile_preferences_missing_sends_single_message(
@@ -741,10 +741,10 @@ def test_run_scan_missing_profile_preferences_missing_sends_single_message(
     svc._run_scan("1")
 
     assert len(sent) == 1
-    text = sent[0]["text"]
-    assert "CV" not in text
-    assert "preferences" in text
-    assert "/start" in text
+    assert sent[0]["text"] == (
+        "⚠️ Scan did not run - I'm missing your job preferences."
+        " Send /start (or /reset) to finish setup."
+    )
 
 
 def test_run_scan_missing_profile_both_missing_sends_single_message(
@@ -762,10 +762,9 @@ def test_run_scan_missing_profile_both_missing_sends_single_message(
     svc._run_scan("1")
 
     assert len(sent) == 1
-    text = sent[0]["text"]
-    assert "CV" in text
-    assert "preferences" in text
-    assert "/start" in text
+    assert sent[0]["text"] == (
+        "⚠️ Scan did not run - I'm missing your CV and your job preferences. Send /start (or /reset) to finish setup."
+    )
 
 
 def test_run_scan_missing_profile_sets_last_scan_at_so_scheduler_stops_requeuing(
@@ -792,19 +791,22 @@ def test_run_scan_missing_profile_sets_last_scan_at_so_scheduler_stops_requeuing
 
 def test_format_missing_profile_message_names_cv_only() -> None:
     text = _format_missing_profile_message(cv_missing=True, prefs_missing=False)
-    assert "your CV" in text
-    assert "preferences" not in text
-    assert "/start" in text
-    assert "/reset" in text
+    assert text == (
+        "⚠️ Scan did not run - I'm missing your CV."
+        " Send /start (or /reset) to finish setup."
+    )
 
 
 def test_format_missing_profile_message_names_preferences_only() -> None:
     text = _format_missing_profile_message(cv_missing=False, prefs_missing=True)
-    assert "CV" not in text
-    assert "your job preferences" in text
+    assert text == (
+        "⚠️ Scan did not run - I'm missing your job preferences."
+        " Send /start (or /reset) to finish setup."
+    )
 
 
 def test_format_missing_profile_message_names_both() -> None:
     text = _format_missing_profile_message(cv_missing=True, prefs_missing=True)
-    assert "your CV" in text
-    assert "your job preferences" in text
+    assert text == (
+        "⚠️ Scan did not run - I'm missing your CV and your job preferences. Send /start (or /reset) to finish setup."
+    )
