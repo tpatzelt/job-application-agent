@@ -54,6 +54,21 @@ def _empty_scan_explanation(report: RunReport) -> str:
     return f"Checked {checked} job page(s): " + ", ".join(reasons) + "."
 
 
+def _format_missing_profile_message(cv_missing: bool, prefs_missing: bool) -> str:
+    """Name what is missing so an active-but-incomplete user hears why their
+    scan did not run, instead of just never getting a result message."""
+    missing = []
+    if cv_missing:
+        missing.append("your CV")
+    if prefs_missing:
+        missing.append("your job preferences")
+    return (
+        "⚠️ Scan did not run - I'm missing "
+        + " and ".join(missing)
+        + ". Send /start (or /reset) to finish setup."
+    )
+
+
 # Matches Telegram's `/bot<token>/` URL path segment, which embeds the bot
 # token verbatim; requests exceptions routinely quote the request URL.
 _BOT_TOKEN_PATH_RE = re.compile(r"/bot\d+:[^/\s]+")
@@ -279,6 +294,16 @@ class BotService:
         cv_text = self._store.load_document(chat_id, "cv")
         if not cv_text or not record.preferences:
             self._logger.info("User %s has no profile yet, skipping scan", chat_id)
+            # Mark the scan attempt up front so the scheduler does not
+            # re-enqueue this user every minute until they finish setup.
+            record.last_scan_at = time.time()
+            self._store.save(record)
+            self._safe_send(
+                chat_id,
+                _format_missing_profile_message(
+                    cv_missing=not cv_text, prefs_missing=not record.preferences
+                ),
+            )
             return
         self._logger.info("Starting scan for user %s", chat_id)
         # Mark the scan attempt up front so a crashing crawl doesn't make
