@@ -331,3 +331,64 @@ def test_empty_llm_content_is_retried_then_reported(monkeypatch):
     else:
         raise AssertionError("expected a RuntimeError")
     assert calls["count"] == 2
+
+
+def _scripted_completion(monkeypatch, contents):
+    remaining = list(contents)
+
+    def fake_completion(**kwargs):
+        return {"choices": [{"message": {"content": remaining.pop(0)}}]}
+
+    monkeypatch.setattr("src.llm_service.completion", fake_completion)
+    return remaining
+
+
+def test_empty_repair_answer_is_retried(monkeypatch):
+    # Production: "LLM repair call returned an empty response" ended query
+    # generation although the next call would have answered.
+    from src.config_manager import EffortBudget
+    from src.llm_service import LLMService
+
+    remaining = _scripted_completion(
+        monkeypatch, ["Sure, here are queries", None, '{"queries": ["a"]}']
+    )
+    config = _make_config(max_results=1, llm_max_retries=3)
+    service = LLMService(config, EffortBudget(max_llm_calls=5, max_search_iterations=5), "key")
+
+    assert service.generate_search_queries({}, []).queries == ["a"]
+    assert remaining == []
+
+
+def test_prose_repair_answer_gets_a_second_repair(monkeypatch):
+    # Production: a repair answer that was prose, not JSON, surfaced as a bare
+    # "JSONDecodeError: Expecting value" and the page was never scored.
+    from src.config_manager import EffortBudget
+    from src.llm_service import LLMService
+
+    remaining = _scripted_completion(
+        monkeypatch,
+        ["I cannot tell.", "The job looks good.", '{"score": 80, "reason": "fits"}'],
+    )
+    config = _make_config(max_results=1, llm_max_retries=3)
+    budget = EffortBudget(max_llm_calls=5, max_search_iterations=5)
+    service = LLMService(config, budget, "key")
+
+    assert service.evaluate_job("cv", "job").score == 80
+    assert remaining == []
+    assert budget.llm_calls_used == 3
+
+
+def test_repair_that_never_yields_json_raises_a_clear_error(monkeypatch):
+    from src.config_manager import EffortBudget
+    from src.llm_service import LLMService
+
+    _scripted_completion(monkeypatch, ["nope", "still nope", "no"])
+    config = _make_config(max_results=1, llm_max_retries=3)
+    service = LLMService(config, EffortBudget(max_llm_calls=5, max_search_iterations=5), "key")
+
+    try:
+        service.generate_search_queries({}, [])
+    except RuntimeError as exc:
+        assert "LLM repair failed" in str(exc)
+    else:
+        raise AssertionError("expected a RuntimeError")

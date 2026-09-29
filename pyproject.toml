@@ -44,6 +44,7 @@ model = "openrouter/openrouter/free"
 temperature = 0.2
 max_retries = 3
 min_delay_seconds = 1
+timeout_seconds = 120
 
 [tool.job_crawler.notify]
 telegram = true

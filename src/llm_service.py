@@ -17,6 +17,8 @@ from .models import (
 )
 from pydantic import ValidationError
 
+REPAIR_ATTEMPTS = 2
+
 
 def _response_content(response: Any) -> str | None:
     """The assistant message text, or None when the model returned nothing.
@@ -146,7 +148,10 @@ class LLMService:
         self._budget.record_llm_call()
 
         self._logger.info("Calling LLM model %s", self._config.llm_model)
+        return self._complete(prompt, self._config.llm_temperature)
 
+    def _complete(self, prompt: str, temperature: float) -> str:
+        """Non-empty assistant text, retrying empty answers and call errors."""
         last_error: Exception | None = None
         for attempt in range(1, self._config.llm_max_retries + 1):
             try:
@@ -156,8 +161,10 @@ class LLMService:
                         {"role": "system", "content": "Respond only with valid JSON."},
                         {"role": "user", "content": prompt},
                     ],
-                    temperature=self._config.llm_temperature,
+                    temperature=temperature,
                     api_key=self._api_key,
+                    # One free-tier call once hung for eight minutes.
+                    timeout=self._config.llm_timeout_seconds,
                 )
                 content = _response_content(response)
                 if content:
@@ -170,9 +177,6 @@ class LLMService:
                     attempt,
                     self._config.llm_max_retries,
                 )
-                if attempt < self._config.llm_max_retries:
-                    time.sleep(self._config.llm_min_delay_seconds)
-                continue
             except Exception as exc:
                 last_error = exc
                 self._logger.warning(
@@ -181,8 +185,8 @@ class LLMService:
                     self._config.llm_max_retries,
                     exc,
                 )
-                if attempt < self._config.llm_max_retries:
-                    time.sleep(self._config.llm_min_delay_seconds)
+            if attempt < self._config.llm_max_retries:
+                time.sleep(self._config.llm_min_delay_seconds)
         raise RuntimeError(f"LLM request failed: {last_error}")
 
     def _parse_json_payload(
@@ -224,38 +228,50 @@ class LLMService:
                 return self._retry_json_response(prompt, response_text)
 
     def _retry_json_response(self, prompt: str, response_text: str) -> dict[str, Any]:
-        if not self._budget.can_call_llm():
-            raise RuntimeError("Effort budget exceeded: LLM calls")
-        self._budget.record_llm_call()
+        # openrouter/free routes each call to a different model, so a repair
+        # that comes back empty or as prose is worth one more try before the
+        # page (or the run's query generation) is given up on.
+        last_error: Exception | None = None
+        for attempt in range(1, REPAIR_ATTEMPTS + 1):
+            if not self._budget.can_call_llm():
+                raise RuntimeError("Effort budget exceeded: LLM calls")
+            self._budget.record_llm_call()
 
-        repair_prompt = (
-            "You must output ONLY valid JSON that matches the output schema. "
-            "Do not include extra text. Fix this response and return JSON only.\n\n"
-            f"Response: {response_text}\n\n"
-            f"Original prompt: {prompt}"
-        )
+            if response_text:
+                repair_prompt = (
+                    "You must output ONLY valid JSON that matches the output schema. "
+                    "Do not include extra text. Fix this response and return JSON only.\n\n"
+                    f"Response: {response_text}\n\n"
+                    f"Original prompt: {prompt}"
+                )
+            else:
+                repair_prompt = prompt
+            try:
+                fixed = self._complete(repair_prompt, 0.0)
+            except RuntimeError as exc:
+                last_error = exc
+                continue
+            payload = self._load_json(fixed)
+            if payload is not None:
+                return payload
+            last_error = ValueError(f"not JSON: {fixed[:200]!r}")
+            self._logger.warning(
+                "LLM repair attempt %s/%s returned no JSON: %r",
+                attempt,
+                REPAIR_ATTEMPTS,
+                fixed[:200],
+            )
+        raise RuntimeError(f"LLM repair failed: {last_error}")
 
-        response = completion(
-            model=self._config.llm_model,
-            messages=[
-                {"role": "system", "content": "Respond only with valid JSON."},
-                {"role": "user", "content": repair_prompt},
-            ],
-            temperature=0.0,
-            api_key=self._api_key,
-        )
-        fixed = _response_content(response)
-        if not fixed:
-            raise RuntimeError("LLM repair call returned an empty response")
-        try:
-            payload = json.loads(fixed)
-            return self._normalize_payload(payload)
-        except json.JSONDecodeError:
-            repaired = self._extract_json_object(fixed)
-            if repaired is None:
-                raise
-            payload = json.loads(repaired)
-            return self._normalize_payload(payload)
+    def _load_json(self, text: str) -> dict[str, Any] | None:
+        for candidate in (text, self._extract_json_object(text)):
+            if candidate is None:
+                continue
+            try:
+                return self._normalize_payload(json.loads(candidate))
+            except json.JSONDecodeError:
+                continue
+        return None
 
     def _normalize_payload(self, payload: Any) -> dict[str, Any]:
         if isinstance(payload, list):
