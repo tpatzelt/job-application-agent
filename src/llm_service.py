@@ -228,8 +228,9 @@ class LLMService:
                 return self._retry_json_response(prompt, response_text)
 
     def _retry_json_response(self, prompt: str, response_text: str) -> dict[str, Any]:
-        # openrouter/free routes each call to a different model, so a repair
-        # that comes back empty or as prose is worth one more try before the
+        # Free models (and openrouter/free, which routes each call to a
+        # different model) botch repairs too, so one that comes back empty
+        # or as prose is worth one more try before the
         # page (or the run's query generation) is given up on.
         last_error: Exception | None = None
         for attempt in range(1, REPAIR_ATTEMPTS + 1):

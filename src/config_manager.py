@@ -185,7 +185,10 @@ def load_config(
         results_json=str(output_data.get("results_json", "data/results.json")),
         results_csv=str(output_data.get("results_csv", "data/results.csv")),
         cache_path=str(output_data.get("cache_path", "data/cache.json")),
-        llm_model=str(llm_data.get("model", "openrouter/free")),
+        # The model can be switched per-deployment (e.g. back to
+        # openrouter/openrouter/free) without rebuilding the image.
+        llm_model=os.getenv("JOB_CRAWLER_LLM_MODEL")
+        or str(llm_data.get("model", "gemini/gemma-4-26b-a4b-it")),
         llm_temperature=float(llm_data.get("temperature", 0.2)),
         llm_max_retries=int(llm_data.get("max_retries", 3)),
         llm_min_delay_seconds=int(llm_data.get("min_delay_seconds", 1)),
@@ -237,16 +240,26 @@ def load_config(
     )
 
 
+# litellm provider prefix -> env var holding that provider's API key.
+_LLM_KEY_ENV_VARS = {
+    "gemini": "GEMINI_API_KEY",
+    "openrouter": "OPENROUTER_API_KEY",
+}
+
+
+def llm_api_key(model: str) -> str | None:
+    """API key for the provider named by `model`'s litellm prefix, if set."""
+    env_var = _LLM_KEY_ENV_VARS.get(model.split("/", 1)[0])
+    return _get_env_var(env_var) if env_var else None
+
+
 def load_api_keys() -> dict[str, str]:
     keys: dict[str, str] = {}
     brave_key = _get_env_var("BRAVE_API_KEY")
-    openrouter_key = _get_env_var("OPENROUTER_API_KEY")
     telegram_token = _get_env_var("TELEGRAM_BOT_TOKEN")
     telegram_chat_id = _get_env_var("TELEGRAM_CHAT_ID")
     if brave_key:
         keys["brave"] = brave_key
-    if openrouter_key:
-        keys["openrouter"] = openrouter_key
     if telegram_token:
         keys["telegram_bot_token"] = telegram_token
     if telegram_chat_id:

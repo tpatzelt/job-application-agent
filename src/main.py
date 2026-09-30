@@ -8,6 +8,7 @@ import logging
 from dotenv import load_dotenv
 
 from .config_manager import (
+    llm_api_key,
     load_api_keys,
     load_config,
     load_preferences,
@@ -33,7 +34,7 @@ def main() -> None:
     cv_text = load_user_profile(root)
     preferences = load_preferences(root)
 
-    llm = LLMService(config, config.budget, keys.get("openrouter"))
+    llm = LLMService(config, config.budget, llm_api_key(config.llm_model))
     crawler = CrawlerEngine(config, config.budget, keys.get("brave"))
     notifier = None
     if config.telegram_notifications:
