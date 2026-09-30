@@ -60,6 +60,7 @@ class Config:
     max_harvest_links: int = 5
     telegram_notifications: bool = True
     bot_poll_timeout_seconds: int = 50
+    llm_timeout_seconds: int = 120
     # Daily scan schedule: each active user is scanned once per day, the first
     # time local wall-clock time in `bot_scan_timezone` passes `bot_scan_hour`
     # (0-23). This replaces the old fixed-interval scan so results land each
@@ -188,6 +189,7 @@ def load_config(
         llm_temperature=float(llm_data.get("temperature", 0.2)),
         llm_max_retries=int(llm_data.get("max_retries", 3)),
         llm_min_delay_seconds=int(llm_data.get("min_delay_seconds", 1)),
+        llm_timeout_seconds=int(llm_data.get("timeout_seconds", 120)),
         brave_endpoint=str(
             search_data.get(
                 "brave_endpoint",
