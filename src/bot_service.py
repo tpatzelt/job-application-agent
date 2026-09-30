@@ -14,7 +14,13 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from dotenv import load_dotenv
 
-from .config_manager import Config, EffortBudget, load_api_keys, load_config
+from .config_manager import (
+    Config,
+    EffortBudget,
+    llm_api_key,
+    load_api_keys,
+    load_config,
+)
 from .crawler_engine import CrawlerEngine
 from .dashboard import DashboardServer
 from .intake import IntakeManager
@@ -121,13 +127,13 @@ class BotService:
         config: Config,
         bot_token: str,
         brave_key: str | None,
-        openrouter_key: str | None,
+        llm_key: str | None,
     ) -> None:
         self._root = root
         self._config = config
         self._bot_token = bot_token
         self._brave_key = brave_key
-        self._openrouter_key = openrouter_key
+        self._llm_key = llm_key
         self._logger = logging.getLogger(self.__class__.__name__)
         self._telegram = TelegramClient(bot_token, config.request_timeout_seconds)
         self._store = UserStore(root / "data")
@@ -322,7 +328,7 @@ class BotService:
             max_search_iterations=self._config.budget.max_search_iterations,
         )
         config = dataclasses.replace(self._config, budget=budget)
-        llm = LLMService(config, budget, self._openrouter_key)
+        llm = LLMService(config, budget, self._llm_key)
         crawler = CrawlerEngine(config, budget, self._brave_key)
         paths = self._store.crawl_paths(chat_id)
         notifier = TelegramNotifier(
@@ -374,7 +380,7 @@ class BotService:
             max_search_iterations=0,
         )
         config = dataclasses.replace(self._config, budget=budget)
-        llm = LLMService(config, budget, self._openrouter_key)
+        llm = LLMService(config, budget, self._llm_key)
         return llm.extract_search_profile(
             cv_text, motivation_text, job_prefs_text, answers
         )
@@ -436,7 +442,7 @@ def main() -> None:
         config,
         bot_token,
         brave_key=keys.get("brave"),
-        openrouter_key=keys.get("openrouter"),
+        llm_key=llm_api_key(config.llm_model),
     )
     service.run()
 

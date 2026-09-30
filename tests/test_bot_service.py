@@ -46,7 +46,7 @@ def _service(tmp_path: Path, **cfg: Any) -> BotService:
         config=_make_config(**cfg),
         bot_token="test-token",
         brave_key=None,
-        openrouter_key=None,
+        llm_key=None,
     )
 
 

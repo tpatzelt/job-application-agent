@@ -40,7 +40,7 @@ company_query_boost = true
 exclude_aggregator_sites = true
 
 [tool.job_crawler.llm]
-model = "openrouter/openrouter/free"
+model = "gemini/gemma-4-26b-a4b-it"
 temperature = 0.2
 max_retries = 3
 min_delay_seconds = 1
@@ -87,7 +87,7 @@ results_csv = "data/results_minimal.csv"
 cache_path = "data/cache_minimal.json"
 
 [tool.job_crawler.profiles.minimal.llm]
-model = "openrouter/openrouter/free"
+model = "gemini/gemma-4-26b-a4b-it"
 temperature = 0.2
 max_retries = 2
 min_delay_seconds = 1

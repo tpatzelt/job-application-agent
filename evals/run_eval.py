@@ -5,7 +5,7 @@ Usage:
     uv run python -m evals.run_eval --tag baseline
     uv run python -m evals.run_eval --tag fixed --profiles ml-engineer-berlin
 
-Needs BRAVE_API_KEY and OPENROUTER_API_KEY in .env. Each profile runs in an
+Needs BRAVE_API_KEY and GEMINI_API_KEY in .env. Each profile runs in an
 isolated directory under evals/runs/<tag>/<profile>/ (fresh cache/memory so
 runs are comparable), and a combined report.json / report.md is written to
 evals/runs/<tag>/.
@@ -23,7 +23,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-from src.config_manager import EffortBudget, load_api_keys, load_config
+from src.config_manager import EffortBudget, llm_api_key, load_api_keys, load_config
 from src.crawler_engine import CrawlerEngine
 from src.llm_service import LLMService
 from src.orchestrator import Orchestrator
@@ -69,7 +69,7 @@ def run_profile(
         browser_fallback=False,
         telegram_notifications=False,
     )
-    llm = LLMService(config, budget, keys.get("openrouter"))
+    llm = LLMService(config, budget, llm_api_key(config.llm_model))
     crawler = CrawlerEngine(config, budget, keys.get("brave"))
     orchestrator = Orchestrator(config, budget, llm, crawler)
 
@@ -186,9 +186,10 @@ def run_eval(
 ) -> dict[str, Any]:
     load_dotenv(ROOT / ".env")
     keys = load_api_keys()
-    if "brave" not in keys or "openrouter" not in keys:
+    if "brave" not in keys or not llm_api_key(load_config(ROOT).llm_model):
         raise RuntimeError(
-            "BRAVE_API_KEY and OPENROUTER_API_KEY are required for the eval"
+            "BRAVE_API_KEY and the LLM provider's key (GEMINI_API_KEY for the"
+            " default model) are required for the eval"
         )
     profiles = (
         [PROFILES_BY_NAME[name] for name in profile_names]

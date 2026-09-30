@@ -46,7 +46,7 @@ seen-URL cache, agent memory, results), so users never share state.
 ### Run with Docker (recommended)
 
 ```bash
-# .env needs BRAVE_API_KEY, OPENROUTER_API_KEY, TELEGRAM_BOT_TOKEN
+# .env needs BRAVE_API_KEY, GEMINI_API_KEY, TELEGRAM_BOT_TOKEN
 docker compose up -d --build
 ```
 
@@ -79,7 +79,7 @@ uv sync
 
 ```bash
 BRAVE_API_KEY=your_brave_key
-OPENROUTER_API_KEY=your_openrouter_key
+GEMINI_API_KEY=your_google_ai_studio_key
 # Optional, for Telegram notifications about new jobs:
 TELEGRAM_BOT_TOKEN=your_bot_token
 TELEGRAM_CHAT_ID=your_chat_id
@@ -183,7 +183,7 @@ Mock mode wires `MockLLM`/`MockCrawler` fakes through the same `Orchestrator` us
 
 ## Offline result-quality harness (G1)
 
-The harness is fully offline: it needs no `BRAVE_API_KEY` or `OPENROUTER_API_KEY`, replaying a
+The harness is fully offline: it needs no `BRAVE_API_KEY` or `GEMINI_API_KEY`, replaying a
 hand-labelled, committed corpus (`evals/fixtures/`, since `evals/runs/` is gitignored) through
 the real triage/dedup logic instead of calling Brave or an LLM.
 
@@ -272,7 +272,7 @@ The tool writes the resolved absolute corpus path into `corpus_dir`; nothing rea
 
 ## Notes
 
-- The default model is `openrouter/openrouter/free`, which routes to free models on OpenRouter.
+- The default model is `gemini/gemma-4-26b-a4b-it` (Gemma on the Google AI Studio free tier, key in `GEMINI_API_KEY`). Set `JOB_CRAWLER_LLM_MODEL=openrouter/openrouter/free` plus `OPENROUTER_API_KEY` to go back to OpenRouter without a rebuild.
 - Fetches use retries and per-request timeouts; content under `min_job_text_chars` (default 800) is skipped as likely non-job pages.
 - LLM responses are repaired when JSON parsing fails, and Brave search uses backoff on rate limits.
 - Per-run effort is capped by `[tool.job_crawler.budget]` (default 40 LLM calls, 8 search iterations) and `max_results` (default 5).

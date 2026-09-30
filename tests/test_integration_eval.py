@@ -20,7 +20,7 @@ load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 _ENABLED = os.getenv("RUN_INTEGRATION_EVAL", "")
 _HAS_KEYS = bool(os.getenv("BRAVE_API_KEY")) and bool(
-    os.getenv("OPENROUTER_API_KEY")
+    os.getenv("GEMINI_API_KEY") or os.getenv("OPENROUTER_API_KEY")
 )
 
 pytestmark = pytest.mark.skipif(

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from src.config_manager import load_config
+from src.config_manager import llm_api_key, load_config
 
 
 def test_load_profile_env(tmp_path: Path):
@@ -36,3 +36,17 @@ def test_budget_env_override_invalid_raises(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("JOB_CRAWLER_MAX_LLM_CALLS", "notanumber")
     with pytest.raises(RuntimeError):
         load_config(root)
+
+
+def test_llm_model_env_override(monkeypatch: pytest.MonkeyPatch):
+    root = Path(__file__).resolve().parents[1]
+    monkeypatch.setenv("JOB_CRAWLER_LLM_MODEL", "openrouter/openrouter/free")
+    assert load_config(root).llm_model == "openrouter/openrouter/free"
+
+
+def test_llm_api_key_follows_model_provider(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "openrouter-key")
+    assert llm_api_key("gemini/gemma-4-26b-a4b-it") == "gemini-key"
+    assert llm_api_key("openrouter/openrouter/free") == "openrouter-key"
+    assert llm_api_key("mock") is None
