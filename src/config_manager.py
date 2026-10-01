@@ -61,6 +61,15 @@ class Config:
     telegram_notifications: bool = True
     bot_poll_timeout_seconds: int = 50
     llm_timeout_seconds: int = 120
+    # Provider quotas the LLM calls are paced to (0 disables a check).
+    # Gemma on the Gemini API free tier: 15 requests/min, 16k input
+    # tokens/min (the value its 429s report), 1500 requests/day.
+    llm_rpm_limit: int = 0
+    llm_input_tpm_limit: int = 0
+    llm_rpd_limit: int = 0
+    # How often one call is retried after a 429, each time waiting the
+    # retryDelay the provider asks for.
+    llm_rate_limit_retries: int = 5
     # Daily scan schedule: each active user is scanned once per day, the first
     # time local wall-clock time in `bot_scan_timezone` passes `bot_scan_hour`
     # (0-23). This replaces the old fixed-interval scan so results land each
@@ -193,6 +202,10 @@ def load_config(
         llm_max_retries=int(llm_data.get("max_retries", 3)),
         llm_min_delay_seconds=int(llm_data.get("min_delay_seconds", 1)),
         llm_timeout_seconds=int(llm_data.get("timeout_seconds", 120)),
+        llm_rpm_limit=int(llm_data.get("rpm_limit", 15)),
+        llm_input_tpm_limit=int(llm_data.get("input_tpm_limit", 16000)),
+        llm_rpd_limit=int(llm_data.get("rpd_limit", 1500)),
+        llm_rate_limit_retries=int(llm_data.get("rate_limit_retries", 5)),
         brave_endpoint=str(
             search_data.get(
                 "brave_endpoint",

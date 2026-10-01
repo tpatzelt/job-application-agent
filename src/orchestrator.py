@@ -11,6 +11,7 @@ from .agent_memory import AgentMemory
 from .config_manager import Config, EffortBudget
 from .job_meta import extract_job_meta
 from .language import detect_language, language_code_for, normalize_language
+from .llm_service import RateLimitedError
 from .models import JobResult, Reflection, SearchPlan
 from .page_signals import (
     country_code_for,
@@ -18,6 +19,7 @@ from .page_signals import (
     find_stale_marker,
     mentions_location,
 )
+from .rate_limiter import DailyQuotaExceeded
 from .run_report import RunReport, runs_path_for
 from .tools import ToolRegistry
 from .url_heuristics import (
@@ -482,6 +484,12 @@ class Orchestrator:
             evaluation = self._tools.invoke(
                 "evaluate_job", cv_text, job_text, preferences=preferences
             )
+        except (RateLimitedError, DailyQuotaExceeded) as exc:
+            # The page was never judged, so leave it unseen: the next run
+            # scores it instead of skipping it as "already seen" forever.
+            self._logger.warning("Could not score %s (LLM quota): %s", url, exc)
+            self._report.record_error("evaluate_rate_limited", url, exc)
+            return False
         except Exception as exc:
             self._logger.warning("Failed to score %s: %s", url, exc)
             self._report.record_error("evaluate_failed", url, exc)
