@@ -45,6 +45,12 @@ temperature = 0.2
 max_retries = 3
 min_delay_seconds = 1
 timeout_seconds = 120
+# Free-tier quotas of Gemma on the Gemini API (per project and model);
+# calls are paced to stay inside them. 0 disables a check.
+rpm_limit = 15
+input_tpm_limit = 16000
+rpd_limit = 1500
+rate_limit_retries = 5
 
 [tool.job_crawler.notify]
 telegram = true

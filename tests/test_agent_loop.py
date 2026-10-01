@@ -1,9 +1,11 @@
+import json
 from pathlib import Path
 from typing import Any
 
 from src.agent_memory import AgentMemory
 from src.config_manager import Config, EffortBudget
 from src.models import JobEvaluation, Reflection, SearchPlan, SearchQueries
+from src.llm_service import RateLimitedError
 from src.orchestrator import Orchestrator
 
 LONG_JOB_TEXT = "We are hiring a Python developer in Berlin. " + ("Details " * 200)
@@ -647,3 +649,24 @@ def test_ats_queries_start_at_a_different_host_the_next_day(tmp_path: Path):
             first_day_queries = site_queries
         else:
             assert site_queries and site_queries != first_day_queries
+
+
+class RateLimitedLLM(ScriptedLLM):
+    def evaluate_job(self, cv, job_description, preferences=None):
+        self._record_call()
+        raise RateLimitedError("LLM rate limited: 429")
+
+
+def test_rate_limited_page_stays_unseen_for_next_run(tmp_path: Path):
+    config = _make_config(max_results=1)
+    llm = RateLimitedLLM(config.budget, [["python jobs berlin"]])
+    crawler = ScriptedCrawler(
+        config.budget,
+        {"python jobs berlin": ["https://a.com/jobs/1", "https://b.com/jobs/2"]},
+    )
+    orchestrator = Orchestrator(config, config.budget, llm, crawler)
+    _run(orchestrator, tmp_path)
+
+    cache = json.loads((tmp_path / "cache.json").read_text())
+    assert not any("a.com" in url or "b.com" in url for url in cache["seen_urls"])
+    assert orchestrator.last_report.counters.get("error_evaluate_rate_limited") == 2

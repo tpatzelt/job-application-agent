@@ -35,6 +35,7 @@ COUNTER_LABELS = {
     "error_query_generation_failed": "search-query generation failed (LLM error)",
     "error_fetch_failed": "page fetches failed",
     "error_evaluate_failed": "LLM scoring failed",
+    "error_evaluate_rate_limited": "LLM scoring hit the provider quota (retried next run)",
 }
 
 

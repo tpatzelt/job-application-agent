@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import json
 import logging
+import random
+import re
 import time
 from typing import Any
 
 from litellm import completion
+from litellm.exceptions import RateLimitError
 
 from .config_manager import Config, EffortBudget
 from .models import (
@@ -15,9 +18,38 @@ from .models import (
     SearchPlan,
     SearchQueries,
 )
+from .rate_limiter import DailyQuotaExceeded, estimate_tokens, shared_limiter
 from pydantic import ValidationError
 
 REPAIR_ATTEMPTS = 2
+# Pace to 90% of the input-token quota: the provider counts a few tokens
+# (chat template, system prompt) that the estimate does not see.
+TPM_HEADROOM = 0.9
+# Wait used when a 429 does not say how long to back off.
+DEFAULT_RATE_LIMIT_DELAY = 60.0
+_RETRY_DELAY_RE = re.compile(r'retryDelay"?\s*:\s*"?(\d+(?:\.\d+)?)s')
+
+
+class RateLimitedError(RuntimeError):
+    """The provider kept rejecting a call for quota even after waiting."""
+
+
+def _is_rate_limit(exc: Exception) -> bool:
+    return isinstance(exc, RateLimitError) or getattr(exc, "status_code", None) == 429
+
+
+def _retry_delay(exc: Exception) -> float:
+    """The backoff a 429 asks for (Gemini sends RetryInfo.retryDelay)."""
+    match = _RETRY_DELAY_RE.search(str(exc))
+    return float(match.group(1)) if match else DEFAULT_RATE_LIMIT_DELAY
+
+
+def _prompt_tokens(response: Any) -> int | None:
+    try:
+        tokens = response["usage"]["prompt_tokens"]
+    except (KeyError, IndexError, TypeError):
+        tokens = getattr(getattr(response, "usage", None), "prompt_tokens", None)
+    return tokens if isinstance(tokens, int) and tokens > 0 else None
 
 
 def _response_content(response: Any) -> str | None:
@@ -40,6 +72,16 @@ class LLMService:
         self._budget = budget
         self._api_key = api_key
         self._logger = logging.getLogger(self.__class__.__name__)
+        tpm = int(config.llm_input_tpm_limit * TPM_HEADROOM)
+        # Largest prompt that still fits one minute's input-token quota.
+        self._max_prompt_tokens = tpm or None
+        self._limiter = (
+            shared_limiter(
+                config.llm_model, config.llm_rpm_limit, tpm, config.llm_rpd_limit
+            )
+            if config.llm_rpm_limit or tpm or config.llm_rpd_limit
+            else None
+        )
 
     def generate_search_queries(
         self, context: dict[str, Any], history: list[dict[str, Any]]
@@ -151,9 +193,21 @@ class LLMService:
         return self._complete(prompt, self._config.llm_temperature)
 
     def _complete(self, prompt: str, temperature: float) -> str:
-        """Non-empty assistant text, retrying empty answers and call errors."""
+        """Non-empty assistant text, retrying empty answers and call errors.
+
+        Quota rejections (429) have their own, longer retry budget: each one
+        waits the delay the provider asks for, since retrying a second later
+        lands in the same exhausted minute.
+        """
         last_error: Exception | None = None
-        for attempt in range(1, self._config.llm_max_retries + 1):
+        attempt = 0
+        rate_limited = 0
+        while attempt < self._config.llm_max_retries:
+            reservation = (
+                self._limiter.acquire(estimate_tokens(prompt))
+                if self._limiter
+                else None
+            )
             try:
                 response = completion(
                     model=self._config.llm_model,
@@ -166,28 +220,62 @@ class LLMService:
                     # One free-tier call once hung for eight minutes.
                     timeout=self._config.llm_timeout_seconds,
                 )
-                content = _response_content(response)
-                if content:
-                    return content
-                # Free/small models sometimes answer with null content.
-                # Returning it would blow up in json.loads far from here.
-                last_error = RuntimeError("LLM returned an empty response")
-                self._logger.warning(
-                    "LLM returned empty content on attempt %s/%s",
-                    attempt,
-                    self._config.llm_max_retries,
-                )
             except Exception as exc:
+                if _is_rate_limit(exc):
+                    rate_limited += 1
+                    self._on_rate_limit(exc, rate_limited)
+                    continue
                 last_error = exc
+                attempt += 1
                 self._logger.warning(
                     "LLM call failed on attempt %s/%s: %s",
                     attempt,
                     self._config.llm_max_retries,
                     exc,
                 )
+            else:
+                used = _prompt_tokens(response)
+                if used is not None and reservation is not None:
+                    self._limiter.settle(reservation, used)
+                    self._logger.info(
+                        "LLM call used %s input tokens (estimated %s)",
+                        used,
+                        estimate_tokens(prompt),
+                    )
+                content = _response_content(response)
+                if content:
+                    return content
+                # Free/small models sometimes answer with null content.
+                # Returning it would blow up in json.loads far from here.
+                last_error = RuntimeError("LLM returned an empty response")
+                attempt += 1
+                self._logger.warning(
+                    "LLM returned empty content on attempt %s/%s",
+                    attempt,
+                    self._config.llm_max_retries,
+                )
             if attempt < self._config.llm_max_retries:
                 time.sleep(self._config.llm_min_delay_seconds)
         raise RuntimeError(f"LLM request failed: {last_error}")
+
+    def _on_rate_limit(self, exc: Exception, count: int) -> None:
+        """Back off after a 429, or give up once the retries are spent."""
+        if "PerDay" in str(exc):
+            raise DailyQuotaExceeded(f"LLM daily quota exhausted: {exc}") from exc
+        if count > self._config.llm_rate_limit_retries:
+            raise RateLimitedError(f"LLM rate limited: {exc}") from exc
+        delay = _retry_delay(exc) + random.uniform(1.0, 5.0)
+        self._logger.warning(
+            "LLM rate limited (%s/%s), retrying in %.0fs",
+            count,
+            self._config.llm_rate_limit_retries,
+            delay,
+        )
+        if self._limiter:
+            # Hold back every caller, not only this one: they share the quota.
+            self._limiter.block_for(delay)
+        else:
+            time.sleep(delay)
 
     def _parse_json_payload(
         self, response_text: str | None, prompt: str
@@ -238,17 +326,23 @@ class LLMService:
                 raise RuntimeError("Effort budget exceeded: LLM calls")
             self._budget.record_llm_call()
 
+            repair_prompt = prompt
             if response_text:
-                repair_prompt = (
+                with_response = (
                     "You must output ONLY valid JSON that matches the output schema. "
                     "Do not include extra text. Fix this response and return JSON only.\n\n"
                     f"Response: {response_text}\n\n"
                     f"Original prompt: {prompt}"
                 )
-            else:
-                repair_prompt = prompt
+                # Echoing the bad answer back roughly doubles a long prompt;
+                # past one minute's token quota it could never be sent, so
+                # just ask the original prompt again.
+                if self._fits(with_response):
+                    repair_prompt = with_response
             try:
                 fixed = self._complete(repair_prompt, 0.0)
+            except (RateLimitedError, DailyQuotaExceeded):
+                raise
             except RuntimeError as exc:
                 last_error = exc
                 continue
@@ -263,6 +357,13 @@ class LLMService:
                 fixed[:200],
             )
         raise RuntimeError(f"LLM repair failed: {last_error}")
+
+    def _fits(self, prompt: str) -> bool:
+        """Whether `prompt` fits one minute of the input-token quota."""
+        return (
+            self._max_prompt_tokens is None
+            or estimate_tokens(prompt) <= self._max_prompt_tokens
+        )
 
     def _load_json(self, text: str) -> dict[str, Any] | None:
         for candidate in (text, self._extract_json_object(text)):
@@ -500,6 +601,49 @@ class LLMService:
         cv: str,
         job_description: str,
         preferences: dict[str, Any] | None = None,
+    ) -> str:
+        prompt = self._evaluation_prompt(cv, job_description, preferences)
+        if self._fits(prompt):
+            return prompt
+        # Only a page bigger than a whole minute's token quota gets here
+        # (around 40k characters of text, ten times a typical posting): such
+        # a call is rejected outright however long it waits. The posting
+        # itself sits near the top of the page text, and what overflows is
+        # trailing boilerplate (related-jobs lists, footers), so keep the
+        # head and say what was cut.
+        full = len(job_description)
+
+        def trimmed(keep: int) -> str:
+            return self._evaluation_prompt(
+                cv,
+                job_description[:keep]
+                + f" [... page text truncated: {full - keep} of {full} characters omitted]",
+                preferences,
+            )
+
+        # Largest prefix that fits: JSON escaping makes the size per kept
+        # character uneven (umlauts), so search rather than compute it.
+        low, high = 0, full
+        while low < high:
+            mid = (low + high + 1) // 2
+            if self._fits(trimmed(mid)):
+                low = mid
+            else:
+                high = mid - 1
+        keep = low
+        prompt = trimmed(keep)
+        self._logger.warning(
+            "Job page text too long for one call's token quota: kept %s of %s characters",
+            keep,
+            full,
+        )
+        return prompt
+
+    def _evaluation_prompt(
+        self,
+        cv: str,
+        job_description: str,
+        preferences: dict[str, Any] | None,
     ) -> str:
         preferences = preferences or {}
         locations = preferences.get("locations") or []
