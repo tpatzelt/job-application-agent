@@ -1,10 +1,10 @@
 import json
 
 import pytest
-from litellm.exceptions import RateLimitError
+from litellm.exceptions import InternalServerError, RateLimitError
 
 from src.config_manager import Config, EffortBudget
-from src.llm_service import LLMService, RateLimitedError
+from src.llm_service import LLMService, ProviderUnavailableError, RateLimitedError
 from src.rate_limiter import DailyQuotaExceeded, RateLimiter, estimate_tokens
 
 
@@ -224,3 +224,61 @@ def test_oversized_job_page_is_trimmed_to_fit_one_minute_quota():
 def test_limits_off_by_default_without_config():
     service = LLMService(_config(), _config().budget, api_key=None)
     assert service._limiter is None
+
+
+def _server_error() -> Exception:
+    return InternalServerError(
+        message='{"error": {"code": 500, "message": "Internal error encountered.", '
+        '"status": "INTERNAL"}}',
+        llm_provider="gemini",
+        model="test-model",
+    )
+
+
+def test_server_errors_back_off_and_do_not_use_up_normal_retries(monkeypatch):
+    sleeps: list[float] = []
+    config = _config(llm_max_retries=1, llm_server_error_retries=3)
+    service = _service(config)
+    outcomes = [_server_error(), _server_error(), _server_error(), _ok()]
+
+    def fake_completion(**kwargs):
+        outcome = outcomes.pop(0)
+        if isinstance(outcome, Exception):
+            raise outcome
+        return outcome
+
+    monkeypatch.setattr("src.llm_service.completion", fake_completion)
+    monkeypatch.setattr("src.llm_service.time.sleep", sleeps.append)
+    monkeypatch.setattr("src.llm_service.random.uniform", lambda a, b: 0.0)
+    assert service.evaluate_job("cv", "job").score == 80
+    # The burst that ended a scan on 2026-10-02 was three 500s a second apart.
+    assert sleeps == [10.0, 30.0, 60.0]
+
+
+def test_persistent_server_errors_raise_provider_unavailable(monkeypatch):
+    calls = []
+    service = _service(_config(llm_server_error_retries=2))
+
+    def fake_completion(**kwargs):
+        calls.append(1)
+        raise _server_error()
+
+    monkeypatch.setattr("src.llm_service.completion", fake_completion)
+    monkeypatch.setattr("src.llm_service.time.sleep", lambda seconds: None)
+    with pytest.raises(ProviderUnavailableError):
+        service.evaluate_job("cv", "job")
+    assert len(calls) == 3
+
+
+def test_client_errors_keep_the_fast_retry(monkeypatch):
+    sleeps: list[float] = []
+    service = _service(_config(llm_max_retries=2, llm_min_delay_seconds=1))
+
+    def fake_completion(**kwargs):
+        raise ValueError("bad request")
+
+    monkeypatch.setattr("src.llm_service.completion", fake_completion)
+    monkeypatch.setattr("src.llm_service.time.sleep", sleeps.append)
+    with pytest.raises(RuntimeError, match="LLM request failed"):
+        service.evaluate_job("cv", "job")
+    assert sleeps == [1]

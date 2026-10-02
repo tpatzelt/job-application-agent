@@ -22,9 +22,10 @@ WINDOW_SECONDS = 60.0
 # Google resets the per-day quotas at midnight Pacific time.
 QUOTA_DAY_TZ = ZoneInfo("America/Los_Angeles")
 # Prompts here are JSON-escaped (umlauts become ü), so characters per
-# token run high; 3 overestimates on purpose. Real usage replaces the
-# estimate once the response arrives.
-CHARS_PER_TOKEN = 3.0
+# token run high. Measured on Gemma: 3.28 for a German job prompt, 3.8 on
+# average over a production scan (2026-10-02); 3.3 stays at or above the
+# densest case. Real usage replaces the estimate once the response arrives.
+CHARS_PER_TOKEN = 3.3
 
 
 def estimate_tokens(text: str) -> int:

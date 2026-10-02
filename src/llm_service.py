@@ -8,7 +8,12 @@ import time
 from typing import Any
 
 from litellm import completion
-from litellm.exceptions import RateLimitError
+from litellm.exceptions import (
+    BadGatewayError,
+    InternalServerError,
+    RateLimitError,
+    ServiceUnavailableError,
+)
 
 from .config_manager import Config, EffortBudget
 from .models import (
@@ -28,14 +33,33 @@ TPM_HEADROOM = 0.9
 # Wait used when a 429 does not say how long to back off.
 DEFAULT_RATE_LIMIT_DELAY = 60.0
 _RETRY_DELAY_RE = re.compile(r'retryDelay"?\s*:\s*"?(\d+(?:\.\d+)?)s')
+# Backoff between retries of a provider-side error (5xx). Gemini's
+# "500 Internal error encountered." comes in bursts: three retries a second
+# apart all failed on 2026-10-02 and ended a scan, so wait longer each time.
+SERVER_ERROR_DELAYS = (10.0, 30.0, 60.0)
 
 
-class RateLimitedError(RuntimeError):
+class LLMUnavailableError(RuntimeError):
+    """The provider never answered the call, so nothing was judged."""
+
+
+class RateLimitedError(LLMUnavailableError):
     """The provider kept rejecting a call for quota even after waiting."""
+
+
+class ProviderUnavailableError(LLMUnavailableError):
+    """The provider kept failing on its side (5xx) even after backing off."""
 
 
 def _is_rate_limit(exc: Exception) -> bool:
     return isinstance(exc, RateLimitError) or getattr(exc, "status_code", None) == 429
+
+
+def _is_server_error(exc: Exception) -> bool:
+    if isinstance(exc, (InternalServerError, ServiceUnavailableError, BadGatewayError)):
+        return True
+    status = getattr(exc, "status_code", None)
+    return isinstance(status, int) and 500 <= status < 600
 
 
 def _retry_delay(exc: Exception) -> float:
@@ -202,6 +226,7 @@ class LLMService:
         last_error: Exception | None = None
         attempt = 0
         rate_limited = 0
+        server_errors = 0
         while attempt < self._config.llm_max_retries:
             reservation = (
                 self._limiter.acquire(estimate_tokens(prompt))
@@ -224,6 +249,10 @@ class LLMService:
                 if _is_rate_limit(exc):
                     rate_limited += 1
                     self._on_rate_limit(exc, rate_limited)
+                    continue
+                if _is_server_error(exc):
+                    server_errors += 1
+                    self._on_server_error(exc, server_errors)
                     continue
                 last_error = exc
                 attempt += 1
@@ -257,6 +286,21 @@ class LLMService:
             if attempt < self._config.llm_max_retries:
                 time.sleep(self._config.llm_min_delay_seconds)
         raise RuntimeError(f"LLM request failed: {last_error}")
+
+    def _on_server_error(self, exc: Exception, count: int) -> None:
+        """Back off after a 5xx, or give up once the retries are spent."""
+        if count > self._config.llm_server_error_retries:
+            raise ProviderUnavailableError(f"LLM provider error: {exc}") from exc
+        delay = SERVER_ERROR_DELAYS[min(count, len(SERVER_ERROR_DELAYS)) - 1]
+        delay += random.uniform(0.0, 3.0)
+        self._logger.warning(
+            "LLM provider error (%s/%s), retrying in %.0fs: %s",
+            count,
+            self._config.llm_server_error_retries,
+            delay,
+            exc,
+        )
+        time.sleep(delay)
 
     def _on_rate_limit(self, exc: Exception, count: int) -> None:
         """Back off after a 429, or give up once the retries are spent."""
@@ -341,7 +385,7 @@ class LLMService:
                     repair_prompt = with_response
             try:
                 fixed = self._complete(repair_prompt, 0.0)
-            except (RateLimitedError, DailyQuotaExceeded):
+            except (LLMUnavailableError, DailyQuotaExceeded):
                 raise
             except RuntimeError as exc:
                 last_error = exc
