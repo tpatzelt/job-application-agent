@@ -70,6 +70,8 @@ class Config:
     # How often one call is retried after a 429, each time waiting the
     # retryDelay the provider asks for.
     llm_rate_limit_retries: int = 5
+    # Retries of a provider-side 5xx, backing off 10s, 30s, then 60s.
+    llm_server_error_retries: int = 3
     # Daily scan schedule: each active user is scanned once per day, the first
     # time local wall-clock time in `bot_scan_timezone` passes `bot_scan_hour`
     # (0-23). This replaces the old fixed-interval scan so results land each
@@ -206,6 +208,7 @@ def load_config(
         llm_input_tpm_limit=int(llm_data.get("input_tpm_limit", 16000)),
         llm_rpd_limit=int(llm_data.get("rpd_limit", 1500)),
         llm_rate_limit_retries=int(llm_data.get("rate_limit_retries", 5)),
+        llm_server_error_retries=int(llm_data.get("server_error_retries", 3)),
         brave_endpoint=str(
             search_data.get(
                 "brave_endpoint",

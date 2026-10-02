@@ -51,6 +51,8 @@ rpm_limit = 15
 input_tpm_limit = 16000
 rpd_limit = 1500
 rate_limit_retries = 5
+# Provider 5xx errors back off 10s, 30s, 60s instead of retrying at once.
+server_error_retries = 3
 
 [tool.job_crawler.notify]
 telegram = true

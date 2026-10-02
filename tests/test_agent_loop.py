@@ -5,7 +5,7 @@ from typing import Any
 from src.agent_memory import AgentMemory
 from src.config_manager import Config, EffortBudget
 from src.models import JobEvaluation, Reflection, SearchPlan, SearchQueries
-from src.llm_service import RateLimitedError
+from src.llm_service import ProviderUnavailableError, RateLimitedError
 from src.orchestrator import Orchestrator
 
 LONG_JOB_TEXT = "We are hiring a Python developer in Berlin. " + ("Details " * 200)
@@ -670,3 +670,21 @@ def test_rate_limited_page_stays_unseen_for_next_run(tmp_path: Path):
     cache = json.loads((tmp_path / "cache.json").read_text())
     assert not any("a.com" in url or "b.com" in url for url in cache["seen_urls"])
     assert orchestrator.last_report.counters.get("error_evaluate_rate_limited") == 2
+
+
+class ProviderDownLLM(ScriptedLLM):
+    def evaluate_job(self, cv, job_description, preferences=None):
+        self._record_call()
+        raise ProviderUnavailableError("LLM provider error: 500")
+
+
+def test_provider_outage_page_stays_unseen_for_next_run(tmp_path: Path):
+    config = _make_config(max_results=1)
+    llm = ProviderDownLLM(config.budget, [["python jobs berlin"]])
+    crawler = ScriptedCrawler(
+        config.budget, {"python jobs berlin": ["https://a.com/jobs/1"]}
+    )
+    _run(Orchestrator(config, config.budget, llm, crawler), tmp_path)
+
+    cache = json.loads((tmp_path / "cache.json").read_text())
+    assert not any("a.com" in url for url in cache["seen_urls"])
