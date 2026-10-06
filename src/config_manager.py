@@ -52,6 +52,8 @@ class Config:
     ats_query_boost: bool = True
     company_query_boost: bool = True
     exclude_aggregator_sites: bool = True
+    # Query LinkedIn's public guest job search alongside Brave.
+    linkedin_search: bool = True
     browser_fallback: bool = True
     # Brave freshness filter (pd/pw/pm/py or "" to disable): postings
     # indexed long ago are usually expired by the time a user clicks them.
@@ -228,6 +230,7 @@ def load_config(
         exclude_aggregator_sites=bool(
             agent_data.get("exclude_aggregator_sites", True)
         ),
+        linkedin_search=bool(agent_data.get("linkedin_search", True)),
         browser_fallback=bool(search_data.get("browser_fallback", True)),
         search_freshness=str(search_data.get("freshness", "pm")),
         min_job_text_chars=int(search_data.get("min_job_text_chars", 800)),

@@ -45,6 +45,10 @@ ATS_QUERY_SITES = (
 )
 MAX_ATS_QUERIES_PER_ITERATION = 2
 MAX_COMPANY_QUERIES_PER_ITERATION = 1
+MAX_LINKEDIN_QUERIES_PER_ITERATION = 1
+# Prefix that marks a query as a LinkedIn job search rather than a Brave
+# query, in history, memory and the run report.
+LINKEDIN_QUERY_PREFIX = "linkedin: "
 
 
 def _rotated(items: tuple[str, ...] | list[str], offset: int) -> list[str]:
@@ -91,6 +95,12 @@ class Orchestrator:
                 "Fetch a page and extract its plain text and outbound links",
                 crawler.fetch_page,
             )
+            if hasattr(crawler, "search_linkedin"):
+                self._tools.register(
+                    "search_linkedin",
+                    "Search LinkedIn's public job search for posting URLs",
+                    crawler.search_linkedin,
+                )
         if llm_service is not None:
             self._tools.register(
                 "evaluate_job",
@@ -169,10 +179,17 @@ class Orchestrator:
                 boosted += self._company_queries(plan, searched_this_run)
             if boosted:
                 self._logger.info("Injecting targeted queries: %s", boosted)
-            queries = boosted + queries
+            # LinkedIn searches run on top of the Brave query cap: they hit a
+            # different source, so they shouldn't crowd out Brave queries.
+            linkedin = self._linkedin_queries(plan, preferences, searched_this_run)
+            if linkedin:
+                self._logger.info("Injecting LinkedIn searches: %s", list(linkedin))
+            queries = list(linkedin) + (boosted + queries)[
+                : self._config.max_queries_per_iteration
+            ]
             made_progress = False
 
-            for query in queries[: self._config.max_queries_per_iteration]:
+            for query in queries:
                 if query in searched_this_run:
                     self._logger.info("Skipping already-searched query: %s", query)
                     continue
@@ -183,9 +200,12 @@ class Orchestrator:
                     continue
                 searched_this_run.add(query)
                 self._logger.info("Searching with query: %s", query)
-                urls = self._tools.invoke(
-                    "search", query, country=country, search_lang=search_lang
-                )
+                if query in linkedin:
+                    urls = self._tools.invoke("search_linkedin", *linkedin[query])
+                else:
+                    urls = self._tools.invoke(
+                        "search", query, country=country, search_lang=search_lang
+                    )
                 search_error = getattr(self._crawler, "last_search_error", None)
                 if search_error:
                     report.record_error(
@@ -205,7 +225,13 @@ class Orchestrator:
                         "index_pages": len(low_priority),
                     }
                 )
-                memory.record_query(query, urls_found=len(urls), new_urls=len(new_urls))
+                # A failed search (Brave outage, LinkedIn throttling) says
+                # nothing about the query; recording it would mark the query
+                # ineffective and skip it in every later run.
+                if not search_error:
+                    memory.record_query(
+                        query, urls_found=len(urls), new_urls=len(new_urls)
+                    )
                 self._logger.info(
                     "Found %s URLs (%s new: %s postings, %s listings, %s low priority)",
                     len(urls),
@@ -329,6 +355,36 @@ class Orchestrator:
                 if len(queries) >= MAX_ATS_QUERIES_PER_ITERATION:
                     return queries
         return queries
+
+    def _linkedin_queries(
+        self,
+        plan: SearchPlan,
+        preferences: dict[str, Any],
+        searched: set[str],
+    ) -> dict[str, tuple[str, str]]:
+        """LinkedIn job searches for this iteration, keyed by their query
+        label, valued (keywords, location). Rotates through the plan's
+        roles across iterations and days like the ATS queries."""
+        if not self._config.linkedin_search or not self._tools.has("search_linkedin"):
+            return {}
+        roles = list(plan.target_roles) or [
+            str(title) for title in preferences.get("job_titles") or []
+        ]
+        locations = plan.locations or self._preferred_locations(preferences)
+        location = str(locations[0]) if locations else ""
+        industries = preferences.get("industries") or []
+        industry = str(industries[0]) if industries else ""
+        searches: dict[str, tuple[str, str]] = {}
+        for role in _rotated(roles, self._rotation_offset()):
+            if industry and industry.lower() not in role.lower():
+                role = f"{role} {industry}"
+            label = f"{LINKEDIN_QUERY_PREFIX}{role} | {location}".strip(" |")
+            if label in searched or label in searches:
+                continue
+            searches[label] = (role, location)
+            if len(searches) >= MAX_LINKEDIN_QUERIES_PER_ITERATION:
+                break
+        return searches
 
     def _rotation_offset(self) -> int:
         """Days since the epoch: shifts the deterministic query rotation

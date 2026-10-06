@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from urllib.parse import parse_qs, parse_qsl, urlencode, urlparse, urlunparse
 
+from .linkedin_source import linkedin_job_id, linkedin_posting_url
+
 # URL kinds, from most to least valuable for the agent.
 POSTING = "posting"  # a single job posting (ATS page, job-ID URL)
 LISTING = "listing"  # job-related page, likely a careers/jobs page
@@ -90,6 +92,11 @@ def canonical_url(url: str) -> str:
     """
     if not url:
         return url
+    # LinkedIn links one posting as /jobs/view/<slug>-<id> on a country
+    # subdomain with per-click refId/position params; the id is the posting.
+    job_id = linkedin_job_id(url)
+    if job_id:
+        return linkedin_posting_url(job_id)
     try:
         parsed = urlparse(url)
     except ValueError:

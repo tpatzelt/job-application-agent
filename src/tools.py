@@ -30,6 +30,9 @@ class ToolRegistry:
     def register(self, name: str, description: str, fn: Callable[..., Any]) -> None:
         self._tools[name] = Tool(name=name, description=description, fn=fn)
 
+    def has(self, name: str) -> bool:
+        return name in self._tools
+
     def get(self, name: str) -> Tool:
         if name not in self._tools:
             raise KeyError(f"Unknown tool: {name}")
