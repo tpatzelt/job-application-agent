@@ -13,7 +13,8 @@ from src.linkedin_source import (
     parse_search_results,
     posting_title,
 )
-from src.orchestrator import Orchestrator
+from src.models import SearchPlan
+from src.orchestrator import Orchestrator, _linkedin_location, _names_industry
 from src.url_heuristics import POSTING, canonical_url, classify_url
 from tests.test_agent_loop import (
     ScriptedCrawler,
@@ -48,12 +49,39 @@ POSTING_HTML = """
   <h2 class="top-card-layout__title">Senior Python Developer</h2>
   <a class="topcard__org-name-link" href="https://de.linkedin.com/company/acme">
     Acme GmbH </a>
-  <span class="topcard__flavor topcard__flavor--bullet">Berlin, Germany</span>
+  <h4 class="top-card-layout__second-subline">
+    <div class="topcard__flavor-row">
+      <span class="topcard__flavor">Acme GmbH</span>
+      <span class="topcard__flavor topcard__flavor--bullet">Berlin, Germany</span>
+    </div>
+    <div class="topcard__flavor-row">
+      <span class="posted-time-ago__text">1 week ago</span>
+    </div>
+  </h4>
 </section>
-<div class="show-more-less-html__markup">
-  We are hiring a Python developer in Berlin. """ + ("Details " * 150) + """
+<div class="contextual-sign-in-modal">
+  Join to apply for the Senior Python Developer role at Acme GmbH
+  Email or phone Password Show Forgot password? Sign in
+</div>
+<div class="description__text">
+  <div class="show-more-less-html__markup">
+    We are hiring a Python developer in Berlin. """ + ("Details " * 150) + """
+  </div>
+  <ul class="description__job-criteria-list">
+    <li class="description__job-criteria-item">
+      <h3>Employment type</h3><span>Full-time</span>
+    </li>
+  </ul>
 </div>
 """
+
+# A posting that has been taken down but still answers 200.
+CLOSED_POSTING_HTML = POSTING_HTML.replace(
+    '<h4 class="top-card-layout__second-subline">',
+    '<h4 class="top-card-layout__second-subline">'
+    '<figure class="closed-job"><figcaption class="closed-job__flavor--closed">'
+    "No longer accepting applications</figcaption></figure>",
+)
 
 
 def test_job_id_from_every_linkedin_url_shape():
@@ -177,7 +205,37 @@ def test_linkedin_posting_is_fetched_through_the_guest_endpoint(monkeypatch):
     ]
     assert page.title == "Senior Python Developer at Acme GmbH"
     assert "Berlin, Germany" in page.text
+    assert "1 week ago" in page.text
+    assert "Employment type Full-time" in page.text
     assert len(page.text) > 800
+    # Sign-in modal boilerplate and LinkedIn's own links aren't worth tokens.
+    assert "Forgot password" not in page.text
+    assert page.links == []
+
+
+def test_closed_linkedin_posting_is_gone(monkeypatch):
+    engine, _ = _engine(
+        monkeypatch,
+        lambda data: {
+            "html": CLOSED_POSTING_HTML,
+            "final_url": data["url"],
+            "status": 200,
+        },
+    )
+    page = engine.fetch_page("https://www.linkedin.com/jobs/view/3712345678")
+    assert page.gone
+    assert page.text == ""
+
+
+def test_unrecognised_posting_layout_falls_back_to_page_text(monkeypatch):
+    html = "<main><h1>Python Developer</h1><p>" + "Berlin role. " * 100 + "</p></main>"
+    engine, _ = _engine(
+        monkeypatch,
+        lambda data: {"html": html, "final_url": data["url"], "status": 200},
+    )
+    page = engine.fetch_page("https://www.linkedin.com/jobs/view/3712345678")
+    assert "Berlin role." in page.text
+    assert page.title == "Python Developer"
 
 
 def test_removed_linkedin_posting_is_gone(monkeypatch):
@@ -195,14 +253,18 @@ class LinkedInCrawler(ScriptedCrawler):
         self._linkedin_urls = linkedin_urls
         self._linkedin_error = linkedin_error
         self.linkedin_calls: list[tuple[str, str]] = []
+        self.linkedin_remote: list[bool] = []
         self.last_search_error = None
 
     def search(self, query, country=None, search_lang=None):
         self.last_search_error = None
         return super().search(query, country, search_lang)
 
-    def search_linkedin(self, keywords: str, location: str = "") -> list[str]:
+    def search_linkedin(
+        self, keywords: str, location: str = "", remote: bool = False
+    ) -> list[str]:
         self.linkedin_calls.append((keywords, location))
+        self.linkedin_remote.append(remote)
         self.last_search_error = self._linkedin_error
         if self._linkedin_error:
             return []
@@ -246,7 +308,7 @@ def test_linkedin_search_can_be_disabled(tmp_path: Path):
 
 
 def test_failed_search_is_not_remembered_as_ineffective(tmp_path: Path):
-    config = _make_config(max_results=1)
+    config = _make_config(max_results=2)
     llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
     crawler = LinkedInCrawler(
         config.budget,
@@ -259,3 +321,90 @@ def test_failed_search_is_not_remembered_as_ineffective(tmp_path: Path):
     assert crawler.linkedin_calls == [("Python Developer", "Berlin")]
     memory = AgentMemory.load(tmp_path / "memory.json")
     assert "linkedin: Python Developer | Berlin" not in memory.ineffective_queries()
+
+
+def test_remote_preference_becomes_linkedin_remote_filter():
+    assert _linkedin_location("Berlin, Germany", []) == ("Berlin, Germany", False)
+    assert _linkedin_location("Remote, Germany", []) == ("Germany", True)
+    assert _linkedin_location("Remote (Germany)", []) == ("Germany", True)
+    # A bare "Remote" borrows the country of the other preferred locations.
+    assert _linkedin_location("Remote", ["Berlin, Germany", "Remote"]) == (
+        "Germany",
+        True,
+    )
+    assert _linkedin_location("Remote", ["Remote"]) == ("", True)
+    query = parse_qs(urlparse(linkedin_search_url("pm", "Germany", remote=True)).query)
+    assert query["f_WT"] == ["2"]
+    assert "f_WT" not in parse_qs(urlparse(linkedin_search_url("pm", "Berlin")).query)
+
+
+def test_linkedin_searches_rotate_over_roles_and_locations():
+    config = _make_config()
+    crawler = LinkedInCrawler(config.budget, {}, linkedin_urls=[])
+    orchestrator = Orchestrator(config, config.budget, None, crawler)
+    plan = SearchPlan(
+        target_roles=["Data Analyst", "Statistician"],
+        locations=["Berlin, Germany", "Remote"],
+    )
+    labels = [
+        list(
+            _fixed_rotation(orchestrator, day)._linkedin_queries(plan, {}, set())
+        )[0]
+        for day in range(4)
+    ]
+    assert labels == [
+        "linkedin: Data Analyst | Berlin, Germany",
+        "linkedin: Data Analyst | Remote",
+        "linkedin: Statistician | Berlin, Germany",
+        "linkedin: Statistician | Remote",
+    ]
+    searches = _fixed_rotation(orchestrator, 1)._linkedin_queries(plan, {}, set())
+    assert list(searches.values()) == [("Data Analyst", "Germany", True)]
+    # A pair searched earlier in the run is skipped for the next one.
+    searched = {"linkedin: Data Analyst | Berlin, Germany"}
+    searches = _fixed_rotation(orchestrator, 0)._linkedin_queries(plan, {}, searched)
+    assert list(searches) == ["linkedin: Data Analyst | Remote"]
+
+
+def test_linkedin_only_fills_capacity_left_by_brave(tmp_path: Path):
+    config = _make_config(max_results=1, max_queries_per_iteration=1)
+    llm = ScriptedLLM(config.budget, [["python jobs berlin"]])
+    crawler = LinkedInCrawler(
+        config.budget,
+        {"python jobs berlin": ["https://a.com/jobs/1"]},
+        linkedin_urls=["https://www.linkedin.com/jobs/view/3712345678"],
+    )
+    results = _run(
+        _fixed_rotation(Orchestrator(config, config.budget, llm, crawler)), tmp_path
+    )
+
+    # Ten LinkedIn postings would fill max_results before Brave found the
+    # job on the employer's own site, so Brave goes first.
+    assert [r.url for r in results] == ["https://a.com/jobs/1"]
+    assert crawler.linkedin_calls == []
+
+
+def test_industry_is_only_added_to_roles_that_name_none():
+    industries = ["Food & Beverage", "FMCG", "Pharmaceuticals"]
+    assert _names_industry("Senior Produktmanagerin FMCG", industries)
+    assert _names_industry("Senior Produktmanagerin Pharma", industries)
+    assert _names_industry("Food Product Manager", industries)
+    assert not _names_industry("Senior Product Manager", industries)
+
+    config = _make_config()
+    crawler = LinkedInCrawler(config.budget, {}, linkedin_urls=[])
+    orchestrator = _fixed_rotation(Orchestrator(config, config.budget, None, crawler))
+    plan = SearchPlan(
+        target_roles=["Produktmanagerin Pharma", "Product Manager"],
+        locations=["Berlin"],
+    )
+    labels = [
+        list(_fixed_rotation(orchestrator, day)._linkedin_queries(
+            plan, {"industries": industries}, set()
+        ))[0]
+        for day in range(2)
+    ]
+    assert labels == [
+        "linkedin: Produktmanagerin Pharma | Berlin",
+        "linkedin: Product Manager Food & Beverage | Berlin",
+    ]

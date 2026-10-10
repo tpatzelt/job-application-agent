@@ -15,9 +15,11 @@ from botasaurus.soupify import soupify
 from .config_manager import Config, EffortBudget
 from .linkedin_source import (
     LINKEDIN_POSTING_ENDPOINT,
+    is_closed,
     linkedin_job_id,
     linkedin_search_url,
     parse_search_results,
+    posting_text,
     posting_title,
 )
 from .page_signals import redirected_off_posting
@@ -337,7 +339,9 @@ class CrawlerEngine:
         ]
         return urls
 
-    def search_linkedin(self, keywords: str, location: str = "") -> list[str]:
+    def search_linkedin(
+        self, keywords: str, location: str = "", remote: bool = False
+    ) -> list[str]:
         """Posting URLs from LinkedIn's public guest job search.
 
         Brave rarely surfaces individual LinkedIn postings (its LinkedIn
@@ -352,9 +356,14 @@ class CrawlerEngine:
             )
             return []
         url = linkedin_search_url(
-            keywords, location, freshness=self._config.search_freshness
+            keywords, location, freshness=self._config.search_freshness, remote=remote
         )
-        self._logger.info("LinkedIn search: %s in %s", keywords, location or "-")
+        self._logger.info(
+            "LinkedIn search: %s in %s%s",
+            keywords,
+            location or "-",
+            " (remote)" if remote else "",
+        )
         time.sleep(self._config.search_min_delay_seconds)
         try:
             html, _, status = _unwrap_fetch(
@@ -446,10 +455,13 @@ class CrawlerEngine:
         if status in GONE_STATUSES:
             self._logger.info("Posting gone: %s returned HTTP %s", url, status)
             return PageContent("", [], gone=True)
-        content = page_content(html, url)
-        return PageContent(
-            content.text, content.links, posting_title(html) or content.title
-        )
+        if is_closed(html):
+            self._logger.info("Posting closed: %s", url)
+            return PageContent("", [], gone=True)
+        # Its links are LinkedIn sign-in/company pages, never postings worth
+        # harvesting, so none are returned.
+        text = posting_text(html) or page_content(html, url).text
+        return PageContent(text, [], posting_title(html))
 
     def _fetch_html_with_browser(self, url: str) -> Any:
         try:

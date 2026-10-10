@@ -60,16 +60,22 @@ def linkedin_posting_url(job_id: str) -> str:
 
 
 def linkedin_search_url(
-    keywords: str, location: str = "", freshness: str = "", start: int = 0
+    keywords: str,
+    location: str = "",
+    freshness: str = "",
+    start: int = 0,
+    remote: bool = False,
 ) -> str:
     """Guest search URL for `keywords` in `location`.
 
     `freshness` takes the Brave values (pd/pw/pm/py) so one setting scopes
-    both sources to recently posted jobs.
+    both sources to recently posted jobs. `remote` keeps only remote jobs.
     """
     params: dict[str, str] = {"keywords": keywords}
     if location:
         params["location"] = location
+    if remote:
+        params["f_WT"] = "2"
     window = _TIME_WINDOWS.get(freshness)
     if window:
         params["f_TPR"] = window
@@ -124,6 +130,44 @@ def parse_posting(html: str | None) -> tuple[str, str]:
         soup, ("a.topcard__org-name-link", "span.topcard__flavor", ".topcard__org-name")
     )
     return role, company
+
+
+def _text(node: Any) -> str:
+    return " ".join(node.get_text(separator=" ", strip=True).split())
+
+
+def is_closed(html: str | None) -> bool:
+    """True when the posting shows "No longer accepting applications"."""
+    if not html:
+        return False
+    return _soup(html).select_one(".closed-job") is not None
+
+
+def posting_text(html: str | None) -> str:
+    """The parts of a guest jobPosting fragment worth scoring.
+
+    The fragment's visible text is about a fifth sign-in and sign-up modal
+    boilerplate; with the LLM paced by input tokens per minute, that is
+    sent once per posting for nothing. Keeps the top card (role, company,
+    location, posting age), the job criteria, and the description; falls
+    back to "" when the layout isn't recognised, so the caller can use the
+    full page text instead.
+    """
+    if not html:
+        return ""
+    soup = _soup(html)
+    description = soup.select_one(".show-more-less-html__markup") or soup.select_one(
+        ".description__text"
+    )
+    if description is None:
+        return ""
+    role, company = parse_posting(html)
+    lines = [role, company]
+    lines += [_text(row) for row in soup.select(".topcard__flavor-row")]
+    for item in soup.select(".description__job-criteria-item"):
+        lines.append(_text(item))
+    lines.append(_text(description))
+    return "\n".join(line for line in dict.fromkeys(lines) if line)
 
 
 def posting_title(html: str | None) -> str:
