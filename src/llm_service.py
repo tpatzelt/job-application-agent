@@ -481,7 +481,8 @@ class LLMService:
                 ),
                 (
                     "Avoid queries aimed at aggregators such as LinkedIn, "
-                    "Indeed, StepStone, Glassdoor, or XING."
+                    "Indeed, StepStone, Glassdoor, or XING (LinkedIn is "
+                    "searched separately)."
                 ),
                 (
                     "Every query must name one of the preferred locations "

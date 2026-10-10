@@ -38,6 +38,8 @@ enable_reflection = true
 ats_query_boost = true
 company_query_boost = true
 exclude_aggregator_sites = true
+# Also search LinkedIn's public guest job search (no account needed).
+linkedin_search = true
 
 [tool.job_crawler.llm]
 model = "gemini/gemma-4-26b-a4b-it"

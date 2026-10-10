@@ -13,6 +13,15 @@ from botasaurus.request import Request, request
 from botasaurus.soupify import soupify
 
 from .config_manager import Config, EffortBudget
+from .linkedin_source import (
+    LINKEDIN_POSTING_ENDPOINT,
+    is_closed,
+    linkedin_job_id,
+    linkedin_search_url,
+    parse_search_results,
+    posting_text,
+    posting_title,
+)
 from .page_signals import redirected_off_posting
 
 
@@ -330,6 +339,49 @@ class CrawlerEngine:
         ]
         return urls
 
+    def search_linkedin(
+        self, keywords: str, location: str = "", remote: bool = False
+    ) -> list[str]:
+        """Posting URLs from LinkedIn's public guest job search.
+
+        Brave rarely surfaces individual LinkedIn postings (its LinkedIn
+        results are search pages), so LinkedIn is queried directly. Counts
+        as one search-budget unit like a Brave query; failures (LinkedIn
+        throttles guests with 429s) are reported via last_search_error.
+        """
+        self.last_search_error = None
+        if not self._budget.can_search():
+            self._logger.warning(
+                "Effort budget exhausted: skipping LinkedIn search for %s", keywords
+            )
+            return []
+        url = linkedin_search_url(
+            keywords, location, freshness=self._config.search_freshness, remote=remote
+        )
+        self._logger.info(
+            "LinkedIn search: %s in %s%s",
+            keywords,
+            location or "-",
+            " (remote)" if remote else "",
+        )
+        time.sleep(self._config.search_min_delay_seconds)
+        try:
+            html, _, status = _unwrap_fetch(
+                FETCH_JOB({"url": url, "timeout": self._config.request_timeout_seconds})
+            )
+        except Exception as exc:
+            self._logger.warning("LinkedIn search failed for %r: %s", keywords, exc)
+            self.last_search_error = f"LinkedIn: {exc}"
+            return []
+        if status and status >= 400:
+            self._logger.warning(
+                "LinkedIn search for %r answered HTTP %s", keywords, status
+            )
+            self.last_search_error = f"LinkedIn: HTTP {status}"
+            return []
+        self._budget.record_search_iteration()
+        return parse_search_results(html)
+
     def fetch_job_text(self, url: str, use_browser_fallback: bool = False) -> str:
         return self.fetch_page(url, use_browser_fallback=use_browser_fallback).text
 
@@ -337,6 +389,9 @@ class CrawlerEngine:
         self, url: str, use_browser_fallback: bool = False
     ) -> PageContent:
         """Fetch a page and return its text, outbound links, and title."""
+        linkedin_id = linkedin_job_id(url)
+        if linkedin_id:
+            return self._fetch_linkedin_posting(url, linkedin_id)
         self._logger.info("Fetching URL via botasaurus: %s", url)
         payload = FETCH_JOB(
             {"url": url, "timeout": self._config.request_timeout_seconds}
@@ -385,6 +440,28 @@ class CrawlerEngine:
                     browser_content.text, browser_content.links, content.title
                 )
         return content
+
+    def _fetch_linkedin_posting(self, url: str, job_id: str) -> PageContent:
+        """A LinkedIn posting via the guest jobPosting endpoint.
+
+        /jobs/view/<id> answers guests with an auth wall (or HTTP 999), so
+        neither a plain nor a browser fetch of it yields the description.
+        """
+        endpoint = f"{LINKEDIN_POSTING_ENDPOINT}{job_id}"
+        self._logger.info("Fetching LinkedIn posting %s via %s", url, endpoint)
+        html, _, status = _unwrap_fetch(
+            FETCH_JOB({"url": endpoint, "timeout": self._config.request_timeout_seconds})
+        )
+        if status in GONE_STATUSES:
+            self._logger.info("Posting gone: %s returned HTTP %s", url, status)
+            return PageContent("", [], gone=True)
+        if is_closed(html):
+            self._logger.info("Posting closed: %s", url)
+            return PageContent("", [], gone=True)
+        # Its links are LinkedIn sign-in/company pages, never postings worth
+        # harvesting, so none are returned.
+        text = posting_text(html) or page_content(html, url).text
+        return PageContent(text, [], posting_title(html))
 
     def _fetch_html_with_browser(self, url: str) -> Any:
         try:
